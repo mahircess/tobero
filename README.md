@@ -1,2 +1,6662 @@
 # tobero
 A hybrid Tinder-Discord app. Discovery features Friendship, Dating, and Secret Dating modes via a swipe system. Each mode keeps its own photos and bios exclusive, requiring unique profile customization per mode. The chat ecosystem adopts Discord’s multi-channel, group-focused structure.
+[index.html](https://github.com/user-attachments/files/31689872/index.html)
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Yanında</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap');
+
+  :root {
+    --bg-deep: #0A0C1C;
+    --bg-panel: #12152C;
+    --bg-elevated: #191D3A;
+    --coral: #FF6B57;
+    --coral-soft: rgba(255,107,87,0.15);
+    --gold: #FFC65C;
+    --mint: #6FE3C4;
+    --text-hi: #F4F2FA;
+    --text-mid: #9C9FC2;
+    --text-low: #686C94;
+    --line: rgba(255,255,255,0.08);
+  }
+
+  body.light-theme {
+    --bg-deep: #EDEDF2;
+    --bg-panel: #F5F5F8;
+    --bg-elevated: #E4E4EC;
+    --coral: #FF6B57;
+    --coral-soft: rgba(255,107,87,0.12);
+    --gold: #E8A93C;
+    --mint: #2BAE8E;
+    --text-hi: #24253A;
+    --text-mid: #6B6E8C;
+    --text-low: #9A9CB5;
+    --line: rgba(0,0,0,0.08);
+  }
+
+  body.black-theme {
+    --bg-deep: #000000;
+    --bg-panel: #0C0C0C;
+    --bg-elevated: #181818;
+    --coral: #FF6B57;
+    --coral-soft: rgba(255,107,87,0.15);
+    --gold: #FFC65C;
+    --mint: #6FE3C4;
+    --text-hi: #F5F5F5;
+    --text-mid: #8A8A8A;
+    --text-low: #555555;
+    --line: rgba(255,255,255,0.08);
+  }
+
+  body.red-theme {
+    --bg-deep: #1A0707;
+    --bg-panel: #260B0B;
+    --bg-elevated: #341010;
+    --coral: #FF4D4D;
+    --coral-soft: rgba(255,77,77,0.16);
+    --gold: #FFB85C;
+    --mint: #6FE3C4;
+    --text-hi: #FBEAEA;
+    --text-mid: #C99A9A;
+    --text-low: #7A5050;
+    --line: rgba(255,255,255,0.08);
+  }
+
+  body.pink-theme {
+    --bg-deep: #FBD6E8;
+    --bg-panel: #FCE3EF;
+    --bg-elevated: #F8C2DD;
+    --coral: #FF1577;
+    --coral-soft: rgba(255,21,119,0.16);
+    --gold: #FF9A1F;
+    --mint: #0FA381;
+    --text-hi: #3A0F26;
+    --text-mid: #7A3D5C;
+    --text-low: #B07697;
+    --line: rgba(0,0,0,0.09);
+  }
+
+  body.purple-theme {
+    --bg-deep: #160A2E;
+    --bg-panel: #20104A;
+    --bg-elevated: #2D1763;
+    --coral: #C77DFF;
+    --coral-soft: rgba(199,125,255,0.18);
+    --gold: #FFC65C;
+    --mint: #6FE3C4;
+    --text-hi: #F4EBFF;
+    --text-mid: #B8A0DB;
+    --text-low: #6E5A92;
+    --line: rgba(255,255,255,0.09);
+  }
+
+  [hidden],
+  .profileLegacyHeightField { display: none !important; }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    width: 100%; height: 100%;
+    max-width: 100vw;
+    background: var(--bg-deep);
+    font-family: 'Inter', system-ui, sans-serif;
+    color: var(--text-hi);
+    overflow: hidden;
+    touch-action: none;
+    user-select: none;
+  }
+  #app {
+    position: relative;
+    width: 100%; height: 100%;
+    max-width: 100%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ---- top bar ---- */
+  #topbar {
+    flex-shrink: 0;
+    padding: 18px 20px 14px;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+  #topbar h1 {
+    font-family: 'Sora', sans-serif;
+    font-weight: 800;
+    font-size: 22px;
+    letter-spacing: -0.3px;
+  }
+  #topbar h1 span { color: var(--coral); }
+  #topbar .count {
+    font-size: 12px;
+    color: var(--text-low);
+    font-weight: 500;
+  }
+
+  /* ---- screens ---- */
+  #screens { flex: 1; position: relative; overflow: hidden; }
+  .screen {
+    position: absolute; inset: 0;
+    display: none;
+    flex-direction: column;
+  }
+  .screen.active { display: flex; }
+
+  /* ---- placeholder screens (beğen / profil) ---- */
+  .placeholder {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 40px;
+    text-align: center;
+  }
+  .placeholder .icon {
+    width: 56px; height: 56px;
+    border-radius: 18px;
+    background: var(--bg-elevated);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+    margin-bottom: 6px;
+  }
+  .placeholder h2 {
+    font-family: 'Sora', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+  }
+  .placeholder p {
+    font-size: 13.5px;
+    color: var(--text-mid);
+    line-height: 1.5;
+    max-width: 240px;
+  }
+  .placeholder .tag {
+    margin-top: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--gold);
+    background: rgba(255,198,92,0.12);
+    padding: 5px 12px;
+    border-radius: 999px;
+    letter-spacing: 0.3px;
+  }
+
+  /* ---- messages: top tabs (Mesajlar / İstekler) ---- */
+  #msgTopTabs {
+    flex-shrink: 0;
+    display: flex;
+    gap: 8px;
+    padding: 4px 14px 12px;
+  }
+  .msgTopTab {
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--text-mid);
+    background: var(--bg-elevated);
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .msgTopTab.active {
+    color: #1A0F0C;
+    background: var(--coral);
+  }
+  .tabDot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--coral);
+    display: none;
+  }
+  .msgTopTab:not(.active) .tabDot.has-items { display: inline-block; }
+
+  /* ---- requests panel ---- */
+  #requestsPanel {
+    display: none;
+    flex: 1;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  #requestsPanel.active { display: flex; }
+  #convList.hidden { display: none; }
+
+  #reqSubTabs {
+    flex-shrink: 0;
+    display: flex;
+    gap: 18px;
+    padding: 0 18px 14px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 4px;
+  }
+  .reqSubTab {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--text-low);
+    padding-bottom: 10px;
+    position: relative;
+  }
+  .reqSubTab.active { color: var(--text-hi); }
+  .reqSubTab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px; left: 0; right: 0;
+    height: 2px;
+    background: var(--coral);
+    border-radius: 2px;
+  }
+
+  #reqList {
+    flex: 1;
+    overflow-y: auto;
+    padding: 6px 14px 90px;
+  }
+  .reqItem {
+    display: flex;
+    align-items: flex-start;
+    gap: 13px;
+    padding: 13px 8px;
+    border-radius: 16px;
+  }
+  .reqItem:active { background: var(--bg-elevated); }
+  .reqAvatar {
+    width: 50px; height: 50px;
+    border-radius: 16px;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    font-weight: 700;
+    color: rgba(0,0,0,0.5);
+  }
+  .reqBody { flex: 1; min-width: 0; }
+  .reqTop { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 3px; }
+  .reqName { font-family: 'Sora', sans-serif; font-weight: 700; font-size: 14.5px; }
+  .reqTime { font-size: 11px; color: var(--text-low); flex-shrink: 0; }
+  .reqMessage {
+    font-size: 13px; color: var(--text-mid);
+    line-height: 1.4;
+  }
+  .reqEmpty {
+    text-align: center;
+    color: var(--text-low);
+    font-size: 13px;
+    padding: 50px 20px;
+    line-height: 1.6;
+  }
+  .reqBadge {
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--mint);
+    background: rgba(111,227,196,0.12);
+    padding: 3px 9px;
+    border-radius: 999px;
+    margin-top: 6px;
+    display: inline-block;
+  }
+  #convList {
+    flex: 1;
+    overflow-y: auto;
+    padding: 4px 14px 90px;
+  }
+  .convItem {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 11px 8px;
+    border-radius: 16px;
+  }
+  .convItem:active { background: var(--bg-elevated); }
+  .avatar {
+    width: 52px; height: 52px;
+    border-radius: 16px;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    font-weight: 700;
+    color: white;
+    position: relative;
+  }
+  .avatar .dot {
+    position: absolute; bottom: -2px; right: -2px;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--mint);
+    border: 3px solid var(--bg-deep);
+  }
+  .convBody { flex: 1; min-width: 0; }
+  .convTop { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 3px; }
+  .convName { font-family: 'Sora', sans-serif; font-weight: 700; font-size: 15px; }
+  .convTime { font-size: 11px; color: var(--text-low); flex-shrink: 0; }
+  .convPreview {
+    font-size: 13px; color: var(--text-mid);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .convPreview.unread { color: var(--text-hi); font-weight: 600; }
+  .unreadDot {
+    width: 9px; height: 9px; border-radius: 50%;
+    background: var(--coral);
+    flex-shrink: 0; margin-left: 8px;
+  }
+
+  /* ---- request detail overlay ---- */
+  #requestScreen {
+    display: none;
+    flex-direction: column;
+    position: absolute; inset: 0;
+    background: var(--bg-deep);
+    z-index: 20;
+  }
+  #requestScreen.active { display: flex; }
+  #reqChatHeader {
+    flex-shrink: 0;
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  #reqBackBtn {
+    width: 36px; height: 36px;
+    border-radius: 12px;
+    background: var(--bg-elevated);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  #reqBackBtn:active { background: var(--bg-panel); }
+  #reqChatAvatar {
+    width: 38px; height: 38px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 16px; color: rgba(0,0,0,0.5);
+    flex-shrink: 0;
+  }
+  #reqChatHeaderInfo { flex: 1; min-width: 0; }
+  #reqChatHeaderName { font-family: 'Sora', sans-serif; font-weight: 700; font-size: 15.5px; }
+  #reqChatHeaderStatus { font-size: 11.5px; color: var(--gold); font-weight: 500; }
+
+  #reqMessages {
+    flex: 1; overflow-y: auto;
+    padding: 16px 14px 12px;
+    display: flex; flex-direction: column;
+    gap: 10px;
+  }
+  #reqMessages .bubble.them { background: var(--bg-elevated); align-self: flex-start; border-bottom-left-radius: 6px; }
+  #reqMessages .bubble.me { background: var(--coral); color: #1A0F0C; align-self: flex-end; border-bottom-right-radius: 6px; font-weight: 500; }
+  .reqSystemNote {
+    align-self: center;
+    font-size: 12px;
+    color: var(--text-low);
+    background: var(--bg-elevated);
+    padding: 8px 14px;
+    border-radius: 999px;
+    margin: 6px 0;
+    text-align: center;
+  }
+  .reqSystemNote--limit {
+    color: var(--coral);
+    background: var(--coral-soft);
+    font-weight: 700;
+  }
+
+  #reqAcceptRow {
+    flex-shrink: 0;
+    display: none;
+    gap: 10px;
+    padding: 12px 16px;
+    border-top: 1px solid var(--line);
+  }
+  #reqAcceptRow.show { display: flex; }
+  #reqRejectBtn, #reqAcceptBtn {
+    flex: 1;
+    text-align: center;
+    padding: 13px;
+    border-radius: 14px;
+    font-weight: 700;
+    font-size: 14px;
+    font-family: 'Sora', sans-serif;
+  }
+  #reqRejectBtn {
+    background: var(--bg-elevated);
+    color: var(--text-mid);
+    border: 1px solid var(--line);
+  }
+  #reqRejectBtn:active { background: var(--bg-panel); }
+  #reqAcceptBtn {
+    background: var(--mint);
+    color: #07261D;
+  }
+  #reqAcceptBtn:active { filter: brightness(0.93); }
+
+  #reqComposer {
+    flex-shrink: 0;
+    display: none;
+    align-items: flex-end;
+    gap: 10px;
+    padding: 10px 14px 16px;
+    border-top: 1px solid var(--line);
+  }
+  #reqComposer.show { display: flex; }
+  #reqMsgInput {
+    flex: 1;
+    background: var(--bg-elevated);
+    border: none;
+    border-radius: 20px;
+    padding: 11px 16px;
+    font-size: 14px;
+    color: var(--text-hi);
+    font-family: 'Inter', sans-serif;
+    resize: none;
+    max-height: 90px;
+    line-height: 1.4;
+  }
+  #reqMsgInput::placeholder { color: var(--text-low); }
+  #reqMsgInput:disabled { opacity: 0.5; }
+  #reqSendBtn {
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    background: var(--coral);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px;
+    flex-shrink: 0;
+    color: #1A0F0C;
+  }
+  #reqSendBtn:active { background: #e85a47; }
+  #reqSendBtn.disabled { opacity: 0.35; }
+
+  #reqLimitNote {
+    flex-shrink: 0;
+    text-align: center;
+    font-size: 11.5px;
+    color: var(--text-low);
+    padding: 0 16px 14px;
+    display: none;
+  }
+  #reqLimitNote.show { display: block; }
+  #chatScreen {
+    display: none;
+    flex-direction: column;
+    position: absolute; inset: 0;
+    background: var(--bg-deep);
+    z-index: 20;
+  }
+  #chatScreen.active { display: flex; }
+  #chatHeader {
+    flex-shrink: 0;
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  #backBtn {
+    width: 36px; height: 36px;
+    border-radius: 12px;
+    background: var(--bg-elevated);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  #backBtn:active { background: var(--bg-panel); }
+  #chatHeaderInfo { flex: 1; min-width: 0; }
+  #chatHeaderName { font-family: 'Sora', sans-serif; font-weight: 700; font-size: 15.5px; }
+  #chatHeaderStatus { font-size: 11.5px; color: var(--mint); font-weight: 500; }
+  #chatAvatar {
+    width: 38px; height: 38px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 16px; color: white;
+    flex-shrink: 0;
+  }
+
+  #messages {
+    flex: 1; overflow-y: auto;
+    padding: 16px 14px 12px;
+    display: flex; flex-direction: column;
+    gap: 10px;
+  }
+  .bubble {
+    max-width: 76%;
+    padding: 10px 14px;
+    border-radius: 18px;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  .bubble.them {
+    background: var(--bg-elevated);
+    align-self: flex-start;
+    border-bottom-left-radius: 6px;
+    position: relative;
+  }
+  .bubble.them.translated .bubbleOriginal {
+    display: block;
+    font-size: 11.5px;
+    color: var(--text-low);
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px solid var(--line);
+    font-style: italic;
+  }
+  .bubbleOriginal { display: none; }
+
+  #translateMenu {
+    position: fixed;
+    background: var(--bg-elevated);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 6px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+    z-index: 50;
+    display: none;
+  }
+  #translateMenu.show { display: block; }
+  #translateMenuBtn {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 16px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text-hi);
+    white-space: nowrap;
+    border-radius: 9px;
+  }
+  #translateMenuBtn:active { background: var(--bg-panel); }
+  .bubble.me {
+    background: var(--coral);
+    color: #1A0F0C;
+    align-self: flex-end;
+    border-bottom-right-radius: 6px;
+    font-weight: 500;
+  }
+  .dayLabel {
+    align-self: center;
+    font-size: 11px;
+    color: var(--text-low);
+    margin: 6px 0;
+    font-weight: 600;
+  }
+
+  #composer {
+    flex-shrink: 0;
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    padding: 10px 14px 16px;
+    border-top: 1px solid var(--line);
+  }
+  #msgInput {
+    flex: 1;
+    background: var(--bg-elevated);
+    border: none;
+    border-radius: 20px;
+    padding: 11px 16px;
+    font-size: 14px;
+    color: var(--text-hi);
+    font-family: 'Inter', sans-serif;
+    resize: none;
+    max-height: 90px;
+    line-height: 1.4;
+  }
+  #msgInput::placeholder { color: var(--text-low); }
+  #sendBtn {
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    background: var(--coral);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px;
+    flex-shrink: 0;
+    color: #1A0F0C;
+  }
+  #sendBtn:active { background: #e85a47; }
+  #sendBtn.disabled { opacity: 0.35; }
+
+  /* ---- bottom nav ---- */
+  #bottomNav {
+    flex-shrink: 0;
+    display: flex;
+    border-top: 1px solid var(--line);
+    background: var(--bg-panel);
+    padding: 8px 10px calc(8px + env(safe-area-inset-bottom, 6px));
+  }
+  .navBtn {
+    flex: 1;
+    display: flex; flex-direction: column; align-items: center;
+    gap: 4px;
+    padding: 6px 0;
+    color: var(--text-low);
+    position: relative;
+  }
+  .navBtn .navIcon { font-size: 20px; }
+  .navBtn .navLabel { font-size: 10.5px; font-weight: 600; letter-spacing: 0.2px; }
+  .navBtn.active { color: var(--coral); }
+  .navBtn .navBadge {
+    position: absolute; top: 0; right: 22%;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--coral);
+  }
+
+  /* center nav button gets emphasis */
+  .navBtn.center .navIcon {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: var(--coral);
+    color: #1A0F0C;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    margin-bottom: 2px;
+  }
+  .navBtn.center.active .navIcon { background: var(--coral); }
+  .navBtn.center { color: var(--text-low); }
+  .navBtn.center.active { color: var(--coral); }
+
+  /* ---- profile screen: card view ---- */
+  #profileCardView {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 30px 20px 100px;
+    overflow-y: auto;
+    flex: 1;
+    gap: 12px;
+  }
+
+  /* ---- profile main row (button to enter profile view) ---- */
+  #profileMainRow {
+    width: 100%; display: flex; align-items: center; gap: 12px;
+    background: var(--bg-elevated); border: 1px solid var(--line);
+    border-radius: 14px; padding: 12px 14px;
+    box-sizing: border-box;
+  }
+  #profileMainRow:active { background: var(--bg-panel); }
+  #profileMainAvatar {
+    width: 48px; height: 48px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  #profileMainInitial { font-family:'Sora',sans-serif; font-size:18px; font-weight:800; color:rgba(0,0,0,0.5); }
+  #profileMainInfo { flex:1; min-width:0; }
+  #profileMainName { font-family:'Sora',sans-serif; font-size:14.5px; font-weight:700; }
+  #profileMainMeta { font-size:11.5px; color:var(--text-mid); margin-top:2px; }
+  #profileMainArrow { font-size:18px; color:var(--text-low); flex-shrink:0; }
+
+  /* ---- profile preview screen (opens on row tap, has edit button inside) ---- */
+  #profileViewScreen {
+    display: none; flex-direction: column;
+    position: absolute; inset: 0;
+    background: var(--bg-deep); z-index: 5; overflow: hidden;
+  }
+  #profileViewScreen.active { display: flex; }
+  #profileViewHeader {
+    flex-shrink: 0; display: flex; align-items: center; gap: 12px;
+    padding: 14px 16px; border-bottom: 1px solid var(--line);
+  }
+  #profileViewBackBtn {
+    width: 36px; height: 36px; border-radius: 12px;
+    background: var(--bg-elevated);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+  }
+  #profileViewBackBtn:active { background: var(--bg-panel); }
+  #profileViewTitle { font-family:'Sora',sans-serif; font-weight:700; font-size:15.5px; flex:1; }
+  #profileViewEditBtn {
+    padding: 7px 13px; border-radius: 999px;
+    background: var(--bg-elevated); border: 1px solid var(--line);
+    font-size: 12px; font-weight: 700; color: var(--text-hi);
+    flex-shrink: 0;
+  }
+  #profileViewEditBtn:active { background: var(--bg-panel); }
+  #profileViewScroll {
+    flex: 1; overflow-y: auto; overflow-x: hidden;
+    padding: 20px 16px 40px; box-sizing: border-box;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  #profileViewTop { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; }
+  #profileViewAvatar {
+    width: 88px; height: 88px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; margin-bottom: 6px;
+  }
+  #profileViewInitial { font-family:'Sora',sans-serif; font-size:34px; font-weight:800; color:rgba(0,0,0,0.5); }
+  #profileViewName { font-family:'Sora',sans-serif; font-size:20px; font-weight:700; }
+  #profileViewMeta { font-size:13px; color:var(--text-mid); }
+  #profileViewPersonality {
+    font-size:12px; font-weight:600; color:var(--coral);
+    background:var(--coral-soft); padding:4px 12px; border-radius:999px; display:inline-block;
+  }
+  #profileViewBio {
+    font-size:14px; color:var(--text-mid); line-height:1.55;
+    background:var(--bg-elevated); border-radius:14px; padding:12px 14px; box-sizing:border-box;
+  }
+  #profileViewInterests { display:flex; flex-wrap:wrap; gap:8px; }
+
+  /* ---- social stats row ---- */
+  #socialStats {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    padding: 4px 0 8px;
+  }
+  .socialStat {
+    display: flex; flex-direction: column; align-items: center; gap: 1px;
+  }
+  .socialStat:active .statNum { color: var(--coral); }
+  .statNum {
+    font-family: 'Sora', sans-serif;
+    font-size: 17px; font-weight: 800;
+    color: var(--text-hi);
+    line-height: 1;
+  }
+  .statLabel {
+    font-size: 11px; font-weight: 500;
+    color: var(--text-low);
+  }
+  .socialStatDivider { display: none; }
+
+  /* ---- social list overlay ---- */
+  #socialListView {
+    display: none; flex-direction: column;
+    position: absolute; inset: 0;
+    background: var(--bg-deep);
+    z-index: 5; overflow: hidden;
+  }
+  #socialListView.active { display: flex; }
+  #socialListHeader {
+    flex-shrink: 0;
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  #socialListBackBtn {
+    width: 36px; height: 36px; border-radius: 12px;
+    background: var(--bg-elevated);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+  }
+  #socialListBackBtn:active { background: var(--bg-panel); }
+  #socialListTitle { font-family: 'Sora', sans-serif; font-weight: 700; font-size: 15.5px; }
+  #socialListContent { flex: 1; overflow-y: auto; padding: 8px 14px 40px; }
+  .socialListItem {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 8px; border-radius: 14px;
+  }
+  .socialListItem:active { background: var(--bg-elevated); }
+  .socialListAvatar {
+    width: 46px; height: 46px; border-radius: 50%;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 700; color: rgba(0,0,0,0.5);
+  }
+  .socialListName { font-family: 'Sora', sans-serif; font-weight: 700; font-size: 14.5px; }
+  .socialListMeta { font-size: 12px; color: var(--text-mid); margin-top: 1px; }
+
+  #editProfileRow {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--bg-elevated);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 10px 14px;
+  }
+  #editProfileRow:active { background: var(--bg-panel); }
+  #editProfileRowName {
+    font-family: 'Sora', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+  }
+  #editProfileRowMeta {
+    font-size: 11px;
+    color: var(--text-mid);
+    margin-top: 1px;
+  }
+  #editProfileRowArrow {
+    font-size: 17px;
+    color: var(--text-low);
+  }
+
+  /* ---- personal preferences detail view (gender + age + zodiac + language) ---- */
+  #personalPrefView {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    inset: 0;
+    background: var(--bg-deep);
+    z-index: 5;
+    overflow: hidden;
+  }
+  #personalPrefView.active { display: flex; }
+
+  #personalPrefHeader {
+    flex-shrink: 0;
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  #personalPrefBackBtn {
+    width: 36px; height: 36px;
+    border-radius: 12px;
+    background: var(--bg-elevated);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  #personalPrefBackBtn:active { background: var(--bg-panel); }
+  #personalPrefTitle {
+    font-family: 'Sora', sans-serif;
+    font-weight: 700;
+    font-size: 15.5px;
+  }
+
+  #personalPrefScroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 18px 20px 90px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  /* ---- accordion preference groups ---- */
+  .accordionItem {
+    background: var(--bg-elevated);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    margin-bottom: 0;
+  }
+  .accordionHeader {
+    display: flex;
+    align-items: center;
+    padding: 13px 14px;
+    gap: 8px;
+    border-radius: 14px;
+  }
+  .accordionHeader:active { background: var(--bg-panel); }
+  .accordionLabel {
+    font-family: 'Sora', sans-serif;
+    font-size: 13.5px;
+    font-weight: 700;
+    flex: 1;
+  }
+  .accordionValue {
+    font-size: 12px;
+    color: var(--text-mid);
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .accordionArrow {
+    font-size: 18px;
+    color: var(--text-low);
+    transition: transform 0.2s;
+    flex-shrink: 0;
+  }
+  .accordionItem.open .accordionArrow { transform: rotate(90deg); }
+  .accordionItem.open .accordionHeader { border-radius: 14px 14px 0 0; }
+
+  /* ---- zodiac bottom sheet ---- */
+  #zodiacSheetBackdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    background: rgba(0,0,0,0.55);
+    align-items: flex-end;
+    justify-content: center;
+  }
+  #zodiacSheetBackdrop.show { display: flex; }
+  #zodiacSheet {
+    width: 100%;
+    max-width: 480px;
+    height: 50vh;
+    min-height: 300px;
+    max-height: 70vh;
+    background: var(--bg-panel);
+    border: 1px solid var(--line);
+    border-bottom: none;
+    border-radius: 24px 24px 0 0;
+    box-shadow: 0 -12px 35px rgba(0,0,0,0.35);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: zodiacSheetUp 0.22s ease-out;
+  }
+  @keyframes zodiacSheetUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+  #zodiacSheetHeader {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 16px 14px;
+    border-bottom: 1px solid var(--line);
+  }
+  #zodiacSheetTitle {
+    flex: 1;
+    font-family: 'Sora', sans-serif;
+    font-size: 15.5px;
+    font-weight: 700;
+  }
+  #zodiacSheetCloseBtn {
+    width: 34px;
+    height: 34px;
+    border-radius: 11px;
+    background: var(--bg-elevated);
+    color: var(--text-mid);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 21px;
+    line-height: 1;
+  }
+  #zodiacSheetCloseBtn:active { background: var(--bg-deep); }
+  #zodiacSheetContent {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 20px calc(24px + env(safe-area-inset-bottom, 8px));
+  }
+  #zodiacSheetContent .prefOptionGroup--grid {
+    margin-bottom: 0;
+  }
+
+  .accordionBody { 
+    display: none;
+    padding: 4px 14px 14px;
+    border-top: 1px solid var(--line);
+    border-radius: 0 0 14px 14px;
+  }
+  .accordionItem.open .accordionBody { display: block; }
+
+  .prefSection {
+    margin-bottom: 28px;
+  }
+  .prefSectionLabel {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-mid);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+  }
+
+  .prefOptionGroup {
+    display: flex;
+    flex-direction: column;
+  }
+  .prefOptionGroup--grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .prefOptionGroup--grid .prefOption {
+    margin-bottom: 0;
+  }
+
+  .prefOption {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 13px 15px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    margin-bottom: 10px;
+  }
+  .prefOption:active { background: var(--bg-panel); }
+  .prefOptionLabel {
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .prefOptionCheck {
+    color: var(--coral);
+    font-size: 15px;
+    font-weight: 700;
+    opacity: 0;
+  }
+  .prefOption.active .prefOptionCheck { opacity: 1; }
+  .prefOption.active { border-color: var(--coral); }
+
+  /* ---- dual handle range slider ---- */
+  #dualRangeWrap, #discoverDualRangeWrap {
+    padding: 16px 8px 8px;
+    box-sizing: border-box;
+  }
+  #dualRangeTrack, #discoverDualRangeTrack, #discoverDistanceTrack {
+    position: relative;
+    height: 4px;
+    background: var(--bg-elevated);
+    border-radius: 999px;
+    margin: 18px 0;
+  }
+  #dualRangeFill, #discoverDualRangeFill, #discoverDistanceFill {
+    position: absolute;
+    height: 100%;
+    background: var(--coral);
+    border-radius: 999px;
+    pointer-events: none;
+    will-change: left, width;
+    transition: none;
+  }
+  .dualHandle {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: var(--coral);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    cursor: grab;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 2;
+    will-change: left;
+    transition: none;
+    touch-action: none;
+  }
+  .dualHandle::after {
+    content: '';
+    position: absolute;
+    width: 42px;
+    height: 42px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.18);
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    left: 50%;
+    top: 50%;
+    transition: opacity 0.15s ease;
+  }
+  .dualHandle:active { cursor: grabbing; transform: translate(-50%, -50%); }
+  .dualHandle.is-dragging::after,
+  .dualHandle:active::after { opacity: 1; }
+  .dualHandleLabel {
+    position: absolute;
+    top: -26px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--coral);
+    white-space: nowrap;
+    pointer-events: none;
+  }
+
+  #settingsRow {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--bg-elevated);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 10px 14px;
+  }
+  #settingsRow:active { background: var(--bg-panel); }
+  #settingsRowText {
+    font-family: 'Sora', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+  }
+  #settingsRowArrow {
+    font-size: 17px;
+    color: var(--text-low);
+  }
+
+  #personalPrefRow {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--bg-elevated);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 10px 14px;
+  }
+  #personalPrefRow:active { background: var(--bg-panel); }
+  #personalPrefRowTitle {
+    font-family: 'Sora', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+  }
+  #personalPrefRowValue {
+    font-size: 11px;
+    color: var(--text-mid);
+    margin-top: 1px;
+  }
+  #personalPrefRowArrow {
+    font-size: 17px;
+    color: var(--text-low);
+  }
+
+  /* ---- settings view ---- */
+  #settingsView {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    inset: 0;
+    background: var(--bg-deep);
+    z-index: 5;
+    overflow: hidden;
+  }
+  #settingsView.active { display: flex; }
+  #settingsHeader {
+    flex-shrink: 0;
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  #settingsBackBtn {
+    width: 36px; height: 36px;
+    border-radius: 12px;
+    background: var(--bg-elevated);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  #settingsBackBtn:active { background: var(--bg-panel); }
+  #settingsTitle {
+    font-family: 'Sora', sans-serif;
+    font-weight: 700;
+    font-size: 15.5px;
+  }
+  #settingsScroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+  }
+  .settingsSection { margin-bottom: 22px; }
+  .settingsLabel {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-mid);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+  }
+  #themeOptions {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+  }
+  .themeOption {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 6px;
+    border-radius: 12px;
+    border: 1.5px solid var(--line);
+    background: var(--bg-elevated);
+  }
+  .themeOption.active {
+    border-color: var(--coral);
+  }
+  .themeSwatch {
+    width: 100%;
+    height: 28px;
+    border-radius: 7px;
+  }
+  .theme-dark-swatch {
+    background: linear-gradient(135deg, #0A0C1C 50%, #191D3A 50%);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .theme-light-swatch {
+    background: linear-gradient(135deg, #EDEDF2 50%, #E4E4EC 50%);
+    border: 1px solid rgba(0,0,0,0.08);
+  }
+  .theme-black-swatch {
+    background: linear-gradient(135deg, #000000 50%, #181818 50%);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .theme-red-swatch {
+    background: linear-gradient(135deg, #1A0707 50%, #FF4D4D 50%);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .theme-pink-swatch {
+    background: linear-gradient(135deg, #FBD6E8 50%, #FF1577 50%);
+    border: 1px solid rgba(0,0,0,0.08);
+  }
+  .theme-purple-swatch {
+    background: linear-gradient(135deg, #160A2E 50%, #C77DFF 50%);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .themeOptionLabel {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-mid);
+  }
+  .themeOption.active .themeOptionLabel { color: var(--text-hi); }
+
+  /* ---- discover screen ---- */
+  #discoverStack {
+    flex: 1;
+    position: relative;
+    padding: 16px 20px 10px;
+  }
+  #discoverTopBtns {
+    position: absolute;
+    inset: 0;
+    height: 48px;
+    z-index: 10;
+    pointer-events: none;
+  }
+  .discoverTopBtn {
+    position: absolute;
+    top: 10px;
+    width: 29.8px; height: 29.8px;
+    border-radius: 50%;
+    background: var(--bg-elevated);
+    border: 1.5px solid var(--line);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14.5px;
+    color: var(--text-mid);
+    pointer-events: auto;
+  }
+  #undoBtn { left: 14px; }
+  #discoverFilterBtn { right: 14px; }
+  .discoverTopBtn:active { background: var(--bg-panel); }
+
+  /* ---- discover mode switcher: transparent 3D carousel ---- */
+  #discoverModeSwitcher {
+    position: absolute;
+    top: 10px;
+    left: 0;
+    right: 0;
+    height: 48px;
+    z-index: 9;
+    overflow: hidden;
+    perspective: 760px;
+    transform-style: preserve-3d;
+    touch-action: pan-y;
+    user-select: none;
+  }
+  /* Modların üstündeki ve altındaki ince küre yayları */
+  #discoverModeSwitcher::before,
+  #discoverModeSwitcher::after {
+    content: '';
+    position: absolute;
+    left: 16px;
+    right: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border-left: 1px solid transparent;
+    border-right: 1px solid transparent;
+    pointer-events: none;
+    z-index: 1;
+  }
+  #discoverModeSwitcher::before {
+    top: 1px;
+    border-top: 1px solid rgba(255,255,255,0.28);
+    transform: scaleY(0.42);
+  }
+  #discoverModeSwitcher::after {
+    bottom: 1px;
+    border-bottom: 1px solid rgba(255,255,255,0.28);
+    transform: scaleY(0.42);
+  }
+  .discoverModePeek,
+  #discoverModeCurrent {
+    position: absolute;
+    top: 50%;
+    display: flex;
+    align-items: center;
+    height: 36px;
+    cursor: pointer;
+    font-family: 'Sora', sans-serif;
+    white-space: nowrap;
+    transition: transform 0.56s cubic-bezier(0.22, 0.61, 0.36, 1), opacity 0.5s ease, color 0.2s ease, width 0.56s cubic-bezier(0.22, 0.61, 0.36, 1), padding 0.56s ease, font-size 0.56s ease;
+    transform-style: preserve-3d;
+  }
+  .discoverModePeek {
+    width: 58px;
+    padding: 0 8px;
+    overflow: hidden;
+    color: #FFFFFF;
+    font-size: 13px;
+    font-weight: 700;
+    opacity: 0.74;
+  }
+  .discoverModePeek--left {
+    left: calc(50% - 100px);
+    justify-content: flex-end;
+    text-align: right;
+    transform: translate(-50%, -50%) rotateY(30deg) scale(0.92);
+    transform-origin: right center;
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.72) 26%, #000 100%);
+    mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.72) 26%, #000 100%);
+  }
+  .discoverModePeek--right {
+    left: calc(50% + 100px);
+    justify-content: flex-start;
+    text-align: left;
+    transform: translate(-50%, -50%) rotateY(-30deg) scale(0.92);
+    transform-origin: left center;
+    -webkit-mask-image: linear-gradient(to right, #000 0%, rgba(0,0,0,0.72) 74%, transparent 100%);
+    mask-image: linear-gradient(to right, #000 0%, rgba(0,0,0,0.72) 74%, transparent 100%);
+  }
+  .discoverModePeek:active {
+    color: #FFFFFF;
+  }
+  #discoverModeCurrent {
+    left: 50%;
+    width: 142px;
+    justify-content: center;
+    padding: 0 14px;
+    color: #FFFFFF;
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 0.1px;
+    border-bottom: none;
+    text-shadow: 0 0 10px rgba(255,255,255,0.16);
+    transform: translate(-50%, -50%) translateZ(18px);
+  }
+
+  /* Yavaş, tek parça ve akışkan mod dönüşü. */
+  #discoverModeSwitcher.mode-next #discoverModeCurrent {
+    opacity: 1;
+    transform: translate(calc(-50% - 64px), -50%) rotateY(14deg) scale(0.96);
+  }
+  #discoverModeSwitcher.mode-next .discoverModePeek--right {
+    width: 142px;
+    padding: 0 14px;
+    font-size: 14px;
+    opacity: 1;
+    justify-content: center;
+    -webkit-mask-image: none;
+    mask-image: none;
+    transform: translate(-50%, -50%) rotateY(0deg) scale(1);
+  }
+  #discoverModeSwitcher.mode-next .discoverModePeek--left {
+    opacity: 0.76;
+    transform: translate(calc(-50% + 64px), -50%) rotateY(-14deg) scale(0.96);
+  }
+  #discoverModeSwitcher.mode-prev #discoverModeCurrent {
+    opacity: 1;
+    transform: translate(calc(-50% + 64px), -50%) rotateY(-14deg) scale(0.96);
+  }
+  #discoverModeSwitcher.mode-prev .discoverModePeek--left {
+    width: 142px;
+    padding: 0 14px;
+    font-size: 14px;
+    opacity: 1;
+    justify-content: center;
+    -webkit-mask-image: none;
+    mask-image: none;
+    transform: translate(-50%, -50%) rotateY(0deg) scale(1);
+  }
+  #discoverModeSwitcher.mode-prev .discoverModePeek--right {
+    opacity: 0.76;
+    transform: translate(calc(-50% - 64px), -50%) rotateY(14deg) scale(0.96);
+  }
+
+  /* ---- seamless mode faces: yazılar sabit, roller hareket eder ---- */
+  .discoverModeFace {
+    position: absolute;
+    top: 50%;
+    height: 36px;
+    width: 58px;
+    padding: 0 8px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    color: #FFFFFF;
+    font-family: 'Sora', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+    cursor: pointer;
+    box-sizing: border-box;
+    transform-style: preserve-3d;
+    transition: left 0.56s cubic-bezier(0.22, 0.61, 0.36, 1),
+      width 0.56s cubic-bezier(0.22, 0.61, 0.36, 1),
+      padding 0.56s cubic-bezier(0.22, 0.61, 0.36, 1),
+      transform 0.56s cubic-bezier(0.22, 0.61, 0.36, 1),
+      opacity 0.56s ease, font-size 0.56s ease;
+  }
+  .discoverModeFace.is-current {
+    left: 50%;
+    width: 142px;
+    padding: 0 14px;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 800;
+    opacity: 1;
+    transform: translate(-50%, -50%) translateZ(18px);
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  .discoverModeFace.is-prev {
+    left: calc(50% - 100px);
+    justify-content: flex-end;
+    text-align: right;
+    opacity: 0.74;
+    transform: translate(-50%, -50%) rotateY(30deg) scale(0.92);
+    transform-origin: right center;
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.72) 26%, #000 100%);
+    mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.72) 26%, #000 100%);
+  }
+  .discoverModeFace.is-next {
+    left: calc(50% + 100px);
+    justify-content: flex-start;
+    text-align: left;
+    opacity: 0.74;
+    transform: translate(-50%, -50%) rotateY(-30deg) scale(0.92);
+    transform-origin: left center;
+    -webkit-mask-image: linear-gradient(to right, #000 0%, rgba(0,0,0,0.72) 74%, transparent 100%);
+    mask-image: linear-gradient(to right, #000 0%, rgba(0,0,0,0.72) 74%, transparent 100%);
+  }
+  .discoverModeFace:active { color: #FFFFFF; }
+
+  #discoverFilterView {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    inset: 0;
+    background: var(--bg-deep);
+    z-index: 15;
+  }
+  #discoverFilterView.active { display: flex; }
+  #discoverFilterHeader {
+    flex-shrink: 0;
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  #discoverFilterBackBtn {
+    width: 36px; height: 36px;
+    border-radius: 12px;
+    background: var(--bg-elevated);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  #discoverFilterBackBtn:active { background: var(--bg-panel); }
+  #discoverFilterTitle {
+    font-family: 'Sora', sans-serif;
+    font-weight: 700;
+    font-size: 15.5px;
+  }
+  #discoverFilterScroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 18px 20px 90px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  /* Tercihler artık Keşfet panelinde gösterilir. */
+  #personalPrefRow { display: none !important; }
+  #discoverFilterScroll .prefOptionGroup,
+  #discoverFilterScroll .prefOptionGroup--grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  #discoverFilterScroll .prefOption {
+    width: auto;
+    margin-bottom: 0;
+    padding: 8px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+  }
+  #discoverFilterScroll .discoverPreferenceLabel {
+    margin-top: 8px;
+    margin-bottom: 0;
+  }
+  #discoverFilterScroll .discoverDistanceSection {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+  }
+  #discoverDistanceDisplay {
+    text-align: center;
+    font-family: 'Sora', sans-serif;
+    font-size: 19px;
+    font-weight: 800;
+    color: var(--coral);
+    margin-bottom: 8px;
+  }
+  #discoverDistanceWrap { padding: 10px 8px 4px; }
+
+  #ageRangeDisplay, #discoverAgeRangeDisplay {
+    text-align: center;
+    font-family: 'Sora', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--coral);
+    margin-bottom: 4px;
+  }
+  #discoverCards {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+  .discoverCard {
+    position: absolute;
+    inset: 0;
+    border-radius: 28px;
+    background: var(--bg-panel);
+    border: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: transform 0.25s ease, opacity 0.25s ease;
+  }
+  .discoverCard.swipe-left { transform: translateX(-130%) rotate(-12deg); opacity: 0; }
+  .discoverCard.swipe-right { transform: translateX(130%) rotate(12deg); opacity: 0; }
+
+  .cardTop {
+    flex-shrink: 0;
+    padding: 34px 26px 22px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .cardAvatar {
+    width: 86px; height: 86px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 14px;
+  }
+  .cardAvatar span {
+    font-family: 'Sora', sans-serif;
+    font-size: 32px;
+    font-weight: 800;
+    color: rgba(0,0,0,0.5);
+  }
+  .cardName {
+    font-family: 'Sora', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+  }
+  .cardMeta {
+    font-size: 13px;
+    color: var(--text-mid);
+    margin-top: 4px;
+  }
+
+  .cardBody {
+    flex: 1;
+    padding: 4px 26px 20px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .cardBio {
+    font-size: 14px;
+    color: var(--text-mid);
+    line-height: 1.55;
+    margin-bottom: 18px;
+  }
+  .cardInterests {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .cardInterestTag {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--coral);
+    background: var(--coral-soft);
+    padding: 7px 13px;
+    border-radius: 999px;
+  }
+  .cardDetailTags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+  .cardDetailTag {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--coral);
+    background: var(--coral-soft);
+    padding: 7px 13px;
+    border-radius: 999px;
+  }
+
+  #discoverEmpty {
+    position: absolute; inset: 0;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 40px;
+    text-align: center;
+  }
+  #discoverEmpty.show { display: flex; }
+  #discoverEmpty .icon { font-size: 40px; margin-bottom: 6px; }
+  #discoverEmpty h2 { font-family: 'Sora', sans-serif; font-size: 17px; font-weight: 700; }
+  #discoverEmpty p { font-size: 13.5px; color: var(--text-mid); max-width: 230px; line-height: 1.5; }
+
+  #discoverActions {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 22px;
+    padding: 8px 0 22px;
+  }
+  .discoverBtn {
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px;
+  }
+  .discoverBtn--pass {
+    width: 60px; height: 60px;
+    background: #E5484D;
+    border: 1.5px solid rgba(255,255,255,0.15);
+    color: #FFFFFF;
+  }
+  .discoverBtn--pass:active { background: #c93d42; }
+  .discoverBtn--like {
+    width: 60px; height: 60px;
+    background: var(--coral);
+    color: #1A0F0C;
+  }
+  .discoverBtn--like:active { background: #e85a47; }
+  .discoverBtn--super {
+    width: 45px; height: 45px;
+    background: var(--gold);
+    color: #2A1B00;
+    font-size: 18px;
+  }
+  .discoverBtn--super:active { filter: brightness(0.92); }
+  .discoverBtn--message {
+    width: 45px; height: 45px;
+    background: var(--bg-elevated);
+    border: 1.5px solid var(--line);
+    color: var(--mint);
+    font-size: 18px;
+  }
+  .discoverBtn--message:active { background: var(--bg-panel); }
+
+  /* ---- like notification toast ---- */
+  #likeToast {
+    position: fixed;
+    top: 18px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-20px);
+    background: var(--bg-elevated);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 12px 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.35);
+    z-index: 60;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s, transform 0.25s;
+  }
+  #likeToast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  #likeToast .toastIcon { font-size: 20px; }
+  #likeToast .toastText { font-size: 13.5px; font-weight: 600; }
+
+  /* ---- like heart burst animation ---- */
+  #heartBurst {
+    position: fixed;
+    bottom: 18%;
+    left: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+    z-index: 100;
+  }
+  #heartIcon {
+    display: block;
+    opacity: 0;
+    font-size: 0px;
+    color: var(--coral);
+    line-height: 1;
+    filter: drop-shadow(0 0 0px var(--coral));
+    transform-origin: center bottom;
+  }
+  #heartIcon.burst {
+    animation: heartLaunch 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  }
+  @keyframes heartLaunch {
+    0%   { font-size: 28px; opacity: 0;   transform: translateY(0px) rotate(0deg) scale(0.4);     filter: drop-shadow(0 0 0px var(--coral)); }
+    15%  { font-size: 58px; opacity: 1;   transform: translateY(-20px) rotate(-15deg) scale(1.1); filter: drop-shadow(0 0 18px var(--coral)); }
+    40%  { font-size: 52px; opacity: 1;   transform: translateY(-160px) rotate(18deg) scale(1);   filter: drop-shadow(0 0 24px var(--coral)); }
+    65%  { font-size: 48px; opacity: 0.85; transform: translateY(-220px) rotate(-8deg) scale(0.95); filter: drop-shadow(0 0 12px var(--coral)); }
+    100% { font-size: 42px; opacity: 0;   transform: translateY(-100px) rotate(10deg) scale(0.7); filter: drop-shadow(0 0 0px var(--coral)); }
+  }
+  #superLikeBurst {
+    position: fixed; inset: 0;
+    pointer-events: none; z-index: 100;
+    display: flex; align-items: center; justify-content: center;
+  }
+  #superLikeStar {
+    opacity: 0;
+    font-size: 0px;
+    color: var(--gold);
+    line-height: 1;
+    filter: drop-shadow(0 0 0px var(--gold));
+    transform: scale(0.2) rotate(-20deg);
+  }
+  #superLikeStar.burst {
+    animation: starBurst 0.75s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+  @keyframes starBurst {
+    0%   { font-size: 30px;  opacity: 0;   transform: scale(0.2) rotate(-20deg); filter: drop-shadow(0 0 4px var(--gold)); }
+    20%  { font-size: 100px; opacity: 1;   transform: scale(1.15) rotate(8deg);  filter: drop-shadow(0 0 32px var(--gold)) drop-shadow(0 0 60px rgba(255,198,92,0.5)); }
+    55%  { font-size: 95px;  opacity: 1;   transform: scale(1) rotate(0deg);     filter: drop-shadow(0 0 24px var(--gold)); }
+    100% { font-size: 80px;  opacity: 0;   transform: scale(1.4) rotate(6deg);   filter: drop-shadow(0 0 0px var(--gold)); }
+  }
+
+  #friendReqsBtn { display: none; }
+  #friendReqsBtn.visible { display: flex; }
+
+  #friendReqsBtn {
+    display: none;
+    position: relative;
+    width: 32px; height: 32px;
+    border-radius: 10px;
+    background: var(--bg-elevated);
+    align-items: center; justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  #friendReqsBtn.visible { display: flex; }
+  #friendReqsBtn:active { background: var(--bg-panel); }
+  #friendReqsDot {
+    position: absolute; top: -2px; right: -2px;
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--coral);
+    border: 2px solid var(--bg-deep);
+    display: none;
+  }
+  #friendReqsDot.show { display: block; }
+
+  /* ---- chat header friend button ---- */
+  #chatFriendBtn {
+    flex-shrink: 0;
+    padding: 7px 13px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  #chatFriendBtn.status-none { background: var(--coral); color: #1A0F0C; }
+  #chatFriendBtn.status-sent { background: var(--bg-elevated); color: var(--text-mid); border: 1px solid var(--line); }
+  #chatFriendBtn.status-received { background: var(--mint); color: #07261D; }
+  #chatFriendBtn.status-friends { display: none; }
+  #chatFriendBtn:active { filter: brightness(0.9); }
+
+  /* ---- user profile detail overlay ---- */
+  #userProfileScreen {
+    display: none;
+    flex-direction: column;
+    position: fixed;
+    inset: 0;
+    background: var(--bg-deep);
+    z-index: 30;
+    overflow: hidden;
+  }
+  #userProfileScreen.active { display: flex; }
+  #userProfileHeader {
+    flex-shrink: 0;
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  #userProfileBackBtn {
+    width: 36px; height: 36px;
+    border-radius: 12px;
+    background: var(--bg-elevated);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+  }
+  #userProfileBackBtn:active { background: var(--bg-panel); }
+  #userProfileTitle { font-family: 'Sora', sans-serif; font-weight: 700; font-size: 15.5px; }
+  #userProfileScroll {
+    flex: 1; overflow-y: auto; overflow-x: hidden;
+    padding: 24px 20px 40px;
+    box-sizing: border-box;
+  }
+  #userProfileTop {
+    display: flex; flex-direction: column; align-items: center;
+    margin-bottom: 20px; text-align: center;
+  }
+  #userProfileAvatar {
+    width: 90px; height: 90px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Sora', sans-serif;
+    font-size: 34px; font-weight: 800;
+    color: rgba(0,0,0,0.5);
+    margin-bottom: 12px;
+  }
+  #userProfileName { font-family: 'Sora', sans-serif; font-size: 20px; font-weight: 700; }
+  #userProfileMeta { font-size: 13px; color: var(--text-mid); margin-top: 3px; }
+  #userProfileBio {
+    font-size: 14px; color: var(--text-mid); line-height: 1.55;
+    margin-bottom: 16px;
+    background: var(--bg-elevated);
+    border-radius: 14px; padding: 12px 14px;
+  }
+  #userProfileInterests {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    margin-bottom: 24px;
+  }
+  .userProfileTag {
+    font-size: 12.5px; font-weight: 600;
+    color: var(--coral); background: var(--coral-soft);
+    padding: 7px 13px; border-radius: 999px;
+  }
+  #userProfileActions { display: flex; gap: 10px; }
+  #userProfileMsgBtn, #userProfileFriendBtn {
+    flex: 1; text-align: center;
+    padding: 13px; border-radius: 14px;
+    font-family: 'Sora', sans-serif;
+    font-weight: 700; font-size: 13.5px;
+  }
+  #userProfileMsgBtn {
+    background: var(--bg-elevated);
+    border: 1px solid var(--line);
+    color: var(--text-hi);
+  }
+  #userProfileMsgBtn:active { background: var(--bg-panel); }
+  #userProfileFriendBtn.status-none { background: var(--coral); color: #1A0F0C; }
+  #userProfileFriendBtn.status-sent { background: var(--bg-elevated); border: 1px solid var(--line); color: var(--text-mid); }
+  #userProfileFriendBtn.status-received { background: var(--mint); color: #07261D; }
+  #userProfileFriendBtn.status-friends { background: var(--bg-elevated); border: 1px solid var(--line); color: var(--text-mid); }
+  #userProfileFriendBtn:active { filter: brightness(0.9); }
+
+  /* ---- friend requests screen ---- */
+  #friendReqsScreen {
+    display: none;
+    flex-direction: column;
+    position: fixed;
+    inset: 0;
+    background: var(--bg-deep);
+    z-index: 25;
+    overflow: hidden;
+  }
+  #friendReqsScreen.active { display: flex; }
+  #friendReqsHeader {
+    flex-shrink: 0;
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  #friendReqsBackBtn {
+    width: 36px; height: 36px;
+    border-radius: 12px;
+    background: var(--bg-elevated);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+  }
+  #friendReqsBackBtn:active { background: var(--bg-panel); }
+  #friendReqsTitle { font-family: 'Sora', sans-serif; font-weight: 700; font-size: 15.5px; }
+  #friendReqsSubTabs {
+    flex-shrink: 0;
+    display: flex; gap: 18px;
+    padding: 12px 18px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .friendReqsTab {
+    font-size: 13.5px; font-weight: 700;
+    color: var(--text-low);
+    padding-bottom: 12px;
+    position: relative;
+  }
+  .friendReqsTab.active { color: var(--text-hi); }
+  .friendReqsTab.active::after {
+    content: ''; position: absolute;
+    bottom: -1px; left: 0; right: 0;
+    height: 2px; background: var(--coral); border-radius: 2px;
+  }
+  #friendReqsList {
+    flex: 1; overflow-y: auto; overflow-x: hidden;
+    padding: 8px 14px 40px;
+  }
+  .friendReqItem {
+    display: flex; align-items: center; gap: 13px;
+    padding: 12px 8px;
+    border-radius: 14px;
+    margin-bottom: 2px;
+  }
+  .friendReqItem:active { background: var(--bg-elevated); }
+  .friendReqAvatar {
+    width: 50px; height: 50px;
+    border-radius: 16px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: 700; color: rgba(0,0,0,0.5);
+  }
+  .friendReqBody { flex: 1; min-width: 0; }
+  .friendReqName { font-family: 'Sora', sans-serif; font-weight: 700; font-size: 14.5px; margin-bottom: 2px; }
+  .friendReqTime { font-size: 11.5px; color: var(--text-low); margin-bottom: 8px; }
+  .friendReqBtns { display: flex; gap: 8px; }
+  .friendReqAccept, .friendReqReject, .friendReqPending {
+    padding: 7px 14px; border-radius: 999px;
+    font-size: 12px; font-weight: 700;
+  }
+  .friendReqAccept { background: var(--mint); color: #07261D; }
+  .friendReqAccept:active { filter: brightness(0.9); }
+  .friendReqReject { background: var(--bg-elevated); border: 1px solid var(--line); color: var(--text-mid); }
+  .friendReqReject:active { background: var(--bg-panel); }
+  .friendReqPending { background: var(--bg-elevated); border: 1px solid var(--line); color: var(--text-low); font-style: italic; }
+  .reqEmpty { text-align: center; color: var(--text-low); font-size: 13px; padding: 40px 20px; line-height: 1.6; }
+
+  /* ---- discover message compose modal ---- */
+  #discoverMsgModal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 70;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  #discoverMsgModal.show { display: flex; }
+  #discoverMsgModalCard {
+    width: 100%;
+    max-width: 480px;
+    background: var(--bg-panel);
+    border-radius: 24px 24px 0 0;
+    padding: 20px 18px calc(20px + env(safe-area-inset-bottom, 8px));
+  }
+  #discoverMsgModalHeader {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  #discoverMsgModalAvatar {
+    width: 36px; height: 36px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700;
+    color: rgba(0,0,0,0.5);
+    flex-shrink: 0;
+  }
+  #discoverMsgModalName {
+    font-family: 'Sora', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+  }
+  #discoverMsgModalInput {
+    width: 100%;
+    background: var(--bg-elevated);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 12px 14px;
+    font-size: 14px;
+    color: var(--text-hi);
+    font-family: 'Inter', sans-serif;
+    resize: none;
+    margin-bottom: 14px;
+  }
+  #discoverMsgModalInput::placeholder { color: var(--text-low); }
+  #discoverMsgModalActions {
+    display: flex;
+    gap: 10px;
+  }
+  #discoverMsgModalCancel, #discoverMsgModalSend {
+    flex: 1;
+    text-align: center;
+    padding: 13px;
+    border-radius: 14px;
+    font-weight: 700;
+    font-size: 14px;
+    font-family: 'Sora', sans-serif;
+  }
+  #discoverMsgModalCancel {
+    background: var(--bg-elevated);
+    color: var(--text-mid);
+    border: 1px solid var(--line);
+  }
+  #discoverMsgModalCancel:active { background: var(--bg-deep); }
+  #discoverMsgModalSend {
+    background: var(--coral);
+    color: #1A0F0C;
+  }
+  #discoverMsgModalSend:active { background: #e85a47; }
+  #discoverMsgModalSend.disabled { opacity: 0.4; }
+
+  /* ---- profile screen: edit view (slides over card view) ---- */
+  #profileEditView {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    inset: 0;
+    background: var(--bg-deep);
+    z-index: 5;
+    overflow: hidden;
+    max-width: 100%;
+  }
+  #profileEditView.active { display: flex; }
+  #profileScroll {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 8px 16px 100px;
+    box-sizing: border-box;
+    width: 100%;
+  }
+  #profileEditHeader {
+    flex-shrink: 0;
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  #profileBackBtn {
+    width: 36px; height: 36px;
+    border-radius: 12px;
+    background: var(--bg-elevated);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  #profileBackBtn:active { background: var(--bg-panel); }
+  #profileEditTitle {
+    font-family: 'Sora', sans-serif;
+    font-weight: 700;
+    font-size: 15.5px;
+  }
+
+  #screen-profile { position: absolute; inset: 0; overflow: hidden; }
+  #profileCardView {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 14px 16px calc(72px + env(safe-area-inset-bottom, 8px));
+    overflow-y: auto;
+    overflow-x: hidden;
+    gap: 8px;
+    box-sizing: border-box;
+  }
+
+  #editProfileRow, #personalPrefRow, #settingsRow {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  #profilePhotoSection {
+    width: 100%;
+    padding: 12px 0 22px;
+  }
+  #profilePhotoGrid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .profilePhotoSlot {
+    position: relative;
+    min-width: 0;
+    aspect-ratio: 4 / 3;
+    border: 1.5px dashed rgba(255,255,255,0.22);
+    border-radius: 16px;
+    background: var(--bg-elevated);
+    color: var(--text-mid);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    overflow: hidden;
+    cursor: pointer;
+  }
+  body.light-theme .profilePhotoSlot,
+  body.pink-theme .profilePhotoSlot { border-color: rgba(0,0,0,0.18); }
+  .profilePhotoSlot:active { background: var(--bg-panel); }
+  .profilePhotoPlus {
+    font-size: 28px;
+    line-height: 1;
+    font-weight: 300;
+    color: var(--text-hi);
+  }
+  .profilePhotoAddText {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-mid);
+  }
+  .profilePhotoSlot.has-photo {
+    border-style: solid;
+    border-color: var(--coral);
+  }
+  .profilePhotoSlot img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .profilePhotoSlot.has-photo .profilePhotoPlus,
+  .profilePhotoSlot.has-photo .profilePhotoAddText { display: none; }
+  @media (min-width: 768px) {
+    #profilePhotoGrid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  }
+
+  .profileField {
+    margin-bottom: 14px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .profileField label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-mid);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+  .profileField input[type="text"],
+  .profileField input[type="number"],
+  .profileField textarea {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    background: var(--bg-elevated);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 10px 12px;
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+    color: var(--text-hi);
+  }
+  .profileField input::placeholder,
+  .profileField textarea::placeholder { color: var(--text-low); }
+  .profileField textarea {
+    resize: none;
+    min-height: 78px;
+    line-height: 1.5;
+  }
+  #profileBioWrap {
+    position: relative;
+    width: 100%;
+  }
+  #profileBioWrap textarea {
+    display: block;
+    overflow: hidden;
+    padding-bottom: 30px;
+  }
+  #profileBioCounter {
+    position: absolute;
+    right: 12px;
+    bottom: 9px;
+    color: var(--text-low);
+    font-size: 11px;
+    font-weight: 700;
+    pointer-events: none;
+  }
+  .profileField input:focus,
+  .profileField textarea:focus {
+    outline: none;
+    border-color: var(--coral);
+  }
+
+  #genderSelectRow {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .genderOption {
+    padding: 10px 16px;
+    border-radius: 999px;
+    background: var(--bg-elevated);
+    border: 1.5px solid var(--line);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-mid);
+  }
+  .genderOption:active { background: var(--bg-panel); }
+  .genderOption.active {
+    border-color: var(--coral);
+    color: var(--text-hi);
+    background: var(--coral-soft);
+  }
+
+  #personalitySelectRow {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .personalityOption {
+    padding: 10px 16px;
+    border-radius: 999px;
+    background: var(--bg-elevated);
+    border: 1.5px solid var(--line);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-mid);
+  }
+  .personalityOption:active { background: var(--bg-panel); }
+  .personalityOption.active {
+    border-color: var(--mint);
+    color: var(--text-hi);
+    background: rgba(111,227,196,0.12);
+  }
+
+  #zodiacSelectRow {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .zodiacOption {
+    padding: 10px 14px;
+    border-radius: 999px;
+    background: var(--bg-elevated);
+    border: 1.5px solid var(--line);
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--text-mid);
+  }
+  .zodiacOption:active { background: var(--bg-panel); }
+  .zodiacOption.active {
+    border-color: var(--gold);
+    color: var(--text-hi);
+    background: rgba(255,198,92,0.14);
+  }
+
+  #langSelectTags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 10px;
+    min-height: 0;
+  }
+  .langSelectedTag {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--coral-soft);
+    color: var(--coral);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 7px 8px 7px 13px;
+    border-radius: 999px;
+  }
+  .langSelectedTag .removeLangTag {
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: rgba(255,107,87,0.25);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    line-height: 1;
+  }
+  #addLangRow {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .langOption {
+    padding: 9px 15px;
+    border-radius: 999px;
+    background: var(--bg-elevated);
+    border: 1.5px solid var(--line);
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--text-mid);
+  }
+  .langOption:active { background: var(--bg-panel); }
+  .langOption.selected {
+    display: none;
+  }
+
+  #interestTags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .interestTag {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--coral-soft);
+    color: var(--coral);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 7px 8px 7px 13px;
+    border-radius: 999px;
+  }
+  .interestTag .removeTag {
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: rgba(255,107,87,0.25);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    line-height: 1;
+  }
+  #addInterestRow {
+    display: flex;
+    gap: 8px;
+  }
+  #addInterestRow input {
+    flex: 1;
+    background: var(--bg-elevated);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-size: 13.5px;
+    color: var(--text-hi);
+    font-family: 'Inter', sans-serif;
+  }
+  #addInterestRow input:focus { outline: none; border-color: var(--coral); }
+  #addInterestRow input::placeholder { color: var(--text-low); }
+  #addInterestBtn {
+    background: var(--bg-elevated);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 10px 18px;
+    font-size: 13.5px;
+    font-weight: 700;
+    display: flex; align-items: center;
+    color: var(--text-mid);
+  }
+  #addInterestBtn:active { background: var(--bg-panel); }
+
+  /* ---- profile choice rows and shared bottom sheet ---- */
+  .profileLegacyChoiceField { display: none; }
+  .profileEditSection {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .profileEditSectionTitle {
+    font-family: 'Sora', sans-serif;
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--text-mid);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  #profileChoiceFields { 
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .profileChoiceRow {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    box-sizing: border-box;
+    cursor: pointer;
+  }
+  .profileChoiceRow:active { background: var(--bg-panel); }
+  .profileChoiceRow[data-profile-choice="height"] { margin-bottom: 10px; }
+  .profileChoiceText { flex: 1; min-width: 0; }
+  .profileChoiceLabel {
+    font-family: 'Sora', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-hi);
+  }
+  .profileChoiceValue {
+    margin-top: 3px;
+    font-size: 12px;
+    color: var(--text-mid);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .profileChoiceArrow {
+    color: var(--text-low);
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .heightSheetForm {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .heightSheetInputArea {
+    width: 100%;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .heightSheetInput {
+    background: var(--bg-elevated);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 12px 14px;
+    color: var(--text-hi);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    box-sizing: border-box;
+  }
+  .heightSheetInput:focus { outline: none; border-color: var(--coral); }
+  #sheetHeightCm { width: 100%; }
+  #sheetHeightFt, #sheetHeightIn {
+    flex: 1;
+    width: 50%;
+    height: auto;
+    padding: 12px 14px;
+    text-align: left;
+  }
+  #sheetHeightCm::-webkit-inner-spin-button,
+  #sheetHeightCm::-webkit-outer-spin-button,
+  #sheetHeightFt::-webkit-inner-spin-button,
+  #sheetHeightFt::-webkit-outer-spin-button,
+  #sheetHeightIn::-webkit-inner-spin-button,
+  #sheetHeightIn::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  #sheetHeightCm, #sheetHeightFt, #sheetHeightIn { -moz-appearance: textfield; }
+  .heightSheetBottomRow {
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  #resetHeightBtn {
+    flex: 1;
+    width: 100%;
+    margin: 0;
+    padding: 8px 12px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--bg-elevated);
+    color: var(--text-mid);
+    font-family: 'Inter', sans-serif;
+    font-size: 11.5px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  #resetHeightBtn:active { background: var(--bg-deep); }
+  #resetHeightBtn.disabled {
+    opacity: 0.35;
+    pointer-events: none;
+  }
+  .heightUnitRow {
+    display: flex;
+    align-items: flex-end;
+    gap: 5px;
+    margin-left: auto;
+  }
+  .heightUnitOption {
+    min-width: 30px;
+    padding: 5px 7px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--bg-elevated);
+    color: var(--text-mid);
+    text-align: center;
+    font-size: 10.5px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .heightUnitOption.active {
+    color: var(--text-hi);
+    border-color: var(--coral);
+    background: var(--coral-soft);
+  }
+
+  #profileChoiceSheetBackdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    background: rgba(0,0,0,0.55);
+    align-items: flex-end;
+    justify-content: center;
+  }
+  #profileChoiceSheetBackdrop.show { display: flex; }
+  #profileChoiceSheet {
+    width: 100%;
+    max-width: 560px;
+    max-height: 72vh;
+    background: var(--bg-panel);
+    border: 1px solid var(--line);
+    border-bottom: none;
+    border-radius: 24px 24px 0 0;
+    box-shadow: 0 -12px 35px rgba(0,0,0,0.35);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: zodiacSheetUp 0.22s ease-out;
+  }
+  #profileChoiceSheetHeader {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  #profileChoiceSheetTitle {
+    flex: 1;
+    font-family: 'Sora', sans-serif;
+    font-size: 15.5px;
+    font-weight: 700;
+    color: var(--text-hi);
+  }
+  #profileChoiceSheetClose {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 11px;
+    background: var(--bg-elevated);
+    color: var(--text-mid);
+    font-size: 21px;
+    cursor: pointer;
+  }
+  #profileChoiceSheetOptions {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    gap: 10px;
+    padding: 18px 16px 28px;
+  }
+  .profileChoiceOption {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 0;
+    padding: 10px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: var(--bg-elevated);
+    color: var(--text-mid);
+    font-size: 13px;
+    line-height: 1.2;
+    font-weight: 650;
+    cursor: pointer;
+  }
+  .profileChoiceOption.active {
+    color: var(--text-hi);
+    border-color: var(--coral);
+    background: var(--coral-soft);
+  }
+  .profileChoiceOptionCheck { display: none; color: var(--coral); font-weight: 800; }
+  .profileChoiceOption.active .profileChoiceOptionCheck { display: inline; }
+
+  /* Kişisel tercihlerdeki burçlar da yuvarlak seçenekler olsun. */
+  #zodiacSheetContent .prefOptionGroup--grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+  }
+  #zodiacSheetContent .prefOption {
+    width: auto;
+    margin-bottom: 0;
+    border-radius: 999px;
+    padding: 8px 11px;
+    font-size: 12px;
+  }
+
+  /* ---- profile edit tabs and preview ---- */
+  #profileEditTabs {
+    flex-shrink: 0;
+    display: flex;
+    gap: 8px;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  .profileEditTab {
+    flex: 1;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 10px 12px;
+    background: var(--bg-elevated);
+    color: var(--text-mid);
+    font-family: 'Sora', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .profileEditTab.active {
+    background: var(--coral);
+    border-color: var(--coral);
+    color: #1A0F0C;
+  }
+  .profileEditTab:disabled {
+    opacity: 0.38;
+    cursor: not-allowed;
+  }
+  #profilePreviewView {
+    display: none;
+    flex: 1;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 10px 12px 18px;
+  }
+  #profileEditView.previewing #profileScroll { display: none; }
+  #profileEditView.previewing #profilePreviewView { display: flex; }
+  #profilePreviewCard {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    max-width: 480px;
+    margin: 0 auto;
+    overflow: hidden;
+    border-radius: 24px;
+    background: var(--bg-panel);
+    border: 1px solid var(--line);
+  }
+  #profilePreviewPhoto {
+    position: absolute;
+    inset: 0;
+    background: var(--bg-elevated);
+  }
+  #profilePreviewPhoto img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  #profilePreviewPhotoShade {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.08) 48%, rgba(0,0,0,0.18) 58%, rgba(0,0,0,0.9) 100%);
+  }
+  #profilePreviewPhotoIndicators {
+    position: absolute;
+    top: 12px;
+    left: 14px;
+    right: 14px;
+    display: flex;
+    gap: 6px;
+    z-index: 3;
+  }
+  .profilePreviewPhotoIndicator {
+    flex: 1;
+    height: 4px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.42);
+  }
+  .profilePreviewPhotoIndicator.active { background: #FFFFFF; }
+  #profilePreviewDetails {
+    position: absolute;
+    left: 18px;
+    right: 18px;
+    bottom: 20px;
+    z-index: 3;
+    color: #FFFFFF;
+  }
+  #profilePreviewNameLine {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.45);
+  }
+  #profilePreviewName {
+    font-family: 'Sora', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+  }
+  #profilePreviewAge {
+    font-size: 22px;
+    font-weight: 700;
+  }
+  #profilePreviewSelectedFields {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+    max-height: 150px;
+    overflow: hidden;
+  }
+  .profilePreviewTag {
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(0,0,0,0.52);
+    color: #FFFFFF;
+    font-size: 13px;
+    font-weight: 700;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+  }
+  #profilePreviewDetailsSheet {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 55%;
+    z-index: 5;
+    padding: 12px 18px 22px;
+    border-radius: 22px 22px 0 0;
+    background: rgba(0,0,0,0.78);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    color: #FFFFFF;
+    overflow-y: auto;
+    transform: translateY(102%);
+    transition: transform 0.32s cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+  #profilePreviewCard.details-open #profilePreviewDetailsSheet {
+    transform: translateY(0);
+  }
+  .profilePreviewSheetHandle {
+    width: 42px;
+    height: 4px;
+    margin: 0 auto 14px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.48);
+  }
+  .profilePreviewSheetTitle {
+    font-family: 'Sora', sans-serif;
+    font-size: 15px;
+    font-weight: 800;
+    margin-bottom: 12px;
+  }
+  #profilePreviewBio {
+    font-size: 14px;
+    line-height: 1.5;
+    color: rgba(255,255,255,0.84);
+    margin-bottom: 14px;
+  }
+  #profilePreviewBio:empty { display: none; }
+  #profilePreviewDetailFields {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .profilePreviewDetailTag {
+    padding: 7px 10px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.14);
+    color: #FFFFFF;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  #profilePreviewDetailToggle {
+    position: absolute;
+    right: 16px;
+    bottom: 116px;
+    z-index: 7;
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.55);
+    color: #FFFFFF;
+    font-size: 22px;
+    cursor: pointer;
+    transition: transform 0.28s ease, bottom 0.32s ease;
+  }
+  #profilePreviewCard.details-open #profilePreviewDetailToggle {
+    bottom: calc(55% - 21px);
+    transform: rotate(180deg);
+  }
+
+  /* ---- responsive layout: phone and desktop ---- */
+  html, body {
+    min-width: 320px;
+    min-height: 100%;
+  }
+  #app {
+    width: 100vw;
+    max-width: none;
+    min-width: 0;
+    min-height: 100vh;
+    min-height: 100svh;
+  }
+
+  @media (min-width: 768px) {
+    /* Desktop'ta uygulama ekranın tamamını kaplar; dar bir telefon kutusu gibi kalmaz. */
+    html, body {
+      width: 100%;
+      max-width: none;
+      min-width: 100%;
+      background: var(--bg-deep);
+    }
+    #app {
+      width: 100vw;
+      max-width: none;
+      min-width: 100%;
+      height: 100vh;
+      height: 100svh;
+    }
+
+    #topbar {
+      padding-left: clamp(24px, 5vw, 80px);
+      padding-right: clamp(24px, 5vw, 80px);
+      padding-top: 24px;
+      padding-bottom: 18px;
+    }
+
+    #convList,
+    #reqList {
+      padding-left: clamp(24px, 5vw, 96px);
+      padding-right: clamp(24px, 5vw, 96px);
+    }
+
+    #profileCardView {
+      padding-left: clamp(24px, 5vw, 96px);
+      padding-right: clamp(24px, 5vw, 96px);
+    }
+
+    #profileScroll,
+    #profileViewScroll,
+    #personalPrefScroll,
+    #settingsScroll {
+      padding-left: clamp(24px, 5vw, 96px);
+      padding-right: clamp(24px, 5vw, 96px);
+    }
+
+    /* Keşfet kartı bilgisayarda çok fazla yayılmasın, ama uygulamanın arka planı tam genişlikte kalsın. */
+    #discoverStack {
+      width: min(760px, calc(100% - 80px));
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    #zodiacSheet,
+    #discoverMsgModalCard {
+      max-width: 720px;
+    }
+  }
+
+  @media (max-width: 767px) {
+    /* Telefonda mevcut görünüm korunur. */
+    #app {
+      width: 100%;
+      max-width: 100%;
+    }
+    /* Telefonda keşfet kartı ekran genişliğini daha iyi kullansın. */
+    #screen-like #discoverStack {
+      padding-left: 0;
+      padding-right: 0;
+      padding-bottom: 0;
+    }
+    #screen-like #discoverCards {
+      width: 100%;
+      height: 100%;
+    }
+    #screen-like .discoverCard {
+      border-radius: 22px;
+    }
+    /* Küre ekranın tam merkezinde kalsın; yan yüzler düğmelerin altından geçmesin. */
+    .discoverModePeek {
+      width: 50px;
+      padding-left: 5px;
+      padding-right: 5px;
+    }
+    .discoverModePeek--left {
+      left: calc(50% - 92px);
+    }
+    .discoverModePeek--right {
+      left: calc(50% + 92px);
+    }
+    .discoverModeFace.is-prev {
+      left: calc(50% - 92px);
+      width: 50px;
+      padding-left: 5px;
+      padding-right: 5px;
+    }
+    .discoverModeFace.is-next {
+      left: calc(50% + 92px);
+      width: 50px;
+      padding-left: 5px;
+      padding-right: 5px;
+    }
+  }
+
+  @media (min-width: 768px) {
+    /* Tarayıcı penceresinde uygulamayı gerçekten tam alana yay. */
+    html, body {
+      margin: 0 !important;
+      padding: 0 !important;
+      width: 100% !important;
+      max-width: none !important;
+    }
+    #app {
+      position: fixed;
+      inset: 0;
+      width: auto !important;
+      height: auto !important;
+      max-width: none !important;
+      min-width: 100%;
+      min-height: 100%;
+    }
+
+    /* Keşfet alanı da masaüstünde dar bir telefon sütunu olarak kalmasın. */
+    #discoverStack {
+      width: 100%;
+      max-width: none;
+      margin-left: 0;
+      margin-right: 0;
+    }
+
+    /* Masaüstü düğmelerini doğrudan pencerenin iki kenarına bağla. */
+    #discoverTopBtns {
+      left: 50%;
+      right: auto;
+      width: 100vw;
+      max-width: none;
+      transform: translateX(-50%);
+    }
+    #undoBtn { left: 24px; }
+    #discoverFilterBtn { right: 24px; }
+  }
+  /* ---- mobile discover card: full available area ---- */
+  @media (max-width: 767px) {
+    #screen-like #discoverStack {
+      position: relative;
+      flex: 1 1 0;
+      min-height: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+    #screen-like #discoverCards {
+      position: absolute;
+      inset: 0;
+      width: auto;
+      height: auto;
+    }
+    #screen-like .discoverCard {
+      inset: 0;
+      border-radius: 22px;
+    }
+    #screen-like .cardTop {
+      padding-top: 70px;
+    }
+  }
+  @media (max-width: 767px) {
+    /* Kartın dış çerçevesini telefonda gerçek ekran genişliğine taşır. */
+    #screen-like #discoverStack {
+      width: calc(100% + 40px);
+      max-width: none;
+      margin-left: -20px;
+      margin-right: -20px;
+      padding-left: 0;
+      padding-right: 0;
+    }
+    #screen-like #discoverCards {
+      left: 0;
+      right: 0;
+      width: auto;
+    }
+  }
+  @media (max-width: 767px) {
+    /* Telefon için dengeli kart genişliği: taşmadan, yaklaşık 8 px kenar boşluğu. */
+    #screen-like #discoverStack {
+      width: 100%;
+      max-width: 100%;
+      margin-left: 0;
+      margin-right: 0;
+      padding-left: 0;
+      padding-right: 0;
+    }
+    #screen-like #discoverCards {
+      left: 8px;
+      right: 8px;
+      width: auto;
+    }
+  }
+  #profileAge::-webkit-inner-spin-button,
+  #profileAge::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  #profileAge { -moz-appearance: textfield; }
+  /* Seçim tikleri kaldırıldı; aktif durum renk/çerçeve ile gösterilir. */
+  .prefOptionCheck,
+  .profileChoiceOptionCheck {
+    display: none !important;
+  }
+  .profileChoiceOption {
+    gap: 0;
+  }
+  /* Yaşam tarzı ve diğer bölüm satırları arasında net boşluk */
+  .profileEditSection .profileChoiceRow {
+    margin-bottom: 10px;
+  }
+  .profileEditSection .profileChoiceRow:last-child {
+    margin-bottom: 0;
+  }
+  /* Profil bölümlerinde dengeli dikey boşluk */
+  .profileEditSection {
+    gap: 0;
+    margin-top: 12px;
+    margin-bottom: 18px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+  .profileEditSectionTitle {
+    margin-bottom: 12px;
+  }
+  .profileEditSection .profileChoiceRow {
+    margin-bottom: 10px;
+  }
+  .profileEditSection .profileChoiceRow:last-child {
+    margin-bottom: 0;
+  }
+  /* Fotoğraf alanları: yatay ve kaydırılabilir galeri */
+  #profilePhotoGrid {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 4px;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  #profilePhotoGrid::-webkit-scrollbar { display: none; }
+  .profilePhotoSlot {
+    flex: 0 0 calc((100% - 20px) / 3);
+    width: calc((100% - 20px) / 3);
+    aspect-ratio: 3 / 4;
+    scroll-snap-align: start;
+  }
+  #profilePhotoGrid {
+    cursor: grab;
+    touch-action: pan-x;
+  }
+  #profilePhotoGrid.dragging {
+    cursor: grabbing;
+    scroll-snap-type: none;
+  }
+  /* Profil düzenlemedeki beyaz kaydırma çubuğunu gizle; kaydırma devam eder. */
+  #profileScroll {
+    scrollbar-width: none;
+  }
+  #profileScroll::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
+  }
+  /* Fotoğraf alanı: 3 sütunlu, 9 kartlık dikey ızgara */
+  #profilePhotoGrid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    overflow: visible;
+    padding-bottom: 0;
+    scroll-snap-type: none;
+    cursor: default;
+    touch-action: auto;
+  }
+  .profilePhotoSlot {
+    flex: none;
+    width: 100%;
+    aspect-ratio: 0.72 / 1;
+    scroll-snap-align: none;
+  }
+  .profilePhotoPlus {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: #FFFFFF;
+    color: #111111;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    line-height: 1;
+    font-weight: 300;
+  }
+  .profilePhotoAddText { display: none; }
+  .profilePhotoRemove {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: #000000;
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    font-weight: 300;
+    line-height: 1;
+  }
+  .profilePhotoSlot.has-photo { border-color: transparent; }
+  #profilePhotoGrid {
+    overflow: hidden;
+    transition: max-height 0.28s ease;
+  }
+  #togglePhotoGridBtn {
+    display: block;
+    width: 100%;
+    margin: 10px 0 0;
+    padding: 9px 12px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--bg-elevated);
+    color: var(--text-mid);
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  #togglePhotoGridBtn:active { background: var(--bg-panel); }
+  @media (min-width: 768px) {
+    #profilePhotoGrid {
+      width: min(100%, 680px);
+      margin-left: auto;
+      margin-right: auto;
+    }
+    #togglePhotoGridBtn {
+      width: min(100%, 680px);
+      margin-left: auto;
+      margin-right: auto;
+    }
+  }
+  #profilePhotoGrid {
+    column-gap: 14px;
+    row-gap: 14px;
+  }
+  #photoGridToggleBar {
+    position: relative;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    margin-top: -2px;
+    padding: 10px 10px 0;
+    border-top: 1px solid rgba(255,255,255,0.09);
+    border-radius: 0 0 16px 16px;
+    background: rgba(255,255,255,0.035);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+  }
+  #togglePhotoGridBtn {
+    background: var(--bg-elevated);
+    border-color: var(--line);
+    color: var(--text-mid);
+    margin: 0;
+  }
+  #togglePhotoGridBtn:active { background: var(--bg-panel); }
+  #profileAge::-webkit-inner-spin-button,
+  #profileAge::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  #profileAge { -moz-appearance: textfield; }
+  /* ---- clean header and full-screen profile preview ---- */
+  #topbarTitle { display: none; }
+  #profileEditView {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    background: var(--bg-deep);
+  }
+  #profileEditView.previewing #profilePreviewView {
+    padding: 0;
+  }
+  #profileEditView.previewing #profilePreviewCard {
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+  }
+  /* Fotoğrafa uzun basarken tarayıcının yerel menüsünü engelle */
+  .profilePhotoSlot,
+  .profilePhotoSlot img {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+  .profilePhotoSlot img { pointer-events: none; }
+  .photoDragGhost {
+    position: fixed;
+    z-index: 200;
+    pointer-events: none;
+    border-radius: 16px;
+    overflow: hidden;
+    opacity: 0.9;
+    transform: translate(-50%, -50%) rotate(2deg) scale(1.03);
+    box-shadow: 0 14px 32px rgba(0,0,0,0.42);
+    border: 2px solid rgba(255,255,255,0.55);
+  }
+  .profilePhotoSlot { touch-action: none; }
+  .photoDragGhost img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+    -webkit-user-drag: none;
+  }
+  #topbar > div:last-child { margin-left: auto; }
+
+  /* Uzun biyografiler yalnızca kendi alanında kaydırılır. */
+  .cardBio {
+    max-height: 92px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 4px;
+    scrollbar-width: none;
+    touch-action: pan-y;
+  }
+  .cardBio::-webkit-scrollbar,
+  .profilePreviewBioDetail::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+  .profilePreviewBioDetail {
+    max-width: 100%;
+    max-height: 120px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 9px 12px;
+    border-radius: 14px;
+    background: rgba(0,0,0,0.52);
+    color: #FFFFFF;
+    font-size: 13px;
+    line-height: 1.45;
+    scrollbar-width: none;
+    touch-action: pan-y;
+  }
+  /* Biyografi alanları sınırlı ve kendi içinde kaydırılabilir */
+  #profileBioWrap textarea {
+    max-height: 120px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none;
+  }
+  #profileBioWrap textarea::-webkit-scrollbar { display: none; }
+  .profilePreviewBioDetail {
+    width: 55%;
+    max-width: 55%;
+    max-height: 78px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none;
+  }
+  .cardBio {
+    width: 55%;
+    max-width: 55%;
+    max-height: 78px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none;
+  }
+  .cardBio::-webkit-scrollbar,
+  .profilePreviewBioDetail::-webkit-scrollbar { display: none; }
+  /* Biyografi için gerçek, sabit ve kendi içinde kaydırılan alan */
+  .profilePreviewBioDetail {
+    display: block;
+    width: 55%;
+    max-width: 55%;
+    height: 78px;
+    max-height: 78px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    touch-action: pan-y;
+  }
+  .profilePreviewBioDetail::-webkit-scrollbar,
+  .cardBio::-webkit-scrollbar { display: none; }
+  .cardBio {
+    width: 55%;
+    max-width: 55%;
+    height: 78px;
+    max-height: 78px;
+    flex: 0 0 78px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    touch-action: pan-y;
+  }
+  .cardBio:empty { display: none; }
+  .profilePreviewBioDetail,
+  .cardBio,
+  #profileBioWrap textarea {
+    min-width: 0;
+    box-sizing: border-box;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+  .profilePreviewBioDetail,
+  .cardBio {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    flex: 0 0 78px;
+  }
+  #profilePreviewSelectedFields.has-scrollable-bio {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+  }
+  .profilePreviewBioDetail,
+  .cardBio {
+    width: 50% !important;
+    max-width: 50% !important;
+    min-width: 0 !important;
+    height: 90px !important;
+    max-height: 90px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    white-space: pre-wrap !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .profilePreviewBioDetail::-webkit-scrollbar,
+  .cardBio::-webkit-scrollbar { display: none; }
+  .profilePreviewDetailBio {
+    width: 100%;
+    max-height: 120px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    padding: 9px 12px;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.12);
+    color: #FFFFFF;
+    font-size: 13px;
+    line-height: 1.45;
+    box-sizing: border-box;
+    scrollbar-width: none;
+    touch-action: pan-y;
+  }
+  .profilePreviewDetailBio::-webkit-scrollbar { display: none; }
+  /* Biyografi: kartın tamamını kullanan, satırları kırılan kaydırılabilir alan */
+  .profilePreviewBioDetail,
+  .cardBio {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    height: 90px !important;
+    max-height: 90px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    white-space: pre-wrap !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .profilePreviewBioDetail::-webkit-scrollbar,
+  .cardBio::-webkit-scrollbar { display: none; }
+  /* Biyografi taşmasını ve koyu arka planını kaldır */
+  #profileViewBio,
+  .profilePreviewBioDetail,
+  .profilePreviewDetailBio,
+  .cardBio {
+    display: block;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box;
+    white-space: pre-wrap !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+    background: transparent !important;
+    border: none !important;
+  }
+  .profilePreviewBioDetail,
+  .profilePreviewDetailBio,
+  .cardBio {
+    max-height: 110px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  #profileViewBio {
+    max-height: 180px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none;
+  }
+  #profileViewBio::-webkit-scrollbar,
+  .profilePreviewBioDetail::-webkit-scrollbar,
+  .profilePreviewDetailBio::-webkit-scrollbar,
+  .cardBio::-webkit-scrollbar { display: none; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div id="topbar">
+    <h1 id="topbarTitle">Mesajlar</h1>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span class="count" id="topbarCount">3 sohbet</span>
+      <div id="friendReqsBtn">👥<span id="friendReqsDot"></span></div>
+    </div>
+  </div>
+
+  <div id="screens">
+
+    <!-- MESAJLAR -->
+    <div class="screen active" id="screen-messages">
+      <div id="msgTopTabs">
+        <div class="msgTopTab active" data-tab="messages">Mesajlar</div>
+        <div class="msgTopTab" data-tab="requests">İstekler<span id="requestsDot" class="tabDot"></span></div>
+      </div>
+
+      <div id="convList"></div>
+
+      <div id="requestsPanel">
+        <div id="reqSubTabs">
+          <div class="reqSubTab active" data-sub="sent">Gönderilen</div>
+          <div class="reqSubTab" data-sub="received">Gelen</div>
+        </div>
+        <div id="reqList"></div>
+      </div>
+    </div>
+
+    <!-- KEŞFET -->
+    <div class="screen" id="screen-like">
+      <div id="discoverStack">
+        <div id="discoverModeSwitcher" aria-label="Keşfet modu seçimi">
+          <div class="discoverModeFace" data-mode-index="0">Arkadaşlık</div>
+          <div class="discoverModeFace" data-mode-index="1">Flört</div>
+          <div class="discoverModeFace" data-mode-index="2">Hızlı Flört</div>
+        </div>
+        <div id="discoverTopBtns">
+          <div class="discoverTopBtn" id="undoBtn">↺</div>
+          <div class="discoverTopBtn" id="discoverFilterBtn">🌍</div>
+        </div>
+        <div id="discoverCards"></div>
+        <div id="discoverEmpty">
+          <div class="icon">🎉</div>
+          <h2>Şimdilik bu kadar</h2>
+          <p>Yeni profiller için daha sonra tekrar uğra.</p>
+        </div>
+      </div>
+      <div id="discoverActions">
+        <div class="discoverBtn discoverBtn--pass" id="passBtn">✕</div>
+        <div class="discoverBtn discoverBtn--message" id="discoverMsgBtn">💬</div>
+        <div class="discoverBtn discoverBtn--super" id="superLikeBtn">★</div>
+        <div class="discoverBtn discoverBtn--like" id="likeBtn">♥</div>
+      </div>
+
+      <!-- ülke + yaş filtre görünümü -->
+      <div id="discoverFilterView">
+        <div id="discoverFilterHeader">
+          <div id="discoverFilterBackBtn">←</div>
+          <div id="discoverFilterTitle">Tercihler</div>
+        </div>
+        <div id="discoverFilterScroll">
+
+          <div class="prefSection discoverDistanceSection">
+            <label class="prefSectionLabel">Önerilecek mesafe</label>
+            <div id="discoverDistanceDisplay">200 km</div>
+            <div id="discoverDistanceWrap">
+              <div id="discoverDistanceTrack">
+                <div id="discoverDistanceFill"></div>
+                <div class="dualHandle" id="discoverDistanceHandle"><span class="dualHandleLabel" id="discoverDistanceLabel">200</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="profileChoiceRow discoverPreferenceChoiceRow" data-profile-choice="country" data-profile-choice-scope="preference">
+            <div class="profileChoiceText"><div class="profileChoiceLabel">Önerilecek ülke</div><div class="profileChoiceValue" id="discoverPreferenceValue-country">Tümü</div></div>
+            <div class="profileChoiceArrow">›</div>
+          </div>
+          <div class="prefSection">
+            <label class="prefSectionLabel">Yaş aralığı</label>
+            <div id="discoverAgeRangeDisplay">18 - 25</div>
+            <div id="discoverDualRangeWrap">
+              <div id="discoverDualRangeTrack">
+                <div id="discoverDualRangeFill"></div>
+                <div class="dualHandle" id="discoverHandleMin"><span class="dualHandleLabel" id="discoverLabelMin">18</span></div>
+                <div class="dualHandle" id="discoverHandleMax"><span class="dualHandleLabel" id="discoverLabelMax">25</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="profileChoiceRow discoverPreferenceChoiceRow" data-profile-choice="gender" data-profile-choice-scope="preference">
+            <div class="profileChoiceText"><div class="profileChoiceLabel">Önerilecek cinsiyet</div><div class="profileChoiceValue" id="discoverPreferenceValue-gender">Seçilmedi</div></div>
+            <div class="profileChoiceArrow">›</div>
+          </div>
+          <div class="profileChoiceRow discoverPreferenceChoiceRow" data-profile-choice="zodiac" data-profile-choice-scope="preference">
+            <div class="profileChoiceText"><div class="profileChoiceLabel">Önerilecek burç</div><div class="profileChoiceValue" id="discoverPreferenceValue-zodiac">Tümü</div></div>
+            <div class="profileChoiceArrow">›</div>
+          </div>
+          <div class="profileChoiceRow discoverPreferenceChoiceRow" data-profile-choice="languages" data-profile-choice-scope="preference">
+            <div class="profileChoiceText"><div class="profileChoiceLabel">Önerilecek dil</div><div class="profileChoiceValue" id="discoverPreferenceValue-languages">Tümü</div></div>
+            <div class="profileChoiceArrow">›</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROFİL -->
+    <div class="screen" id="screen-profile">
+
+      <!-- profil ana ekranı (kart listesi) -->
+      <div id="profileCardView">
+
+        <!-- profile butonu - tıklayınca profil önizlemesi açılır -->
+        <div id="profileMainRow">
+          <div id="profileMainAvatar" style="background: linear-gradient(135deg, #FF6B57, #FFC65C);">
+            <span id="profileMainInitial">A</span>
+          </div>
+          <div id="profileMainInfo">
+            <div id="profileMainName">Ada</div>
+            <div id="profileMainMeta">19 · Türkçe</div>
+          </div>
+          <div id="profileMainArrow">›</div>
+        </div>
+
+        <div id="personalPrefRow">
+          <div id="personalPrefRowText">
+            <div id="personalPrefRowTitle">Kişisel Tercihler</div>
+            <div id="personalPrefRowValue">Herkes · 18-25 · Tümü</div>
+          </div>
+          <div id="personalPrefRowArrow">›</div>
+        </div>
+
+        <div id="settingsRow">
+          <div id="settingsRowText">Ayarlar</div>
+          <div id="settingsRowArrow">›</div>
+        </div>
+
+      </div>
+
+      <!-- profil önizleme + düzenleme (profilMainRow'a tıklayınca açılır) -->
+      <div id="profileViewScreen">
+        <div id="profileViewHeader">
+          <div id="profileViewBackBtn">←</div>
+          <div id="profileViewTitle">Profilim</div>
+          <div id="profileViewEditBtn">✏️ Düzenle</div>
+        </div>
+        <div id="profileViewScroll">
+          <div id="profileViewTop">
+            <div id="profileViewAvatar" style="background: linear-gradient(135deg, #FF6B57, #FFC65C);">
+              <span id="profileViewInitial">A</span>
+            </div>
+            <div id="profileViewName">Ada</div>
+            <div id="profileViewMeta">19 · Türkçe · Koç</div>
+            <div id="profileViewPersonality">Enerjik</div>
+          </div>
+          <div id="socialStats">
+            <div class="socialStat" id="statFriends">
+              <div class="statNum" id="statFriendsNum">1</div>
+              <div class="statLabel">Arkadaş</div>
+            </div>
+            <div class="socialStatDivider"></div>
+            <div class="socialStat" id="statFollowing">
+              <div class="statNum" id="statFollowingNum">3</div>
+              <div class="statLabel">Takip</div>
+            </div>
+            <div class="socialStatDivider"></div>
+            <div class="socialStat" id="statFollowers">
+              <div class="statNum" id="statFollowersNum">5</div>
+              <div class="statLabel">Takipçi</div>
+            </div>
+          </div>
+          <div id="profileViewBio">Dijital çizim, oyun ve iyi sohbet seven biriyim.</div>
+          <div id="profileViewInterests"></div>
+        </div>
+      </div>
+
+      <!-- sosyal liste görünümü (arkadaşlar / takip / takipçiler) -->
+      <div id="socialListView">
+        <div id="socialListHeader">
+          <div id="socialListBackBtn">←</div>
+          <div id="socialListTitle">Arkadaşlar</div>
+        </div>
+        <div id="socialListContent"></div>
+      </div>
+
+      <!-- kişisel tercihler görünümü -->
+      <div id="personalPrefView">
+        <div id="personalPrefHeader">
+          <div id="personalPrefBackBtn">←</div>
+          <div id="personalPrefTitle">Kişisel Tercihler</div>
+        </div>
+        <div id="personalPrefScroll">
+
+          <div class="accordionItem">
+            <div class="accordionHeader" data-target="genderAccordion">
+              <span class="accordionLabel">Önerilecek cinsiyet</span>
+              <span class="accordionValue" id="genderAccordionVal">Herkes</span>
+              <span class="accordionArrow">›</span>
+            </div>
+            <div class="accordionBody" id="genderAccordion">
+              <div id="genderPrefOptions" class="prefOptionGroup">
+                <div class="prefOption active" data-gender="Herkes"><span class="prefOptionLabel">Herkes</span><span class="prefOptionCheck">✓</span></div>
+                <div class="prefOption" data-gender="Kadın"><span class="prefOptionLabel">Kadın</span><span class="prefOptionCheck">✓</span></div>
+                <div class="prefOption" data-gender="Erkek"><span class="prefOptionLabel">Erkek</span><span class="prefOptionCheck">✓</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="prefSection modeAgePreference" id="agePreferenceSection">
+            <label class="prefSectionLabel">Önerilecek yaş aralığı</label>
+            <div id="ageRangeDisplay">18 - 25</div>
+            <div id="dualRangeWrap">
+              <div id="dualRangeTrack">
+                <div id="dualRangeFill"></div>
+                <div class="dualHandle" id="handleMin"><span class="dualHandleLabel" id="labelMin">18</span></div>
+                <div class="dualHandle" id="handleMax"><span class="dualHandleLabel" id="labelMax">25</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="accordionItem" id="zodiacTriggerItem">
+            <div class="accordionHeader zodiacSheetTrigger" id="zodiacSheetTrigger">
+              <span class="accordionLabel">Önerilecek burç</span>
+              <span class="accordionValue" id="zodiacAccordionVal">Tümü</span>
+              <span class="accordionArrow">›</span>
+            </div>
+          </div>
+
+          <div class="accordionItem">
+            <div class="accordionHeader" data-target="langAccordion">
+              <span class="accordionLabel">Önerilecek dil</span>
+              <span class="accordionValue" id="langAccordionVal">Tümü</span>
+              <span class="accordionArrow">›</span>
+            </div>
+            <div class="accordionBody" id="langAccordion">
+              <div id="langPrefOptions" class="prefOptionGroup">
+                <div class="prefOption active" data-lang="Tümü"><span class="prefOptionLabel">Tümü</span><span class="prefOptionCheck">✓</span></div>
+                <div class="prefOption" data-lang="Türkçe"><span class="prefOptionLabel">Türkçe</span><span class="prefOptionCheck">✓</span></div>
+                <div class="prefOption" data-lang="English"><span class="prefOptionLabel">English</span><span class="prefOptionCheck">✓</span></div>
+                <div class="prefOption" data-lang="Deutsch"><span class="prefOptionLabel">Deutsch</span><span class="prefOptionCheck">✓</span></div>
+                <div class="prefOption" data-lang="Русский"><span class="prefOptionLabel">Русский</span><span class="prefOptionCheck">✓</span></div>
+                <div class="prefOption" data-lang="العربية"><span class="prefOptionLabel">العربية</span><span class="prefOptionCheck">✓</span></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- burç seçimi alt paneli -->
+        <div id="zodiacSheetBackdrop">
+          <div id="zodiacSheet" role="dialog" aria-modal="true" aria-labelledby="zodiacSheetTitle">
+            <div id="zodiacSheetHeader">
+              <div id="zodiacSheetTitle">Önerilecek burç</div>
+              <div id="zodiacSheetCloseBtn" aria-label="Kapat">×</div>
+            </div>
+            <div id="zodiacSheetContent">
+              <div id="zodiacPrefOptions" class="prefOptionGroup prefOptionGroup--grid">
+                <div class="prefOption active" data-zodiac="Tümü"><span class="prefOptionLabel">Tümü</span><span class="prefOptionCheck">✓</span></div>
+                <div class="prefOption" data-zodiac="Koç"><span class="prefOptionLabel">♈ Koç</span><span class="prefOptionCheck">✓</span></div>
+                <div class="prefOption" data-zodiac="Boğa"><span class="prefOptionLabel">♉ Boğa</span><span class="prefOptionCheck">✓</span></div>
+                <div class="prefOption" data-zodiac="İkizler"><span class="prefOptionLabel">♊ İkizler</span><span class="prefOptionCheck">✓</span></div>
+                <div class="prefOption" data-zodiac="Yengeç"><span class="prefOptionLabel">♋ Yengeç</span><span class="prefOptionCheck">✓</span></div>
+                <div class="prefOption" data-zodiac="Aslan"><span class="prefOptionLabel">♌ Aslan</span><span class="prefOptionCheck">✓</span></div>
+                <div class="prefOption" data-zodiac="Başak"><span class="prefOptionLabel">♍ Başak</span><span class="prefOptionCheck">✓</span></div>
+                <div class="prefOption" data-zodiac="Terazi"><span class="prefOptionLabel">♎ Terazi</span><span class="prefOptionCheck">✓</span></div>
+                <div class="prefOption" data-zodiac="Akrep"><span class="prefOptionLabel">♏ Akrep</span><span class="prefOptionCheck">✓</span></div>
+                <div class="prefOption" data-zodiac="Yay"><span class="prefOptionLabel">♐ Yay</span><span class="prefOptionCheck">✓</span></div>
+                <div class="prefOption" data-zodiac="Oğlak"><span class="prefOptionLabel">♑ Oğlak</span><span class="prefOptionCheck">✓</span></div>
+                <div class="prefOption" data-zodiac="Kova"><span class="prefOptionLabel">♒ Kova</span><span class="prefOptionCheck">✓</span></div>
+                <div class="prefOption" data-zodiac="Balık"><span class="prefOptionLabel">♓ Balık</span><span class="prefOptionCheck">✓</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ayarlar görünümü -->
+      <div id="settingsView">
+        <div id="settingsHeader">
+          <div id="settingsBackBtn">←</div>
+          <div id="settingsTitle">Ayarlar</div>
+        </div>
+        <div id="settingsScroll">
+          <div class="settingsSection">
+            <label class="settingsLabel">Tema</label>
+            <div id="themeOptions">
+              <div class="themeOption active" data-theme="dark">
+                <div class="themeSwatch theme-dark-swatch"></div>
+                <div class="themeOptionLabel">Koyu</div>
+              </div>
+              <div class="themeOption" data-theme="light">
+                <div class="themeSwatch theme-light-swatch"></div>
+                <div class="themeOptionLabel">Açık</div>
+              </div>
+              <div class="themeOption" data-theme="black">
+                <div class="themeSwatch theme-black-swatch"></div>
+                <div class="themeOptionLabel">Siyah</div>
+              </div>
+              <div class="themeOption" data-theme="red">
+                <div class="themeSwatch theme-red-swatch"></div>
+                <div class="themeOptionLabel">Kırmızı</div>
+              </div>
+              <div class="themeOption" data-theme="pink">
+                <div class="themeSwatch theme-pink-swatch"></div>
+                <div class="themeOptionLabel">Pembe</div>
+              </div>
+              <div class="themeOption" data-theme="purple">
+                <div class="themeSwatch theme-purple-swatch"></div>
+                <div class="themeOptionLabel">Mor</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- profil düzenleme görünümü -->
+      <div id="profileEditView">
+        <div id="profileEditHeader">
+          <div id="profileBackBtn">←</div>
+          <div id="profileEditTitle">Profili Düzenle</div>
+        </div>
+        <div id="profileEditTabs">
+          <button type="button" class="profileEditTab active" id="profileEditEditTab">Düzenle</button>
+          <button type="button" class="profileEditTab" id="profileEditPreviewTab" disabled>Önizle</button>
+        </div>
+        <div id="profileScroll">
+
+          <div id="profilePhotoSection">
+            <div id="profilePhotoGrid">
+              <button type="button" class="profilePhotoSlot" data-photo-index="0" aria-label="1. fotoğraf ekle">
+                <span class="profilePhotoPlus">+</span>
+                <span class="profilePhotoAddText">Ekle</span>
+              </button>
+              <button type="button" class="profilePhotoSlot" data-photo-index="1" aria-label="2. fotoğraf ekle">
+                <span class="profilePhotoPlus">+</span>
+                <span class="profilePhotoAddText">Ekle</span>
+              </button>
+              <button type="button" class="profilePhotoSlot" data-photo-index="2" aria-label="3. fotoğraf ekle">
+                <span class="profilePhotoPlus">+</span>
+                <span class="profilePhotoAddText">Ekle</span>
+              </button>
+              <button type="button" class="profilePhotoSlot" data-photo-index="3" aria-label="4. fotoğraf ekle">
+                <span class="profilePhotoPlus">+</span>
+                <span class="profilePhotoAddText">Ekle</span>
+              </button>
+              <button type="button" class="profilePhotoSlot" data-photo-index="4" aria-label="5. fotoğraf ekle">
+                <span class="profilePhotoPlus">+</span>
+                <span class="profilePhotoAddText">Ekle</span>
+              </button>
+              <button type="button" class="profilePhotoSlot" data-photo-index="5" aria-label="6. fotoğraf ekle">
+                <span class="profilePhotoPlus">+</span>
+                <span class="profilePhotoAddText">Ekle</span>
+              </button>
+              <button type="button" class="profilePhotoSlot" data-photo-index="6" aria-label="7. fotoğraf ekle">
+                <span class="profilePhotoPlus">+</span>
+                <span class="profilePhotoAddText">Ekle</span>
+              </button>
+              <button type="button" class="profilePhotoSlot" data-photo-index="7" aria-label="8. fotoğraf ekle">
+                <span class="profilePhotoPlus">+</span>
+                <span class="profilePhotoAddText">Ekle</span>
+              </button>
+              <button type="button" class="profilePhotoSlot" data-photo-index="8" aria-label="9. fotoğraf ekle">
+                <span class="profilePhotoPlus">+</span>
+                <span class="profilePhotoAddText">Ekle</span>
+              </button>
+            </div>
+            <div id="photoGridToggleBar">
+              <button type="button" id="togglePhotoGridBtn">Tüm fotoğrafları göster ↓</button>
+            </div>
+            <input type="file" id="profilePhotoInput" accept="image/*" multiple hidden>
+          </div>
+
+          <div class="profileField">
+            <label>İsim</label>
+            <input type="text" id="profileName" value="Ada" placeholder="İsmin">
+          </div>
+
+          <div class="profileField">
+            <label>Yaş</label>
+            <input type="number" id="profileAge" max="100" value="19" placeholder="Yaşın">
+          </div>
+
+          <div class="profileField profileLegacyChoiceField">
+            <label>Konuşabildiğim diller</label>
+            <div id="langSelectTags"></div>
+            <div id="addLangRow">
+              <div class="langOption" data-lang="Türkçe">Türkçe</div>
+              <div class="langOption" data-lang="English">English</div>
+              <div class="langOption" data-lang="Deutsch">Deutsch</div>
+              <div class="langOption" data-lang="Русский">Русский</div>
+              <div class="langOption" data-lang="العربية">العربية</div>
+            </div>
+          </div>
+
+          <div class="profileField profileLegacyChoiceField">
+            <label>Cinsiyet</label>
+            <div id="genderSelectRow">
+              <div class="genderOption active" data-gender="Kadın">Kadın</div>
+              <div class="genderOption" data-gender="Erkek">Erkek</div>
+            </div>
+          </div>
+
+          <div class="profileField profileLegacyChoiceField">
+            <label>Kişilik tipi</label>
+            <div id="personalitySelectRow">
+              <div class="personalityOption active" data-personality="Enerjik">Enerjik</div>
+              <div class="personalityOption" data-personality="Sakin">Sakin</div>
+              <div class="personalityOption" data-personality="Pasif">Pasif</div>
+              <div class="personalityOption" data-personality="Depresif">Depresif</div>
+              <div class="personalityOption" data-personality="Dışa dönük">Dışa dönük</div>
+              <div class="personalityOption" data-personality="İçe dönük">İçe dönük</div>
+            </div>
+          </div>
+
+          <div class="profileField profileLegacyChoiceField">
+            <label>Burcun</label>
+            <div id="zodiacSelectRow">
+              <div class="zodiacOption active" data-zodiac="Koç">♈ Koç</div>
+              <div class="zodiacOption" data-zodiac="Boğa">♉ Boğa</div>
+              <div class="zodiacOption" data-zodiac="İkizler">♊ İkizler</div>
+              <div class="zodiacOption" data-zodiac="Yengeç">♋ Yengeç</div>
+              <div class="zodiacOption" data-zodiac="Aslan">♌ Aslan</div>
+              <div class="zodiacOption" data-zodiac="Başak">♍ Başak</div>
+              <div class="zodiacOption" data-zodiac="Terazi">♎ Terazi</div>
+              <div class="zodiacOption" data-zodiac="Akrep">♏ Akrep</div>
+              <div class="zodiacOption" data-zodiac="Yay">♐ Yay</div>
+              <div class="zodiacOption" data-zodiac="Oğlak">♑ Oğlak</div>
+              <div class="zodiacOption" data-zodiac="Kova">♒ Kova</div>
+              <div class="zodiacOption" data-zodiac="Balık">♓ Balık</div>
+            </div>
+          </div>
+
+          <div class="profileField">
+            <label>Hakkımda</label>
+            <div id="profileBioWrap">
+              <textarea id="profileBio" placeholder="Kendinden kısaca bahset..."></textarea>
+              <div id="profileBioCounter">500</div>
+            </div>
+          </div>
+
+          <div class="profileEditSection profileDatingOnlyField">
+            <div class="profileEditSectionTitle">İlişki hedefleri</div>
+            <div class="profileChoiceRow" data-profile-choice="relationshipGoal">
+              <div class="profileChoiceText"><div class="profileChoiceLabel">Aradığım şey</div><div class="profileChoiceValue" id="profileChoiceValue-relationshipGoal"></div></div>
+              <div class="profileChoiceArrow">›</div>
+            </div>
+          </div>
+
+          <div class="profileEditSection profileDatingOnlyField">
+            <div class="profileEditSectionTitle">Boyun</div>
+            <div class="profileChoiceRow" data-profile-choice="height">
+              <div class="profileChoiceText"><div class="profileChoiceLabel">Boy</div><div class="profileChoiceValue" id="profileChoiceValue-height"></div></div>
+              <div class="profileChoiceArrow">›</div>
+            </div>
+          </div>
+
+          <div class="profileEditSection">
+            <div class="profileEditSectionTitle">Bildiğim diller</div>
+            <div class="profileChoiceRow" data-profile-choice="languages">
+              <div class="profileChoiceText"><div class="profileChoiceLabel" id="profileChoiceLabel-languages"></div><div class="profileChoiceValue" id="profileChoiceValue-languages">Dilleri değiştir</div></div>
+              <div class="profileChoiceArrow">›</div>
+            </div>
+          </div>
+
+          <div class="profileEditSection">
+            <div class="profileEditSectionTitle">Hakkımda daha fazlası</div>
+            <div class="profileChoiceRow" data-profile-choice="gender">
+              <div class="profileChoiceText"><div class="profileChoiceLabel">Cinsiyet</div><div class="profileChoiceValue" id="profileChoiceValue-gender"></div></div>
+              <div class="profileChoiceArrow">›</div>
+            </div>
+            <div class="profileChoiceRow" data-profile-choice="personality">
+              <div class="profileChoiceText"><div class="profileChoiceLabel">Kişilik tipi</div><div class="profileChoiceValue" id="profileChoiceValue-personality"></div></div>
+              <div class="profileChoiceArrow">›</div>
+            </div>
+            <div class="profileChoiceRow" data-profile-choice="zodiac">
+              <div class="profileChoiceText"><div class="profileChoiceLabel">Burç</div><div class="profileChoiceValue" id="profileChoiceValue-zodiac"></div></div>
+              <div class="profileChoiceArrow">›</div>
+            </div>
+            <div class="profileChoiceRow profileDatingOnlyField" data-profile-choice="education">
+              <div class="profileChoiceText"><div class="profileChoiceLabel">Eğitim</div><div class="profileChoiceValue" id="profileChoiceValue-education"></div></div>
+              <div class="profileChoiceArrow">›</div>
+            </div>
+            <div class="profileChoiceRow profileDatingOnlyField" data-profile-choice="familyPlans">
+              <div class="profileChoiceText"><div class="profileChoiceLabel">Aile planları</div><div class="profileChoiceValue" id="profileChoiceValue-familyPlans"></div></div>
+              <div class="profileChoiceArrow">›</div>
+            </div>
+          </div>
+
+          <div class="profileEditSection profileDatingOnlyField">
+            <div class="profileEditSectionTitle">Yaşam tarzı</div>
+            <div class="profileChoiceRow" data-profile-choice="pets">
+              <div class="profileChoiceText"><div class="profileChoiceLabel">Evcil hayvanlar</div><div class="profileChoiceValue" id="profileChoiceValue-pets"></div></div>
+              <div class="profileChoiceArrow">›</div>
+            </div>
+            <div class="profileChoiceRow" data-profile-choice="alcohol">
+              <div class="profileChoiceText"><div class="profileChoiceLabel">Alkol</div><div class="profileChoiceValue" id="profileChoiceValue-alcohol"></div></div>
+              <div class="profileChoiceArrow">›</div>
+            </div>
+            <div class="profileChoiceRow" data-profile-choice="smoking">
+              <div class="profileChoiceText"><div class="profileChoiceLabel">Sigara</div><div class="profileChoiceValue" id="profileChoiceValue-smoking"></div></div>
+              <div class="profileChoiceArrow">›</div>
+            </div>
+            <div class="profileChoiceRow" data-profile-choice="exercise">
+              <div class="profileChoiceText"><div class="profileChoiceLabel">Egzersiz</div><div class="profileChoiceValue" id="profileChoiceValue-exercise"></div></div>
+              <div class="profileChoiceArrow">›</div>
+            </div>
+          </div>
+
+          <div class="profileField">
+            <label>İlgi alanları</label>
+            <div id="interestTags"></div>
+            <div id="addInterestRow">
+              <input type="text" id="newInterestInput" placeholder="İlgi alanı ekle...">
+              <div id="addInterestBtn">Ekle</div>
+            </div>
+          </div>
+
+
+        </div>
+
+        <div id="profilePreviewView">
+          <div id="profilePreviewCard">
+            <div id="profilePreviewPhoto"></div>
+            <div id="profilePreviewPhotoShade"></div>
+            <div id="profilePreviewPhotoIndicators"></div>
+            <div id="profilePreviewDetails">
+              <div id="profilePreviewNameLine">
+                <span id="profilePreviewName"></span>
+                <span id="profilePreviewAge"></span>
+              </div>
+              <div id="profilePreviewSelectedFields"></div>
+            </div>
+            <div id="profilePreviewDetailsSheet">
+              <div class="profilePreviewSheetHandle"></div>
+              <div class="profilePreviewSheetTitle">Profil detayları</div>
+              <div id="profilePreviewBio"></div>
+              <div id="profilePreviewDetailFields"></div>
+            </div>
+            <div id="profilePreviewDetailToggle" aria-label="Profil detaylarını aç">↑</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <div id="profileChoiceSheetBackdrop">
+    <div id="profileChoiceSheet" role="dialog" aria-modal="true" aria-labelledby="profileChoiceSheetTitle">
+      <div id="profileChoiceSheetHeader">
+        <div id="profileChoiceSheetTitle">Seçim yap</div>
+        <div id="profileChoiceSheetClose">×</div>
+      </div>
+      <div id="profileChoiceSheetOptions"></div>
+    </div>
+  </div>
+
+  <!-- REQUEST DETAIL (overlay screen) -->
+  <div id="requestScreen">
+    <div id="reqChatHeader">
+      <div id="reqBackBtn">←</div>
+      <div id="reqChatAvatar"></div>
+      <div id="reqChatHeaderInfo">
+        <div id="reqChatHeaderName"></div>
+        <div id="reqChatHeaderStatus"></div>
+      </div>
+    </div>
+    <div id="reqMessages"></div>
+
+    <div id="reqAcceptRow">
+      <div id="reqRejectBtn">Reddet</div>
+      <div id="reqAcceptBtn">Kabul Et</div>
+    </div>
+
+    <div id="reqComposer">
+      <textarea id="reqMsgInput" placeholder="Mesaj yaz..." rows="1"></textarea>
+      <div id="reqSendBtn">➤</div>
+    </div>
+    <div id="reqLimitNote"></div>
+  </div>
+
+  <!-- CHAT THREAD (overlay screen) -->
+  <div id="chatScreen">
+    <div id="chatHeader">
+      <div id="backBtn">←</div>
+      <div id="chatAvatar"></div>
+      <div id="chatHeaderInfo" style="cursor:pointer;flex:1;min-width:0;">
+        <div id="chatHeaderName"></div>
+        <div id="chatHeaderStatus">çevrimiçi</div>
+      </div>
+    </div>
+    <div id="messages"></div>
+    <div id="composer">
+      <textarea id="msgInput" placeholder="Mesaj yaz..." rows="1"></textarea>
+      <div id="sendBtn">➤</div>
+    </div>
+  </div>
+
+  <!-- USER PROFILE DETAIL OVERLAY -->
+  <div id="userProfileScreen">
+    <div id="userProfileHeader">
+      <div id="userProfileBackBtn">←</div>
+      <div id="userProfileTitle">Profil</div>
+    </div>
+    <div id="userProfileScroll">
+      <div id="userProfileTop">
+        <div id="userProfileAvatar"></div>
+        <div id="userProfileName"></div>
+        <div id="userProfileMeta"></div>
+      </div>
+      <div id="userProfileBio"></div>
+      <div id="userProfileInterests"></div>
+      <div id="userProfileActions">
+        <div id="userProfileMsgBtn">💬 Mesaj At</div>
+        <div id="userProfileFriendBtn"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FRIEND REQUESTS OVERLAY -->
+  <div id="friendReqsScreen">
+    <div id="friendReqsHeader">
+      <div id="friendReqsBackBtn">←</div>
+      <div id="friendReqsTitle">Arkadaşlık İstekleri</div>
+    </div>
+    <div id="friendReqsSubTabs">
+      <div class="friendReqsTab active" data-ftab="received">Gelen</div>
+      <div class="friendReqsTab" data-ftab="sent">Gönderilen</div>
+    </div>
+    <div id="friendReqsList"></div>
+  </div>
+
+  <div id="discoverMsgModal">
+    <div id="discoverMsgModalCard">
+      <div id="discoverMsgModalHeader">
+        <div id="discoverMsgModalAvatar"></div>
+        <div id="discoverMsgModalName"></div>
+      </div>
+      <textarea id="discoverMsgModalInput" placeholder="Bir mesaj yaz..." rows="3"></textarea>
+      <div id="discoverMsgModalActions">
+        <div id="discoverMsgModalCancel">Vazgeç</div>
+        <div id="discoverMsgModalSend">Gönder</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="superLikeBurst"><span id="superLikeStar">★</span></div>
+  <div id="heartBurst"><span id="heartIcon">♥</span></div>
+
+  <div id="likeToast">
+    <div class="toastIcon">💛</div>
+    <div class="toastText" id="likeToastText"></div>
+  </div>
+
+  <div id="translateMenu">
+    <div id="translateMenuBtn">🌐 Çevir</div>
+  </div>
+
+  <div id="bottomNav">
+    <div class="navBtn" data-screen="profile">
+      <div class="navIcon">🪪</div>
+      <div class="navLabel">Profilim</div>
+    </div>
+    <div class="navBtn center" data-screen="like">
+      <div class="navIcon">✨</div>
+      <div class="navLabel">Keşfet</div>
+    </div>
+    <div class="navBtn active" data-screen="messages">
+      <div class="navIcon">💬</div>
+      <div class="navLabel">Mesajlar</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ---- mock data ----
+const conversations = [
+  {
+    id: 'elif', name: 'Elif', initial: 'E', color: '#FF6B57', online: true,
+    friendStatus: 'friends',
+    age: 21, lang: 'Türkçe', bio: 'Resim ve müzikle ilgileniyorum, yeni insanlar tanımayı seviyorum.', interests: ['Resim', 'Müzik', 'Kahve'],
+    messages: [
+      { from: 'them', text: 'Selam! Profilini gördüm, sen de mi resim yapıyorsun?', day: 'Dün' },
+      { from: 'me', text: 'Evet aynen, daha çok dijital illüstrasyon ile uğraşıyorum' },
+      { from: 'them', text: 'Çok güzelmiş çalışmaların, hangi programı kullanıyorsun?' },
+      { from: 'them', text: 'Procreate mi yoksa Photoshop mu' },
+      { from: 'them', text: 'Кстати, я тоже немного рисую, может покажешь свои работы?' },
+    ]
+  },
+  {
+    id: 'mert', name: 'Mert', initial: 'M', color: '#6FE3C4', online: false,
+    friendStatus: 'none',
+    age: 22, lang: 'Türkçe', bio: 'Yazılım okuyorum, akşamları halı sahaya çıkıyorum.', interests: ['Futbol', 'Kodlama'],
+    messages: [
+      { from: 'them', text: 'Yarın akşam o etkinliğe gidiyor musun?', day: 'Pazartesi' },
+      { from: 'me', text: 'Galiba evet, sen de gelsene' },
+      { from: 'them', text: 'Bakalım müsait olursam haber veririm 👍' },
+    ]
+  },
+  {
+    id: 'derya', name: 'Derya', initial: 'D', color: '#FFC65C', online: true,
+    friendStatus: 'sent',
+    age: 20, lang: 'Türkçe', bio: 'Aynı mahallede yaşıyoruz, bir gün tanışalım!', interests: ['Yürüyüş', 'Kitap'],
+    messages: [
+      { from: 'them', text: 'Aynı mahallede oturuyormuşuz galiba 😄', day: 'Bugün' },
+      { from: 'them', text: 'Bir gün kahve içelim istersen' },
+    ]
+  }
+];
+
+// ---- friend requests ----
+const sentFriendReqs = [
+  { id: 'derya', name: 'Derya', color: '#FFC65C', time: 'Bugün' }
+];
+const receivedFriendReqs = [
+  { id: 'cem', name: 'Cem', color: 'linear-gradient(135deg,#FF6B57,#FFC65C)', time: 'Dün', age: 23, bio: 'Müzisyen, konser düşkünü.' }
+];
+const convState = {};
+conversations.forEach(c => convState[c.id] = { lastRead: c.id === 'mert' ? c.messages.length : c.messages.length - 1 });
+
+// ---- friend request dot indicator ----
+function updateFriendReqsDot() {
+  const dot = document.getElementById('friendReqsDot');
+  dot.classList.toggle('show', receivedFriendReqs.length > 0);
+}
+updateFriendReqsDot();
+document.getElementById('friendReqsBtn').classList.add('visible');
+
+// ---- friend requests screen ----
+let activeFriendTab = 'received';
+
+document.getElementById('friendReqsBtn').addEventListener('click', openFriendReqsScreen);
+document.getElementById('friendReqsBackBtn').addEventListener('click', closeFriendReqsScreen);
+
+function openFriendReqsScreen() {
+  activeFriendTab = 'received';
+  document.querySelectorAll('.friendReqsTab').forEach(t => t.classList.toggle('active', t.dataset.ftab === 'received'));
+  renderFriendReqs();
+  document.getElementById('friendReqsScreen').classList.add('active');
+}
+function closeFriendReqsScreen() {
+  document.getElementById('friendReqsScreen').classList.remove('active');
+}
+
+document.querySelectorAll('.friendReqsTab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.friendReqsTab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    activeFriendTab = tab.dataset.ftab;
+    renderFriendReqs();
+  });
+});
+
+function renderFriendReqs() {
+  const list = document.getElementById('friendReqsList');
+  list.innerHTML = '';
+  const data = activeFriendTab === 'received' ? receivedFriendReqs : sentFriendReqs;
+
+  if (data.length === 0) {
+    list.innerHTML = `<div class="reqEmpty">${activeFriendTab === 'received' ? 'Gelen arkadaşlık isteği yok.' : 'Henüz arkadaşlık isteği göndermedin.'}</div>`;
+    return;
+  }
+
+  data.forEach(r => {
+    const el = document.createElement('div');
+    el.className = 'friendReqItem';
+    const avatarStyle = r.color.startsWith('linear') ? `background:${r.color}` : `background:${r.color}`;
+    const btns = activeFriendTab === 'received'
+      ? `<div class="friendReqAccept" data-id="${r.id}">Kabul Et</div><div class="friendReqReject" data-id="${r.id}">Reddet</div>`
+      : `<div class="friendReqPending">İstek gönderildi</div>`;
+    el.innerHTML = `
+      <div class="friendReqAvatar" style="${avatarStyle}">${r.name[0]}</div>
+      <div class="friendReqBody">
+        <div class="friendReqName">${r.name}</div>
+        <div class="friendReqTime">${r.time}</div>
+        <div class="friendReqBtns">${btns}</div>
+      </div>`;
+
+    // tap anywhere on item (except buttons) to open profile
+    el.addEventListener('click', (e) => {
+      if (e.target.closest('.friendReqAccept') || e.target.closest('.friendReqReject')) return;
+      const conv = conversations.find(c => c.id === r.id);
+      const profileData = conv || {
+        id: r.id, name: r.name, color: r.color, initial: r.name[0],
+        friendStatus: activeFriendTab === 'received' ? 'received' : 'sent',
+        age: r.age, bio: r.bio, interests: []
+      };
+      openUserProfile(profileData);
+    });
+
+    list.appendChild(el);
+  });
+
+  list.querySelectorAll('.friendReqAccept').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.id;
+      const req = receivedFriendReqs.find(r => r.id === id);
+      const idx = receivedFriendReqs.indexOf(req);
+      if (idx > -1) receivedFriendReqs.splice(idx, 1);
+      const conv = conversations.find(c => c.id === id);
+      if (conv) conv.friendStatus = 'friends';
+      updateFriendReqsDot();
+      renderFriendReqs();
+      renderConvList();
+    });
+  });
+  list.querySelectorAll('.friendReqReject').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.id;
+      const idx = receivedFriendReqs.findIndex(r => r.id === id);
+      if (idx > -1) receivedFriendReqs.splice(idx, 1);
+      updateFriendReqsDot();
+      renderFriendReqs();
+    });
+  });
+}
+
+// ---- user profile detail screen ----
+let activeUserProfileConv = null;
+
+function openUserProfile(conv) {
+  if (!conv) return;
+  activeUserProfileConv = conv;
+
+  const initial = conv.initial || (conv.name ? conv.name[0] : '?');
+  const avatarStyle = conv.color || '#FF6B57';
+  const meta = [conv.age].filter(Boolean).join(' · ');
+
+  document.getElementById('userProfileAvatar').style.background =
+    avatarStyle.startsWith('linear') ? avatarStyle : avatarStyle;
+  document.getElementById('userProfileAvatar').textContent = initial;
+  document.getElementById('userProfileName').textContent = conv.name || '';
+  document.getElementById('userProfileMeta').textContent = meta;
+
+  const bioEl = document.getElementById('userProfileBio');
+  bioEl.textContent = conv.bio || '';
+  bioEl.style.display = conv.bio ? 'block' : 'none';
+
+  const interestsEl = document.getElementById('userProfileInterests');
+  interestsEl.innerHTML = (conv.interests || []).map(t => `<div class="userProfileTag">${t}</div>`).join('');
+
+  updateUserProfileFriendBtn(conv);
+  document.getElementById('userProfileScreen').classList.add('active');
+}
+
+function closeUserProfile() {
+  document.getElementById('userProfileScreen').classList.remove('active');
+}
+document.getElementById('userProfileBackBtn').addEventListener('click', closeUserProfile);
+
+function updateUserProfileFriendBtn(conv) {
+  const btn = document.getElementById('userProfileFriendBtn');
+  btn.className = '';
+  btn.classList.add('status-' + (conv.friendStatus || 'none'));
+  const labels = { none: '+ Arkadaş Ekle', sent: 'İstek Gönderildi', received: 'İsteği Kabul Et', friends: '✓ Arkadaş' };
+  btn.textContent = labels[conv.friendStatus || 'none'];
+}
+
+document.getElementById('userProfileFriendBtn').addEventListener('click', () => {
+  if (!activeUserProfileConv) return;
+  const conv = activeUserProfileConv;
+  const status = conv.friendStatus || 'none';
+
+  if (status === 'none') {
+    conv.friendStatus = 'sent';
+    const existing = sentFriendReqs.find(r => r.id === conv.id);
+    if (!existing) sentFriendReqs.push({ id: conv.id, name: conv.name, color: conv.color, time: 'Şimdi' });
+  } else if (status === 'received') {
+    conv.friendStatus = 'friends';
+    const idx = receivedFriendReqs.findIndex(r => r.id === conv.id);
+    if (idx > -1) receivedFriendReqs.splice(idx, 1);
+    updateFriendReqsDot();
+  } else if (status === 'sent') {
+    conv.friendStatus = 'none';
+    const idx = sentFriendReqs.findIndex(r => r.id === conv.id);
+    if (idx > -1) sentFriendReqs.splice(idx, 1);
+  }
+
+  updateUserProfileFriendBtn(conv);
+  renderConvList();
+});
+
+document.getElementById('userProfileMsgBtn').addEventListener('click', () => {
+  closeUserProfile();
+  if (activeUserProfileConv) openChat(activeUserProfileConv.id);
+});
+
+// ---- chat header: tap name/avatar to view profile ----
+document.getElementById('chatHeaderInfo').addEventListener('click', () => {
+  const conv = conversations.find(c => c.id === activeConvId);
+  if (conv) openUserProfile(conv);
+});
+document.getElementById('chatAvatar').addEventListener('click', () => {
+  const conv = conversations.find(c => c.id === activeConvId);
+  if (conv) openUserProfile(conv);
+});
+
+// ---- requests (from super-like): separate from regular conversations until matched ----
+const sentRequests = [];   // { id, name, color, message, time }
+const receivedRequests = [
+  {
+    id: 'r1', name: 'Yağmur', color: 'linear-gradient(135deg, #B98CFF, #6FE3C4)',
+    message: 'Selam, ortak arkadaşımız var sanırım! Tanışalım mı?', time: 'Şimdi',
+    status: 'pending',
+    thread: [{ from: 'them', text: 'Selam, ortak arkadaşımız var sanırım! Tanışalım mı?' }]
+  }
+];
+
+function timeLabel(conv) {
+  return conv.messages[conv.messages.length - 1].day || '';
+}
+
+function renderConvList() {
+  const list = document.getElementById('convList');
+  list.innerHTML = '';
+  conversations.forEach(conv => {
+    const last = conv.messages[conv.messages.length - 1];
+    const unread = convState[conv.id].lastRead < conv.messages.length && last.from === 'them';
+    const item = document.createElement('div');
+    item.className = 'convItem';
+    item.innerHTML = `
+      <div class="avatar" style="background:${conv.color}">
+        ${conv.initial}
+        ${conv.online ? '<div class="dot"></div>' : ''}
+      </div>
+      <div class="convBody">
+        <div class="convTop">
+          <div class="convName">${conv.name}</div>
+          <div class="convTime">${timeLabel(conv)}</div>
+        </div>
+        <div class="convPreview ${unread ? 'unread' : ''}">${last.from === 'me' ? 'Sen: ' : ''}${last.text}</div>
+      </div>
+      ${unread ? '<div class="unreadDot"></div>' : ''}
+    `;
+    item.addEventListener('click', () => openChat(conv.id));
+    list.appendChild(item);
+  });
+  document.getElementById('topbarCount').textContent = conversations.length + ' sohbet';
+}
+renderConvList();
+
+// ---- top tabs: Mesajlar / İstekler ----
+let activeReqSub = 'sent';
+
+function renderRequestsDot() {
+  const dot = document.getElementById('requestsDot');
+  const hasItems = receivedRequests.length > 0;
+  dot.classList.toggle('has-items', hasItems);
+}
+
+function renderRequests() {
+  const list = document.getElementById('reqList');
+  const data = activeReqSub === 'sent' ? sentRequests : receivedRequests;
+  list.innerHTML = '';
+
+  if (data.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'reqEmpty';
+    empty.textContent = activeReqSub === 'sent'
+      ? 'Henüz kimseye mesaj isteği göndermedin.'
+      : 'Şu an sana gelen bir mesaj isteği yok.';
+    list.appendChild(empty);
+    return;
+  }
+
+  data.forEach(r => {
+    const item = document.createElement('div');
+    item.className = 'reqItem';
+    let badgeText = '';
+    if (r.status === 'accepted') badgeText = 'Kabul edildi';
+    else if (r.status === 'rejected') badgeText = 'Reddedildi';
+    else badgeText = activeReqSub === 'sent' ? 'İstek gönderildi' : 'Yeni istek';
+
+    item.innerHTML = `
+      <div class="reqAvatar" style="background:${r.color}">${r.name[0]}</div>
+      <div class="reqBody">
+        <div class="reqTop">
+          <div class="reqName">${r.name}</div>
+          <div class="reqTime">${r.time}</div>
+        </div>
+        <div class="reqMessage">${r.message}</div>
+        <div class="reqBadge">${badgeText}</div>
+      </div>
+    `;
+    item.addEventListener('click', () => openRequestDetail(r, activeReqSub));
+    list.appendChild(item);
+  });
+  renderRequestsDot();
+}
+
+document.querySelectorAll('.msgTopTab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.msgTopTab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    const target = tab.dataset.tab;
+    document.getElementById('convList').classList.toggle('hidden', target !== 'messages');
+    document.getElementById('requestsPanel').classList.toggle('active', target === 'requests');
+    if (target === 'requests') {
+      activeReqSub = 'sent';
+      document.querySelectorAll('.reqSubTab').forEach(s => s.classList.toggle('active', s.dataset.sub === 'sent'));
+      renderRequests();
+    }
+  });
+});
+
+document.querySelectorAll('.reqSubTab').forEach(sub => {
+  sub.addEventListener('click', () => {
+    document.querySelectorAll('.reqSubTab').forEach(s => s.classList.remove('active'));
+    sub.classList.add('active');
+    activeReqSub = sub.dataset.sub;
+    renderRequests();
+  });
+});
+
+renderRequestsDot();
+
+// ---- request detail screen ----
+let activeRequest = null;
+let activeRequestType = null; // 'sent' or 'received'
+const SENT_MESSAGE_LIMIT = 3;
+
+function openRequestDetail(req, type) {
+  activeRequest = req;
+  activeRequestType = type;
+
+  document.getElementById('reqChatAvatar').style.background = req.color;
+  document.getElementById('reqChatAvatar').textContent = req.name[0];
+  document.getElementById('reqChatHeaderName').textContent = req.name;
+  document.getElementById('reqChatHeaderStatus').textContent =
+    req.status === 'accepted' ? 'istek kabul edildi' :
+    req.status === 'rejected' ? 'istek reddedildi' : 'mesaj isteği';
+
+  renderRequestThread();
+  document.getElementById('requestScreen').classList.add('active');
+}
+
+function closeRequestDetail() {
+  document.getElementById('requestScreen').classList.remove('active');
+  activeRequest = null;
+  activeRequestType = null;
+}
+document.getElementById('reqBackBtn').addEventListener('click', closeRequestDetail);
+
+function renderRequestThread() {
+  const box = document.getElementById('reqMessages');
+  box.innerHTML = '';
+  activeRequest.thread.forEach(m => {
+    if (m.system) {
+      const note = document.createElement('div');
+      note.className = 'reqSystemNote';
+      note.textContent = m.text;
+      box.appendChild(note);
+      return;
+    }
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble ' + (m.from === 'me' ? 'me' : 'them');
+    bubble.textContent = m.text;
+    box.appendChild(bubble);
+  });
+
+  if (activeRequestType === 'received' && activeRequest.status === 'pending') {
+    const note = document.createElement('div');
+    note.className = 'reqSystemNote';
+    note.textContent = 'Yeni bir mesaj isteğiniz var';
+    box.appendChild(note);
+  }
+
+  if (activeRequestType === 'sent' && activeRequest.status === 'pending' &&
+      activeRequest.sentCount >= SENT_MESSAGE_LIMIT) {
+    const note = document.createElement('div');
+    note.className = 'reqSystemNote reqSystemNote--limit';
+    note.textContent = 'Mesaj hakkı doldu!';
+    box.appendChild(note);
+  }
+
+  box.scrollTop = box.scrollHeight;
+
+  // show/hide accept-reject row
+  const showAcceptRow = activeRequestType === 'received' && activeRequest.status === 'pending';
+  document.getElementById('reqAcceptRow').classList.toggle('show', showAcceptRow);
+
+  // composer visibility: received+accepted, or sent (with limit)
+  const showComposer = activeRequest.status === 'accepted' ||
+    (activeRequestType === 'sent' && activeRequest.status === 'pending');
+  document.getElementById('reqComposer').classList.toggle('show', showComposer);
+
+  // limit note for sent + pending
+  const limitNote = document.getElementById('reqLimitNote');
+  if (activeRequestType === 'sent' && activeRequest.status === 'pending') {
+    const remaining = SENT_MESSAGE_LIMIT - activeRequest.sentCount;
+    limitNote.textContent = remaining > 0
+      ? `İstek kabul edilene kadar ${remaining} mesaj hakkın kaldı`
+      : 'Mesaj hakkın bitti, istek kabul edilene kadar bekle';
+    limitNote.classList.add('show');
+    document.getElementById('reqMsgInput').disabled = remaining <= 0;
+    document.getElementById('reqSendBtn').classList.toggle('disabled', remaining <= 0);
+  } else {
+    limitNote.classList.remove('show');
+    document.getElementById('reqMsgInput').disabled = false;
+  }
+}
+
+document.getElementById('reqAcceptBtn').addEventListener('click', () => {
+  if (!activeRequest) return;
+  activeRequest.status = 'accepted';
+  activeRequest.thread.push({ system: true, text: 'Mesaj isteğini kabul ettiniz' });
+
+  // promote to a real conversation in Mesajlar
+  const newConvId = promoteRequestToConversation(activeRequest);
+
+  // remove from receivedRequests entirely
+  const idx = receivedRequests.indexOf(activeRequest);
+  if (idx > -1) receivedRequests.splice(idx, 1);
+
+  closeRequestDetail();
+  renderRequests();
+  renderRequestsDot();
+
+  // open the new conversation directly in Mesajlar
+  if (newConvId) openChat(newConvId);
+});
+
+document.getElementById('reqRejectBtn').addEventListener('click', () => {
+  if (!activeRequest) return;
+  const idx = receivedRequests.indexOf(activeRequest);
+  if (idx > -1) receivedRequests.splice(idx, 1);
+  closeRequestDetail();
+  renderRequests();
+  renderRequestsDot();
+});
+
+function promoteRequestToConversation(req) {
+  const exists = conversations.find(c => c.id === req.id);
+  if (exists) return req.id;
+  const newConv = {
+    id: req.id,
+    name: req.name,
+    initial: req.name[0],
+    color: req.color,
+    online: true,
+    messages: req.thread.filter(m => !m.system).map(m => ({ from: m.from, text: m.text }))
+  };
+  conversations.unshift(newConv);
+  convState[newConv.id] = { lastRead: newConv.messages.length };
+  renderConvList();
+  return newConv.id;
+}
+
+// ---- request composer ----
+const reqInput = document.getElementById('reqMsgInput');
+const reqSendBtn = document.getElementById('reqSendBtn');
+
+function updateReqSendState() {
+  const limitReached = activeRequest && activeRequestType === 'sent' && activeRequest.status === 'pending' &&
+    activeRequest.sentCount >= SENT_MESSAGE_LIMIT;
+  reqSendBtn.classList.toggle('disabled', reqInput.value.trim().length === 0 || limitReached);
+}
+reqInput.addEventListener('input', () => {
+  reqInput.style.height = 'auto';
+  reqInput.style.height = Math.min(reqInput.scrollHeight, 90) + 'px';
+  updateReqSendState();
+});
+
+function sendReqMessage() {
+  const text = reqInput.value.trim();
+  if (!text || !activeRequest) return;
+
+  if (activeRequestType === 'sent' && activeRequest.status === 'pending') {
+    if (activeRequest.sentCount >= SENT_MESSAGE_LIMIT) return;
+    activeRequest.thread.push({ from: 'me', text });
+    activeRequest.sentCount++;
+    activeRequest.message = text;
+  } else if (activeRequest.status === 'accepted') {
+    activeRequest.thread.push({ from: 'me', text });
+  }
+
+  reqInput.value = '';
+  reqInput.style.height = 'auto';
+  updateReqSendState();
+  renderRequestThread();
+  if (activeRequestType === 'sent') renderRequests();
+}
+
+reqSendBtn.addEventListener('click', sendReqMessage);
+reqInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendReqMessage();
+  }
+});
+
+// ---- chat thread ----
+let activeConvId = null;
+
+function openChat(id) {
+  activeConvId = id;
+  const conv = conversations.find(c => c.id === id);
+  convState[id].lastRead = conv.messages.length;
+
+  document.getElementById('chatAvatar').style.background = conv.color;
+  document.getElementById('chatAvatar').textContent = conv.initial;
+  document.getElementById('chatHeaderName').textContent = conv.name;
+  document.getElementById('chatHeaderStatus').textContent = conv.online ? 'çevrimiçi' : 'son görülme: birkaç saat önce';
+  document.getElementById('chatHeaderStatus').style.color = conv.online ? 'var(--mint)' : 'var(--text-low)';
+
+  // make sure the Mesajlar tab/screen is the active context underneath
+  document.querySelectorAll('.navBtn').forEach(b => b.classList.toggle('active', b.dataset.screen === 'messages'));
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-messages').classList.add('active');
+  document.getElementById('topbarTitle').textContent = 'Mesajlar';
+  document.getElementById('topbarCount').style.display = 'inline';
+  document.querySelectorAll('.msgTopTab').forEach(t => t.classList.toggle('active', t.dataset.tab === 'messages'));
+  document.getElementById('convList').classList.remove('hidden');
+  document.getElementById('requestsPanel').classList.remove('active');
+
+  renderMessages(conv);
+  document.getElementById('chatScreen').classList.add('active');
+  renderConvList();
+}
+
+function closeChat() {
+  document.getElementById('chatScreen').classList.remove('active');
+  activeConvId = null;
+  renderConvList();
+}
+
+// ---- translation (demo: known phrase lookup, since there's no live API here) ----
+const knownTranslations = {
+  'Кстати, я тоже немного рисую, может покажешь свои работы?': 'Bu arada ben de biraz resim çiziyorum, çalışmalarını gösterir misin?'
+};
+
+function translateText(text) {
+  if (knownTranslations[text]) return knownTranslations[text];
+  return '(Bu mesaj için çeviri örneği henüz tanımlı değil)';
+}
+
+let longPressTimer = null;
+let activeBubbleEl = null;
+let activeBubbleMsg = null;
+
+function renderMessages(conv) {
+  const box = document.getElementById('messages');
+  box.innerHTML = '';
+  let lastDay = null;
+  conv.messages.forEach(m => {
+    if (m.day && m.day !== lastDay) {
+      const label = document.createElement('div');
+      label.className = 'dayLabel';
+      label.textContent = m.day;
+      box.appendChild(label);
+      lastDay = m.day;
+    }
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble ' + (m.from === 'me' ? 'me' : 'them');
+    bubble.textContent = m.text;
+
+    if (m.from === 'them') {
+      bindLongPress(bubble, m);
+    }
+    box.appendChild(bubble);
+  });
+  box.scrollTop = box.scrollHeight;
+}
+
+function bindLongPress(el, msg) {
+  const start = (e) => {
+    longPressTimer = setTimeout(() => showTranslateMenu(e, el, msg), 420);
+  };
+  const cancel = () => clearTimeout(longPressTimer);
+  el.addEventListener('touchstart', start, { passive: true });
+  el.addEventListener('touchend', cancel);
+  el.addEventListener('touchmove', cancel);
+  el.addEventListener('mousedown', start);
+  el.addEventListener('mouseup', cancel);
+  el.addEventListener('mouseleave', cancel);
+}
+
+function showTranslateMenu(e, bubbleEl, msg) {
+  activeBubbleEl = bubbleEl;
+  activeBubbleMsg = msg;
+  const rect = bubbleEl.getBoundingClientRect();
+  const menu = document.getElementById('translateMenu');
+  menu.classList.add('show');
+  const menuWidth = 140;
+  let left = rect.left;
+  let top = rect.top - 50;
+  if (left + menuWidth > window.innerWidth - 10) left = window.innerWidth - menuWidth - 10;
+  if (top < 10) top = rect.bottom + 8;
+  menu.style.left = left + 'px';
+  menu.style.top = top + 'px';
+}
+
+function hideTranslateMenu() {
+  document.getElementById('translateMenu').classList.remove('show');
+}
+
+document.getElementById('translateMenuBtn').addEventListener('click', () => {
+  if (!activeBubbleEl || !activeBubbleMsg) return;
+  const translated = translateText(activeBubbleMsg.text);
+  activeBubbleEl.innerHTML = `${translated}<div class="bubbleOriginal">${activeBubbleMsg.text}</div>`;
+  activeBubbleEl.classList.add('translated');
+  hideTranslateMenu();
+});
+
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('#translateMenu') && !e.target.closest('.bubble.them')) {
+    hideTranslateMenu();
+  }
+});
+document.getElementById('messages').addEventListener('scroll', hideTranslateMenu);
+
+document.getElementById('backBtn').addEventListener('click', closeChat);
+
+// ---- composer ----
+const input = document.getElementById('msgInput');
+const sendBtn = document.getElementById('sendBtn');
+
+function updateSendState() {
+  sendBtn.classList.toggle('disabled', input.value.trim().length === 0);
+}
+input.addEventListener('input', () => {
+  input.style.height = 'auto';
+  input.style.height = Math.min(input.scrollHeight, 90) + 'px';
+  updateSendState();
+});
+updateSendState();
+
+function sendMessage() {
+  const text = input.value.trim();
+  if (!text || !activeConvId) return;
+  const conv = conversations.find(c => c.id === activeConvId);
+  conv.messages.push({ from: 'me', text });
+  input.value = '';
+  input.style.height = 'auto';
+  updateSendState();
+  renderMessages(conv);
+  convState[activeConvId].lastRead = conv.messages.length;
+
+  // small simulated reply for realism
+  setTimeout(() => {
+    const replies = ['Anladım 👍', 'Haklısın!', 'Hahaha aynen öyle', 'Bunu düşünmemiştim, iyi fikir', 'Tamamdır, devam edelim 🙌'];
+    conv.messages.push({ from: 'them', text: replies[Math.floor(Math.random() * replies.length)] });
+    if (activeConvId === conv.id) {
+      renderMessages(conv);
+      convState[conv.id].lastRead = conv.messages.length;
+    } else {
+      renderConvList();
+    }
+  }, 1100 + Math.random() * 900);
+}
+
+sendBtn.addEventListener('click', sendMessage);
+input.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+});
+
+// ---- profile screen logic ----
+const profileData = {
+  name: 'Ada',
+  age: 19,
+  langs: ['Türkçe'],
+  gender: 'Erkek',
+  personality: '',
+  zodiac: '',
+  heightCm: '',
+  heightUnit: 'cm',
+  heightFt: '',
+  heightIn: '',
+  smoking: '',
+  alcohol: '',
+  pets: '',
+  exercise: '',
+  familyPlans: '',
+  education: '',
+  relationshipGoal: '',
+  bio: '',
+  interests: ['Dijital çizim', 'Oyun', 'Müzik', 'Kahve']
+};
+
+// Her modun fotoğrafları ayrı tutulur; mod değişince fotoğraf silinmez.
+const modePhotos = {
+  friendship: Array(9).fill(null),
+  dating: Array(9).fill(null),
+  'speed-dating': Array(9).fill(null)
+};
+const modeBios = {
+  friendship: '',
+  dating: '',
+  'speed-dating': ''
+};
+let activeProfilePhotoMode = 'friendship';
+
+// Profil kartında fotoğrafların altında gösterilecek detayların ortak öncelik sırası.
+function getProfileCardDetails(profile, distanceKm = null, bioOverride = null) {
+  const bio = bioOverride !== null ? bioOverride : (profile.bio || '');
+  const details = [];
+  const addGroup = (type, values) => {
+    const items = (Array.isArray(values) ? values : [values]).filter(Boolean);
+    if (items.length) details.push({ type, items });
+  };
+
+  if (bio.trim()) addGroup('bio', bio.trim());
+  if (distanceKm !== null && distanceKm !== undefined && distanceKm !== '') {
+    addGroup('distance', `${distanceKm} km uzakta`);
+  }
+
+  // Dil ve cinsiyet gösterilmez; yalnızca algoritma verisi olarak kalır.
+  addGroup('about', [profile.personality, profile.zodiac, profile.education, profile.familyPlans]);
+  addGroup('lifestyle', [profile.pets, profile.alcohol, profile.smoking, profile.exercise]);
+
+  return details;
+}
+
+// Flört moduna ait tercihler profil bilgilerinden ayrı tutulur.
+const datingPreferences = {
+  distanceMinKm: 1,
+  distanceMaxKm: 200,
+  smoking: '',
+  alcohol: '',
+  pets: '',
+  exercise: '',
+  familyPlans: '',
+  education: '',
+  relationshipGoal: ''
+};
+
+// ---- ortak profil seçim paneli ----
+const profileChoiceConfigs = {
+  height: { title: 'Boy', type: 'height' },
+  country: { title: 'Önerilecek ülke', options: ['Tümü', 'Türkiye', 'Almanya', 'ABD', 'İngiltere'] },
+  languages: {
+    title: 'Konuşabildiğim diller', multiple: true,
+    options: ['Türkçe', 'English', 'Deutsch', 'Русский', 'العربية']
+  },
+  gender: {
+    title: 'Cinsiyet', options: ['Kadın', 'Erkek']
+  },
+  personality: {
+    title: 'Kişilik tipi', options: ['Enerjik', 'Sakin', 'Pasif', 'Depresif', 'Dışa dönük', 'İçe dönük']
+  },
+  zodiac: {
+    title: 'Burç', options: ['Koç', 'Boğa', 'İkizler', 'Yengeç', 'Aslan', 'Başak', 'Terazi', 'Akrep', 'Yay', 'Oğlak', 'Kova', 'Balık']
+  },
+  smoking: {
+    title: 'Sigara durumu', options: ['Aktif içiyorum', 'Bırakmaya çalışıyorum', 'Bıraktım', 'Hiç içmedim']
+  },
+  alcohol: {
+    title: 'Alkol durumu', options: ['Düzenli tüketiyorum', 'Azaltmaya çalışıyorum', 'Bıraktım', 'Hiç tüketmedim']
+  },
+  pets: {
+    title: 'Evcil hayvanlar', options: ['Hayvan istiyorum', 'Kedi', 'Köpek', 'Sürüngen', 'Kuş', 'Tavşan', 'Hamster', 'Diğer', 'Hoşlanmam', 'Hayvanlara alerjim var', 'Hayvanım yok ama çok severim']
+  },
+  exercise: {
+    title: 'Egzersiz', options: ['Ara ara', 'Sık sık', 'Asla yapmam', 'Her gün']
+  },
+  familyPlans: {
+    title: 'Aile planları', options: ['Çocuk istiyorum', 'Çocuk istemiyorum', 'Çocuklarım var ve daha fazlasını istiyorum', 'Çocuklarım var ve daha fazlasını istemiyorum', 'Henüz emin değilim']
+  },
+  education: {
+    title: 'Eğitim', options: ['Üniversite mezunu', 'Lisans öğrencisi', 'Lise', 'Doktora', 'Yüksek lisans öğrencisi', 'Yüksek lisans mezunu', 'Teknik okul']
+  },
+  relationshipGoal: {
+    title: 'Aradığım şey', options: ['Uzun süreli ilişki', 'Uzun ilişki ama kısa da olur', 'Kısa ilişki ama uzun da olur', 'Kısa süreli eğlence', 'Henüz karar vermedim']
+  }
+};
+let preferredGender = 'Herkes';
+let preferredZodiacs = ['Tümü'];
+let preferredLangs = ['Tümü'];
+let preferredCountry = 'Tümü';
+let activeProfileChoiceKey = null;
+
+let activeProfileChoiceScope = 'profile';
+
+function getProfileChoiceOptions(key, scope = activeProfileChoiceScope) {
+  if (scope === 'preference') {
+    if (key === 'gender') return ['Herkes', 'Kadın', 'Erkek'];
+    if (key === 'zodiac') return ['Tümü', 'Koç', 'Boğa', 'İkizler', 'Yengeç', 'Aslan', 'Başak', 'Terazi', 'Akrep', 'Yay', 'Oğlak', 'Kova', 'Balık'];
+    if (key === 'languages') return ['Tümü', 'Türkçe', 'English', 'Deutsch', 'Русский', 'العربية'];
+    if (key === 'country') return ['Tümü', 'Türkiye', 'Almanya', 'ABD', 'İngiltere'];
+  }
+  return profileChoiceConfigs[key].options || [];
+}
+
+function getProfileChoiceValue(key, scope = activeProfileChoiceScope) {
+  if (scope === 'dating') return datingPreferences[key];
+  if (scope === 'preference') {
+    if (key === 'gender') return preferredGender;
+    if (key === 'zodiac') return preferredZodiacs;
+    if (key === 'languages') return preferredLangs;
+    if (key === 'country') return preferredCountry;
+  }
+  if (key === 'languages') return profileData.langs;
+  if (key === 'height') {
+    if (profileData.heightUnit === 'ftin') {
+      if (!profileData.heightFt && !profileData.heightIn) return '';
+      return `${profileData.heightFt || ''} ft ${profileData.heightIn || ''} in`.trim();
+    }
+    return profileData.heightCm ? `${profileData.heightCm} cm` : '';
+  }
+  return profileData[key];
+}
+
+function getProfileChoiceSummary(key, scope = activeProfileChoiceScope) {
+  const value = getProfileChoiceValue(key, scope);
+  if (Array.isArray(value)) return value.length ? value.join(' · ') : 'Seçilmedi';
+  return value || 'Seçilmedi';
+}
+
+function syncProfileChoiceRows() {
+  Object.keys(profileChoiceConfigs).forEach(key => {
+    const profileSummary = getProfileChoiceSummary(key, 'profile');
+    const profileValueEl = document.getElementById('profileChoiceValue-' + key);
+    const profileLabelEl = document.getElementById('profileChoiceLabel-' + key);
+    if (key === 'languages' && profileLabelEl) {
+      profileLabelEl.textContent = profileSummary;
+      if (profileValueEl) profileValueEl.textContent = 'Dilleri değiştir';
+    } else if (profileValueEl) {
+      profileValueEl.textContent = profileSummary;
+    }
+    const datingValueEl = document.getElementById('datingChoiceValue-' + key);
+    if (datingValueEl) datingValueEl.textContent = getProfileChoiceSummary(key, 'dating');
+    const preferenceValueEl = document.getElementById('discoverPreferenceValue-' + key);
+    if (preferenceValueEl) preferenceValueEl.textContent = getProfileChoiceSummary(key, 'preference');
+  });
+}
+
+function renderProfileChoiceOptions() {
+  const key = activeProfileChoiceKey;
+  const scope = activeProfileChoiceScope;
+  const config = profileChoiceConfigs[key];
+  const optionsEl = document.getElementById('profileChoiceSheetOptions');
+  document.getElementById('profileChoiceSheetTitle').textContent = config.title;
+
+  if (config.type === 'height') {
+    optionsEl.innerHTML = `
+      <div class="heightSheetForm">
+        <div class="heightSheetInputArea">
+          <input type="number" class="heightSheetInput" id="sheetHeightCm" min="80" max="272" placeholder="cm">
+          <input type="number" class="heightSheetInput" id="sheetHeightFt" min="1" max="8" placeholder="ft" hidden>
+          <input type="number" class="heightSheetInput" id="sheetHeightIn" min="1" max="11" placeholder="in" hidden>
+        </div>
+        <div class="heightSheetBottomRow">
+          <button type="button" id="resetHeightBtn" class="disabled">Boy sıfırlama</button>
+          <div class="heightUnitRow">
+            <div class="heightUnitOption" data-sheet-height-unit="ftin">ft</div>
+            <div class="heightUnitOption" data-sheet-height-unit="cm">cm</div>
+          </div>
+        </div>
+      </div>`;
+
+    const cmInput = document.getElementById('sheetHeightCm');
+    const ftInput = document.getElementById('sheetHeightFt');
+    const inInput = document.getElementById('sheetHeightIn');
+    const resetButton = document.getElementById('resetHeightBtn');
+    cmInput.value = profileData.heightCm || '';
+    ftInput.value = profileData.heightFt || '';
+    inInput.value = profileData.heightIn || '';
+
+    const syncHeightState = () => {
+      cmInput.hidden = profileData.heightUnit === 'ftin';
+      ftInput.hidden = profileData.heightUnit !== 'ftin';
+      inInput.hidden = profileData.heightUnit !== 'ftin';
+      optionsEl.querySelectorAll('[data-sheet-height-unit]').forEach(unit => {
+        unit.classList.toggle('active', unit.dataset.sheetHeightUnit === profileData.heightUnit);
+      });
+      const hasHeight = profileData.heightUnit === 'cm'
+        ? Boolean(profileData.heightCm)
+        : Boolean(profileData.heightFt || profileData.heightIn);
+      resetButton.classList.toggle('disabled', !hasHeight);
+      syncProfileChoiceRows();
+    };
+
+    const boundedValue = (input, min, max) => {
+      if (input.value === '') return '';
+      const number = Math.max(min, Math.min(max, parseInt(input.value, 10)));
+      input.value = number;
+      return String(number);
+    };
+    cmInput.addEventListener('input', e => {
+      if (e.target.value !== '') {
+        const number = Number(e.target.value);
+        if (Number.isFinite(number) && number > 272) e.target.value = '272';
+      }
+      profileData.heightCm = e.target.value;
+      syncHeightState();
+    });
+    ftInput.addEventListener('input', e => {
+      profileData.heightFt = boundedValue(e.target, 1, 8);
+      syncHeightState();
+    });
+    inInput.addEventListener('input', e => {
+      profileData.heightIn = boundedValue(e.target, 1, 11);
+      syncHeightState();
+    });
+    resetButton.addEventListener('click', () => {
+      profileData.heightCm = '';
+      profileData.heightFt = '';
+      profileData.heightIn = '';
+      cmInput.value = '';
+      ftInput.value = '';
+      inInput.value = '';
+      syncHeightState();
+    });
+    optionsEl.querySelectorAll('[data-sheet-height-unit]').forEach(unit => {
+      unit.addEventListener('click', () => {
+        if (unit.dataset.sheetHeightUnit === 'cm') {
+          profileData.heightUnit = 'cm';
+          profileData.heightFt = '';
+          profileData.heightIn = '';
+        } else {
+          profileData.heightUnit = 'ftin';
+          profileData.heightCm = '';
+        }
+        cmInput.value = profileData.heightCm || '';
+        ftInput.value = profileData.heightFt || '';
+        inInput.value = profileData.heightIn || '';
+        syncHeightState();
+      });
+    });
+    syncHeightState();
+    return;
+  }
+
+  const choiceOptions = getProfileChoiceOptions(key, scope);
+  const selected = getProfileChoiceValue(key, scope);
+  const selectedValues = Array.isArray(selected) ? selected : [selected];
+  const isPreferenceMulti = scope === 'preference' && (key === 'zodiac' || key === 'languages');
+  const isMultiple = Boolean(config.multiple || isPreferenceMulti);
+  optionsEl.innerHTML = choiceOptions.map(option => `
+    <div class="profileChoiceOption ${selectedValues.includes(option) ? 'active' : ''}" data-profile-option="${option}">
+      <span>${option}</span><span class="profileChoiceOptionCheck">✓</span>
+    </div>
+  `).join('');
+
+  optionsEl.querySelectorAll('.profileChoiceOption').forEach(optionEl => {
+    optionEl.addEventListener('click', () => {
+      const value = optionEl.dataset.profileOption;
+
+      if (scope === 'preference') {
+        if (key === 'gender') {
+          preferredGender = preferredGender === value ? '' : value;
+        } else if (key === 'country') {
+          preferredCountry = preferredCountry === value ? 'Tümü' : value;
+        } else {
+          const values = key === 'zodiac' ? [...preferredZodiacs] : [...preferredLangs];
+          if (value === 'Tümü') {
+            values.splice(0, values.length, 'Tümü');
+          } else {
+            const withoutAll = values.filter(v => v !== 'Tümü');
+            const index = withoutAll.indexOf(value);
+            if (index >= 0) withoutAll.splice(index, 1);
+            else withoutAll.push(value);
+            const allSpecific = choiceOptions.filter(v => v !== 'Tümü');
+            values.splice(0, values.length, ...(withoutAll.length ? withoutAll : ['Tümü']));
+            if (allSpecific.every(item => values.includes(item))) values.splice(0, values.length, 'Tümü');
+          }
+          if (key === 'zodiac') preferredZodiacs = values;
+          else preferredLangs = values;
+        }
+      } else {
+        const store = scope === 'dating' ? datingPreferences : profileData;
+        if (isMultiple) {
+          const current = key === 'languages' && scope === 'profile' ? profileData.langs : (Array.isArray(store[key]) ? store[key] : []);
+          const values = [...current];
+          const index = values.indexOf(value);
+          if (index >= 0) {
+            // Konuşulan diller zorunlu: son kalan dil silinemez.
+            if (!(key === 'languages' && scope === 'profile' && values.length === 1)) values.splice(index, 1);
+          } else {
+            values.push(value);
+          }
+          if (key === 'languages' && scope === 'profile') profileData.langs = values.length ? values : ['Türkçe'];
+          else store[key] = values;
+        } else {
+          // Profil cinsiyeti zorunlu: seçili değere tekrar basınca boşaltılmaz.
+          if (!(key === 'gender' && scope === 'profile' && store[key] === value)) store[key] = value;
+        }
+      }
+      syncProfileChoiceRows();
+      refreshCardView();
+      renderProfileChoiceOptions();
+    });
+  });
+}
+
+function openProfileChoiceSheet(key, scope = 'profile') {
+  activeProfileChoiceKey = key;
+  activeProfileChoiceScope = scope;
+  renderProfileChoiceOptions();
+  document.getElementById('profileChoiceSheetBackdrop').classList.add('show');
+}
+
+function closeProfileChoiceSheet() {
+  document.getElementById('profileChoiceSheetBackdrop').classList.remove('show');
+  activeProfileChoiceKey = null;
+  activeProfileChoiceScope = 'profile';
+}
+
+document.querySelectorAll('.profileChoiceRow').forEach(row => {
+  row.addEventListener('click', () => {
+    const scope = row.dataset.profileChoiceScope || (row.closest('#datingPreferenceFields') ? 'dating' : 'profile');
+    openProfileChoiceSheet(row.dataset.profileChoice, scope);
+  });
+});
+document.getElementById('profileChoiceSheetClose').addEventListener('click', closeProfileChoiceSheet);
+document.getElementById('profileChoiceSheetBackdrop').addEventListener('click', e => {
+  if (e.target.id === 'profileChoiceSheetBackdrop') closeProfileChoiceSheet();
+});
+
+syncProfileChoiceRows();
+
+function refreshCardView() {
+  const name = profileData.name || 'Ada';
+  const meta = [profileData.age, profileData.langs?.join('/'), profileData.zodiac].filter(Boolean).join(' · ');
+  const initial = name[0].toUpperCase();
+
+  // main row
+  document.getElementById('profileMainName').textContent = name;
+  document.getElementById('profileMainMeta').textContent = [profileData.age, profileData.langs?.join('/')].filter(Boolean).join(' · ');
+  document.getElementById('profileMainInitial').textContent = initial;
+
+  // preview screen
+  document.getElementById('profileViewName').textContent = name;
+  document.getElementById('profileViewMeta').textContent = meta;
+  const pers = document.getElementById('profileViewPersonality');
+  pers.textContent = profileData.personality || '';
+  pers.style.display = profileData.personality ? 'inline-block' : 'none';
+  document.getElementById('profileViewInitial').textContent = initial;
+  document.getElementById('profileViewBio').textContent = profileData.bio || '';
+  const interestsEl = document.getElementById('profileViewInterests');
+  interestsEl.innerHTML = (profileData.interests || []).map(t => `<div class="userProfileTag">${t}</div>`).join('');
+
+  // edit form initial
+  const editInitial = document.getElementById('profilePhotoInitial');
+  if (editInitial) editInitial.textContent = initial;
+}
+refreshCardView();
+
+// ---- social stats mock data ----
+const socialData = {
+  friends: [
+    { id: 'elif', name: 'Elif', color: '#FF6B57', meta: '21 · Türkçe', age: 21, lang: 'Türkçe', bio: 'Resim ve müzikle ilgileniyorum, yeni insanlar tanımayı seviyorum.', interests: ['Resim', 'Müzik', 'Kahve'], friendStatus: 'friends' }
+  ],
+  following: [
+    { name: 'Selin', color: 'linear-gradient(135deg,#6FE3C4,#3DA9FF)', meta: '20 · Türkçe', age: 20, lang: 'Türkçe', bio: 'Grafik tasarım okuyorum, bisiklet sürmeyi seviyorum.', interests: ['Tasarım', 'Bisiklet'], friendStatus: 'none' },
+    { name: 'Kerem', color: 'linear-gradient(135deg,#B98CFF,#FF6B57)', meta: '22 · Türkçe', age: 22, lang: 'Türkçe', bio: 'Yazılım okuyorum, hafta sonları halı sahaya çıkıyorum.', interests: ['Futbol', 'Kodlama'], friendStatus: 'none' },
+    { name: 'Zeynep', color: 'linear-gradient(135deg,#FFC65C,#6FE3C4)', meta: '19 · Türkçe', age: 19, lang: 'Türkçe', bio: 'Kitap kurduyum, aynı zamanda gitar çalıyorum.', interests: ['Kitap', 'Gitar'], friendStatus: 'none' }
+  ],
+  followers: [
+    { id: 'mert', name: 'Mert', color: '#6FE3C4', meta: '22 · Türkçe', age: 22, lang: 'Türkçe', bio: 'Yazılım okuyorum, akşamları halı sahaya çıkıyorum.', interests: ['Futbol', 'Kodlama'], friendStatus: 'none' },
+    { id: 'derya', name: 'Derya', color: '#FFC65C', meta: '20 · Türkçe', age: 20, lang: 'Türkçe', bio: 'Aynı mahallede yaşıyoruz, bir gün tanışalım!', interests: ['Yürüyüş', 'Kitap'], friendStatus: 'sent' },
+    { name: 'Baran', color: 'linear-gradient(135deg,#FF6B57,#FFC65C)', meta: '21 · Türkçe', age: 21, lang: 'Türkçe', bio: 'Doğa yürüyüşü ve fotoğrafçılıkla ilgileniyorum.', interests: ['Doğa', 'Fotoğraf'], friendStatus: 'none' },
+    { name: 'Yağmur', color: 'linear-gradient(135deg,#B98CFF,#6FE3C4)', meta: '20 · Türkçe', age: 20, lang: 'Türkçe', bio: 'Ortak arkadaşlarımız varmış, tanışalım mı?', interests: ['Müzik', 'Sinema'], friendStatus: 'received' },
+    { name: 'Cem', color: 'linear-gradient(135deg,#FF6B57,#FFC65C)', meta: '23 · Türkçe', age: 23, lang: 'Türkçe', bio: 'Müzisyen, konser düşkünü.', interests: ['Müzik', 'Konser'], friendStatus: 'none' }
+  ]
+};
+
+function openSocialList(type) {
+  const titles = { friends: 'Arkadaşlar', following: 'Takip Edilenler', followers: 'Takipçiler' };
+  document.getElementById('socialListTitle').textContent = titles[type];
+  const content = document.getElementById('socialListContent');
+  content.innerHTML = '';
+  const items = socialData[type] || [];
+  items.forEach(item => {
+    const el = document.createElement('div');
+    el.className = 'socialListItem';
+    const avatarStyle = item.color.startsWith('linear') ? `background:${item.color}` : `background:${item.color}`;
+    el.innerHTML = `
+      <div class="socialListAvatar" style="${avatarStyle}">${item.name[0]}</div>
+      <div>
+        <div class="socialListName">${item.name}</div>
+        <div class="socialListMeta">${item.meta}</div>
+      </div>`;
+    el.addEventListener('click', () => {
+      // prefer conversations data if available, fallback to socialData item
+      const conv = item.id ? conversations.find(c => c.id === item.id) : null;
+      openUserProfile(conv || item);
+    });
+    content.appendChild(el);
+  });
+  document.getElementById('socialListView').classList.add('active');
+  closeSettings(); closePersonalPref();
+}
+function closeSocialList() {
+  document.getElementById('socialListView').classList.remove('active');
+}
+document.getElementById('socialListBackBtn').addEventListener('click', closeSocialList);
+document.getElementById('statFriends').addEventListener('click', () => openSocialList('friends'));
+document.getElementById('statFollowing').addEventListener('click', () => openSocialList('following'));
+document.getElementById('statFollowers').addEventListener('click', () => openSocialList('followers'));
+
+function openProfileEdit() {
+  closeSettings();
+  closePersonalPref();
+  profileData.bio = modeBios[activeProfilePhotoMode] || '';
+  syncProfileChoiceRows();
+  updateModePreferenceVisibility();
+  document.getElementById('profileEditView').classList.add('active');
+  showProfileEditForm();
+  updateProfilePreviewTabState();
+  if (typeof syncActiveProfileBioEditor === 'function') syncActiveProfileBioEditor();
+  requestAnimationFrame(updatePhotoGridPreview);
+}
+
+function closeProfileEdit() {
+  closeProfileChoiceSheet();
+  document.getElementById('profileEditView').classList.remove('active');
+  return true;
+}
+document.getElementById('profileViewEditBtn').addEventListener('click', openProfileEdit);
+
+function openProfileView() {
+  refreshCardView();
+  document.getElementById('profileViewScreen').classList.add('active');
+}
+function closeProfileView() {
+  document.getElementById('profileViewScreen').classList.remove('active');
+}
+document.getElementById('profileMainRow').addEventListener('click', openProfileView);
+document.getElementById('profileViewBackBtn').addEventListener('click', closeProfileView);
+document.getElementById('profileBackBtn').addEventListener('click', closeProfileEdit);
+
+function openSettings() {
+  closeProfileEdit();
+  closePersonalPref();
+  document.getElementById('settingsView').classList.add('active');
+}
+function closeSettings() {
+  document.getElementById('settingsView').classList.remove('active');
+}
+document.getElementById('settingsRow').addEventListener('click', openSettings);
+document.getElementById('settingsBackBtn').addEventListener('click', closeSettings);
+
+// ---- kişisel tercihler (cinsiyet + yaş + burç + dil) ----
+function openPersonalPref() {
+  closeProfileEdit();
+  closeSettings();
+  document.getElementById('personalPrefView').classList.add('active');
+}
+function closePersonalPref() {
+  closeZodiacSheet();
+  document.getElementById('personalPrefView').classList.remove('active');
+}
+document.getElementById('personalPrefRow').addEventListener('click', openPersonalPref);
+document.getElementById('personalPrefBackBtn').addEventListener('click', closePersonalPref);
+
+// ---- accordion toggle ----
+document.querySelectorAll('.accordionHeader').forEach(header => {
+  header.addEventListener('click', () => {
+    // Burç seçimi artık içeride büyümek yerine alttan panel olarak açılır.
+    if (header.classList.contains('zodiacSheetTrigger')) return;
+
+    const item = header.closest('.accordionItem');
+    const isOpen = item.classList.contains('open');
+    // close all others first
+    document.querySelectorAll('.accordionItem').forEach(i => i.classList.remove('open'));
+    if (!isOpen) item.classList.add('open');
+  });
+});
+
+// ---- zodiac bottom sheet ----
+const zodiacSheetBackdrop = document.getElementById('zodiacSheetBackdrop');
+
+function openZodiacSheet() {
+  zodiacSheetBackdrop.classList.add('show');
+}
+
+function closeZodiacSheet() {
+  zodiacSheetBackdrop.classList.remove('show');
+}
+
+document.getElementById('zodiacSheetTrigger').addEventListener('click', openZodiacSheet);
+document.getElementById('zodiacSheetCloseBtn').addEventListener('click', closeZodiacSheet);
+zodiacSheetBackdrop.addEventListener('click', e => {
+  if (e.target === zodiacSheetBackdrop) closeZodiacSheet();
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeZodiacSheet();
+});
+
+function updateAccordionValue(id, text) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = text;
+}
+
+function updatePersonalPrefSummary() {
+  const zodiacText = preferredZodiacs.includes('Tümü') || preferredZodiacs.length === 0
+    ? 'Tüm burçlar' : preferredZodiacs.join(', ');
+  const langText = preferredLangs.includes('Tümü') || preferredLangs.length === 0
+    ? 'Tüm diller' : preferredLangs.join(', ');
+  document.getElementById('personalPrefRowValue').textContent =
+    `${preferredGender} · ${document.getElementById('ageRangeDisplay').textContent} · ${zodiacText} · ${langText}`;
+}
+
+document.querySelectorAll('#genderPrefOptions .prefOption').forEach(opt => {
+  opt.addEventListener('click', () => {
+    document.querySelectorAll('#genderPrefOptions .prefOption').forEach(o => o.classList.remove('active'));
+    opt.classList.add('active');
+    preferredGender = opt.dataset.gender;
+    updateAccordionValue('genderAccordionVal', preferredGender);
+    updatePersonalPrefSummary();
+  });
+});
+
+// ---- multi-select helper: 'Tümü' is exclusive, specific options can combine ----
+function bindMultiSelectPref(containerId, datasetKey, stateArrayGetter, stateArraySetter, accordionValId) {
+  document.querySelectorAll(`#${containerId} .prefOption`).forEach(opt => {
+    opt.addEventListener('click', () => {
+      const value = opt.dataset[datasetKey];
+      let state = stateArrayGetter();
+
+      if (value === 'Tümü') {
+        state = ['Tümü'];
+      } else {
+        state = state.filter(v => v !== 'Tümü');
+        if (state.includes(value)) {
+          state = state.filter(v => v !== value);
+          if (state.length === 0) state = ['Tümü'];
+        } else {
+          state.push(value);
+        }
+      }
+      stateArraySetter(state);
+
+      document.querySelectorAll(`#${containerId} .prefOption`).forEach(o => {
+        o.classList.toggle('active', state.includes(o.dataset[datasetKey]));
+      });
+
+      if (accordionValId) {
+        const displayText = state.includes('Tümü') ? 'Tümü' : state.join(', ');
+        updateAccordionValue(accordionValId, displayText);
+      }
+      updatePersonalPrefSummary();
+    });
+  });
+}
+
+bindMultiSelectPref('zodiacPrefOptions', 'zodiac', () => preferredZodiacs, (v) => preferredZodiacs = v, 'zodiacAccordionVal');
+bindMultiSelectPref('langPrefOptions', 'lang', () => preferredLangs, (v) => preferredLangs = v, 'langAccordionVal');
+
+// Tercihler artık Keşfet içindeki panelde de aynı state ile çalışır.
+document.querySelectorAll('#discoverGenderPrefOptions .prefOption').forEach(opt => {
+  opt.addEventListener('click', () => {
+    document.querySelectorAll('#discoverGenderPrefOptions .prefOption').forEach(o => o.classList.remove('active'));
+    opt.classList.add('active');
+    preferredGender = opt.dataset.discoverGender;
+    updateAccordionValue('discoverGenderAccordionVal', preferredGender);
+  });
+});
+bindMultiSelectPref('discoverZodiacPrefOptions', 'discoverZodiac', () => preferredZodiacs, (v) => preferredZodiacs = v, 'discoverZodiacAccordionVal');
+bindMultiSelectPref('discoverLangPrefOptions', 'discoverLang', () => preferredLangs, (v) => preferredLangs = v, 'discoverLangAccordionVal');
+
+const ageMinSlider = null; // replaced by dual range
+const ageMaxSlider = null;
+updatePersonalPrefSummary();
+
+// ---- dual handle range slider factory ----
+function createDualRange({ trackId, fillId, minHandleId, maxHandleId, minLabelId, maxLabelId, displayId, min, max, valMin, valMax, onChange, showMaxPlus = false, formatDisplay = null }) {
+  const track = document.getElementById(trackId);
+  const fill = document.getElementById(fillId);
+  const hMin = document.getElementById(minHandleId);
+  const hMax = document.getElementById(maxHandleId);
+  const lMin = document.getElementById(minLabelId);
+  const lMax = document.getElementById(maxLabelId);
+  const display = document.getElementById(displayId);
+
+  let curMin = valMin, curMax = valMax;
+  let renderFrame = 0;
+
+  function pct(v) { return ((v - min) / (max - min)) * 100; }
+  function valueAt(clientX) {
+    const rect = track.getBoundingClientRect();
+    if (!rect.width) return min;
+    let ratio = (clientX - rect.left) / rect.width;
+    ratio = Math.max(0, Math.min(1, ratio));
+    return min + ratio * (max - min);
+  }
+  function render() {
+    hMin.style.left = pct(curMin) + '%';
+    hMax.style.left = pct(curMax) + '%';
+    fill.style.left = pct(curMin) + '%';
+    fill.style.width = (pct(curMax) - pct(curMin)) + '%';
+    const shownMin = Math.round(curMin);
+    const shownMax = showMaxPlus && Math.round(curMax) >= max ? `${max}+` : Math.round(curMax);
+    lMin.textContent = shownMin;
+    lMax.textContent = shownMax;
+    if (display) display.textContent = formatDisplay ? formatDisplay(shownMin, shownMax) : `${shownMin} - ${shownMax}`;
+    if (onChange) onChange(curMin, curMax);
+  }
+  function scheduleRender() {
+    if (renderFrame) return;
+    renderFrame = requestAnimationFrame(() => {
+      renderFrame = 0;
+      render();
+    });
+  }
+  render();
+
+  function bindHandle(handle, isMin) {
+    function onMove(clientX) {
+      const val = valueAt(clientX);
+      if (isMin) curMin = Math.min(val, curMax);
+      else curMax = Math.max(val, curMin);
+      scheduleRender();
+    }
+
+    handle.addEventListener('touchstart', e => {
+      e.preventDefault();
+      handle.classList.add('is-dragging');
+      hMin.style.zIndex = isMin ? '4' : '3';
+      hMax.style.zIndex = isMin ? '3' : '4';
+      const move = e2 => {
+        if (e2.touches[0]) onMove(e2.touches[0].clientX);
+      };
+      const end = () => {
+        handle.classList.remove('is-dragging');
+        document.removeEventListener('touchmove', move);
+        document.removeEventListener('touchend', end);
+        document.removeEventListener('touchcancel', end);
+        window.removeEventListener('blur', end);
+      };
+      document.addEventListener('touchmove', move, { passive: false });
+      document.addEventListener('touchend', end);
+      document.addEventListener('touchcancel', end);
+      window.addEventListener('blur', end);
+    }, { passive: false });
+
+    handle.addEventListener('mousedown', e => {
+      e.preventDefault();
+      handle.classList.add('is-dragging');
+      hMin.style.zIndex = isMin ? '4' : '3';
+      hMax.style.zIndex = isMin ? '3' : '4';
+      const move = e2 => {
+        // Mouse düğmesi bırakılmışsa, mouseup kaçırılmış olsa bile bırakmayı tamamla.
+        if (e2.buttons === 0) {
+          end();
+          return;
+        }
+        onMove(e2.clientX);
+      };
+      const end = () => {
+        handle.classList.remove('is-dragging');
+        document.removeEventListener('mousemove', move);
+        document.removeEventListener('mouseup', end);
+        document.removeEventListener('mouseleave', end);
+        window.removeEventListener('blur', end);
+      };
+      document.addEventListener('mousemove', move);
+      document.addEventListener('mouseup', end);
+      document.addEventListener('mouseleave', end);
+      window.addEventListener('blur', end);
+    });
+
+    handle.addEventListener('dragstart', e => e.preventDefault());
+  }
+  bindHandle(hMin, true);
+  bindHandle(hMax, false);
+
+  track.addEventListener('click', e => {
+    if (e.target.closest('.dualHandle')) return;
+    const value = valueAt(e.clientX);
+    if (Math.abs(value - curMin) <= Math.abs(value - curMax)) curMin = value;
+    else curMax = value;
+    render();
+  });
+}
+
+function createSingleRange({ trackId, fillId, handleId, labelId, displayId, min, max, value, onChange }) {
+  const track = document.getElementById(trackId);
+  const fill = document.getElementById(fillId);
+  const handle = document.getElementById(handleId);
+  const label = document.getElementById(labelId);
+  const display = document.getElementById(displayId);
+  let current = value;
+  let renderFrame = 0;
+
+  function pct(v) { return ((v - min) / (max - min)) * 100; }
+  function valueAt(clientX) {
+    const rect = track.getBoundingClientRect();
+    if (!rect.width) return min;
+    let ratio = (clientX - rect.left) / rect.width;
+    ratio = Math.max(0, Math.min(1, ratio));
+    return Math.round(min + ratio * (max - min));
+  }
+  function render() {
+    const position = pct(current);
+    handle.style.left = position + '%';
+    fill.style.left = '0%';
+    fill.style.width = position + '%';
+    label.textContent = current;
+    if (display) display.textContent = `${current} km`;
+    if (onChange) onChange(current);
+  }
+  function scheduleRender() {
+    if (renderFrame) return;
+    renderFrame = requestAnimationFrame(() => {
+      renderFrame = 0;
+      render();
+    });
+  }
+  function onMove(clientX) {
+    current = valueAt(clientX);
+    scheduleRender();
+  }
+
+  handle.addEventListener('touchstart', e => {
+    e.preventDefault();
+    handle.classList.add('is-dragging');
+    const move = e2 => { if (e2.touches[0]) onMove(e2.touches[0].clientX); };
+    const end = () => {
+      handle.classList.remove('is-dragging');
+      document.removeEventListener('touchmove', move);
+      document.removeEventListener('touchend', end);
+      document.removeEventListener('touchcancel', end);
+      window.removeEventListener('blur', end);
+    };
+    document.addEventListener('touchmove', move, { passive: false });
+    document.addEventListener('touchend', end);
+    document.addEventListener('touchcancel', end);
+    window.addEventListener('blur', end);
+  }, { passive: false });
+  handle.addEventListener('mousedown', e => {
+    e.preventDefault();
+    handle.classList.add('is-dragging');
+    const move = e2 => {
+      if (e2.buttons === 0) { end(); return; }
+      onMove(e2.clientX);
+    };
+    const end = () => {
+      handle.classList.remove('is-dragging');
+      document.removeEventListener('mousemove', move);
+      document.removeEventListener('mouseup', end);
+      document.removeEventListener('mouseleave', end);
+      window.removeEventListener('blur', end);
+    };
+    document.addEventListener('mousemove', move);
+    document.addEventListener('mouseup', end);
+    document.addEventListener('mouseleave', end);
+    window.addEventListener('blur', end);
+  });
+  handle.addEventListener('dragstart', e => e.preventDefault());
+  track.addEventListener('click', e => {
+    if (e.target.closest('.dualHandle')) return;
+    current = valueAt(e.clientX);
+    render();
+  });
+  render();
+}
+
+createDualRange({
+  trackId: 'dualRangeTrack', fillId: 'dualRangeFill',
+  minHandleId: 'handleMin', maxHandleId: 'handleMax',
+  minLabelId: 'labelMin', maxLabelId: 'labelMax',
+  displayId: 'ageRangeDisplay',
+  min: 18, max: 60, valMin: 18, valMax: 25,
+  onChange: () => updatePersonalPrefSummary()
+});
+
+const ALL_THEME_CLASSES = ['light-theme', 'black-theme', 'red-theme', 'pink-theme', 'purple-theme'];
+document.querySelectorAll('.themeOption').forEach(opt => {
+  opt.addEventListener('click', () => {
+    document.querySelectorAll('.themeOption').forEach(o => o.classList.remove('active'));
+    opt.classList.add('active');
+    document.body.classList.remove(...ALL_THEME_CLASSES);
+    const theme = opt.dataset.theme;
+    if (theme !== 'dark') {
+      document.body.classList.add(theme + '-theme');
+    }
+  });
+});
+
+function renderInterests() {
+  const wrap = document.getElementById('interestTags');
+  wrap.innerHTML = '';
+  profileData.interests.forEach((tag, i) => {
+    const el = document.createElement('div');
+    el.className = 'interestTag';
+    el.innerHTML = `${tag}<div class="removeTag" data-idx="${i}">✕</div>`;
+    wrap.appendChild(el);
+  });
+  wrap.querySelectorAll('.removeTag').forEach(btn => {
+    btn.addEventListener('click', () => {
+      profileData.interests.splice(parseInt(btn.dataset.idx), 1);
+      renderInterests();
+    });
+  });
+}
+renderInterests();
+
+document.getElementById('addInterestBtn').addEventListener('click', addInterest);
+document.getElementById('newInterestInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') { e.preventDefault(); addInterest(); }
+});
+function addInterest() {
+  const input = document.getElementById('newInterestInput');
+  const val = input.value.trim();
+  if (!val) return;
+  if (profileData.interests.length >= 8) {
+    input.placeholder = 'En fazla 8 ilgi alanı ekleyebilirsin';
+    return;
+  }
+  profileData.interests.push(val);
+  input.value = '';
+  renderInterests();
+}
+
+// ---- four profile photo slots ----
+let activePhotoSlotIndex = 0;
+let suppressNextPhotoClick = false;
+let photoReorderTimer = null;
+let photoReorderState = null;
+let photoDragGhost = null;
+const profilePhotoInput = document.getElementById('profilePhotoInput');
+const profilePhotoGrid = document.getElementById('profilePhotoGrid');
+const profilePhotoSlots = Array.from(document.querySelectorAll('.profilePhotoSlot'));
+profilePhotoGrid.addEventListener('contextmenu', e => e.preventDefault());
+profilePhotoGrid.addEventListener('dragstart', e => e.preventDefault());
+
+function renderProfilePhotos() {
+  const photos = modePhotos[activeProfilePhotoMode];
+  profilePhotoSlots.forEach((slot, index) => {
+    const photo = photos[index];
+    slot.classList.toggle('has-photo', Boolean(photo));
+    slot.innerHTML = photo
+      ? `<img src="${photo}" alt="Profil fotoğrafı ${index + 1}"><span class="profilePhotoRemove" data-photo-remove="true">×</span>`
+      : '<span class="profilePhotoPlus">+</span><span class="profilePhotoAddText">Ekle</span>';
+  });
+}
+
+function setActiveProfilePhotoMode(modeId) {
+  if (!modePhotos[modeId]) return;
+  activeProfilePhotoMode = modeId;
+  profileData.bio = modeBios[modeId] || '';
+  photoGridExpanded = false;
+  renderProfilePhotos();
+  requestAnimationFrame(updatePhotoGridPreview);
+  updateProfilePreviewTabState();
+}
+
+function clearPhotoReorderTimer() {
+  if (photoReorderTimer) {
+    clearTimeout(photoReorderTimer);
+    photoReorderTimer = null;
+  }
+}
+
+function finishPhotoReorder() {
+  clearPhotoReorderTimer();
+  if (photoDragGhost) {
+    photoDragGhost.remove();
+    photoDragGhost = null;
+  }
+  profilePhotoSlots.forEach(slot => slot.classList.remove('photo-dragging', 'photo-drop-target'));
+  if (photoReorderState) {
+      photoReorderState = null;
+    suppressNextPhotoClick = true;
+    setTimeout(() => { suppressNextPhotoClick = false; }, 220);
+  }
+}
+
+function startPhotoReorder(slot, pointerId, clientX, clientY) {
+  const index = Number(slot.dataset.photoIndex);
+  const photos = modePhotos[activeProfilePhotoMode];
+  if (!photos[index]) return;
+  photoReorderState = {
+    modeId: activeProfilePhotoMode,
+    currentIndex: index,
+    pointerId,
+    lastClientX: clientX,
+    lastClientY: clientY
+  };
+  slot.classList.add('photo-dragging');
+
+  photoDragGhost = document.createElement('div');
+  photoDragGhost.className = 'photoDragGhost';
+  photoDragGhost.style.width = slot.getBoundingClientRect().width + 'px';
+  photoDragGhost.style.height = slot.getBoundingClientRect().height + 'px';
+  photoDragGhost.style.left = clientX + 'px';
+  photoDragGhost.style.top = clientY + 'px';
+  photoDragGhost.innerHTML = `<img src="${photos[index]}" alt="">`;
+  document.body.appendChild(photoDragGhost);
+  if (slot.setPointerCapture) slot.setPointerCapture(pointerId);
+}
+
+function movePhotoReorder(e) {
+  if (!photoReorderState) return;
+  const clientX = e.clientX;
+  const clientY = e.clientY;
+  if (typeof e.preventDefault === 'function') e.preventDefault();
+  photoReorderState.lastClientX = clientX;
+  photoReorderState.lastClientY = clientY;
+  if (photoDragGhost) {
+    photoDragGhost.style.left = clientX + 'px';
+    photoDragGhost.style.top = clientY + 'px';
+  }
+  const target = document.elementFromPoint(clientX, clientY);
+  const targetSlot = target && target.closest('.profilePhotoSlot');
+  if (!targetSlot || !profilePhotoGrid.contains(targetSlot)) return;
+
+  const targetIndex = Number(targetSlot.dataset.photoIndex);
+  const currentIndex = photoReorderState.currentIndex;
+  if (targetIndex === currentIndex) return;
+  const photos = modePhotos[photoReorderState.modeId];
+  [photos[currentIndex], photos[targetIndex]] = [photos[targetIndex], photos[currentIndex]];
+  photoReorderState.currentIndex = targetIndex;
+  renderProfilePhotos();
+  profilePhotoSlots.forEach(slot => slot.classList.remove('photo-dragging', 'photo-drop-target'));
+  profilePhotoSlots[targetIndex].classList.add('photo-dragging', 'photo-drop-target');
+}
+
+profilePhotoSlots.forEach(slot => {
+  slot.addEventListener('pointerdown', e => {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    const index = Number(slot.dataset.photoIndex);
+    if (!modePhotos[activeProfilePhotoMode][index]) return;
+    clearPhotoReorderTimer();
+    photoReorderTimer = setTimeout(() => startPhotoReorder(slot, e.pointerId, e.clientX, e.clientY), 420);
+  });
+  slot.addEventListener('pointermove', movePhotoReorder);
+  slot.addEventListener('pointerup', finishPhotoReorder);
+  slot.addEventListener('pointercancel', finishPhotoReorder);
+});
+
+document.addEventListener('pointermove', movePhotoReorder);
+document.addEventListener('pointerup', finishPhotoReorder);
+
+// Eski mobil tarayıcılar için dokunmatik hareket yedeği.
+profilePhotoGrid.addEventListener('touchmove', e => {
+  if (!photoReorderState || !e.touches[0]) return;
+  const touch = e.touches[0];
+  movePhotoReorder({
+    clientX: touch.clientX,
+    clientY: touch.clientY,
+    preventDefault: () => e.preventDefault()
+  });
+}, { passive: false });
+profilePhotoGrid.addEventListener('touchend', finishPhotoReorder);
+profilePhotoGrid.addEventListener('touchcancel', finishPhotoReorder);
+
+profilePhotoSlots.forEach(slot => {
+  slot.addEventListener('click', e => {
+    if (suppressNextPhotoClick) {
+      suppressNextPhotoClick = false;
+      return;
+    }
+    if (e.target.closest('[data-photo-remove="true"]')) {
+      const index = Number(slot.dataset.photoIndex);
+      modePhotos[activeProfilePhotoMode][index] = null;
+      renderProfilePhotos();
+          updateProfilePreviewTabState();
+      e.stopPropagation();
+      return;
+    }
+    activePhotoSlotIndex = Number(slot.dataset.photoIndex);
+    profilePhotoInput.value = '';
+    profilePhotoInput.click();
+  });
+});
+
+profilePhotoInput.addEventListener('change', event => {
+  const files = Array.from(event.target.files || []).slice(0, 9 - activePhotoSlotIndex);
+  if (!files.length) return;
+
+  files.forEach((file, offset) => {
+    if (!file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      modePhotos[activeProfilePhotoMode][activePhotoSlotIndex + offset] = e.target.result;
+      renderProfilePhotos();
+          updateProfilePreviewTabState();
+    };
+    reader.readAsDataURL(file);
+  });
+});
+
+renderProfilePhotos();
+
+let photoGridExpanded = false;
+const togglePhotoGridBtn = document.getElementById('togglePhotoGridBtn');
+
+function updatePhotoGridPreview() {
+  const firstSlot = profilePhotoSlots[0];
+  if (!firstSlot || !togglePhotoGridBtn) return;
+  const rowHeight = firstSlot.getBoundingClientRect().height;
+  if (!rowHeight) return;
+  const gridStyle = getComputedStyle(document.getElementById('profilePhotoGrid'));
+  const rowGap = parseFloat(gridStyle.rowGap || gridStyle.gap || '10') || 10;
+  const previewHeight = rowHeight + rowGap + Math.min(30, rowHeight * 0.14);
+  const grid = document.getElementById('profilePhotoGrid');
+  grid.style.maxHeight = photoGridExpanded ? grid.scrollHeight + 'px' : previewHeight + 'px';
+  togglePhotoGridBtn.textContent = photoGridExpanded ? 'Fotoğrafları gizle ↑' : 'Tüm fotoğrafları göster ↓';
+}
+
+togglePhotoGridBtn.addEventListener('click', () => {
+  photoGridExpanded = !photoGridExpanded;
+  updatePhotoGridPreview();
+});
+
+window.addEventListener('resize', updatePhotoGridPreview);
+
+// ---- profile edit / preview tabs ----
+const profileEditView = document.getElementById('profileEditView');
+const profileEditEditTab = document.getElementById('profileEditEditTab');
+const profileEditPreviewTab = document.getElementById('profileEditPreviewTab');
+const profilePreviewView = document.getElementById('profilePreviewView');
+
+function hasCurrentModePhoto() {
+  return (modePhotos[activeProfilePhotoMode] || []).some(Boolean);
+}
+
+let profilePreviewPhotoIndex = 0;
+
+function getProfilePreviewSelectedFields() {
+  return [
+    ...(profileData.langs || []),
+    profileData.gender,
+    profileData.personality,
+    profileData.zodiac,
+    profileData.heightCm ? `${profileData.heightCm} cm` : '',
+    profileData.smoking,
+    profileData.alcohol,
+    profileData.pets,
+    profileData.exercise,
+    profileData.familyPlans,
+    profileData.education,
+    profileData.relationshipGoal
+  ].filter(Boolean);
+}
+
+function renderProfilePreview() {
+  const photos = (modePhotos[activeProfilePhotoMode] || []).filter(Boolean);
+  if (profilePreviewPhotoIndex >= photos.length) profilePreviewPhotoIndex = 0;
+
+  const photoEl = document.getElementById('profilePreviewPhoto');
+  photoEl.innerHTML = photos.length
+    ? `<img src="${photos[profilePreviewPhotoIndex]}" alt="Profil fotoğrafı ${profilePreviewPhotoIndex + 1}">`
+    : '';
+
+  const indicators = document.getElementById('profilePreviewPhotoIndicators');
+  indicators.innerHTML = photos.map((photo, index) =>
+    `<span class="profilePreviewPhotoIndicator ${index === profilePreviewPhotoIndex ? 'active' : ''}"></span>`
+  ).join('');
+
+  document.getElementById('profilePreviewName').textContent = profileData.name || '';
+  document.getElementById('profilePreviewAge').textContent = profileData.age || '';
+
+  const details = getProfileCardDetails(
+    profileData,
+    profileData.previewDistanceKm,
+    modeBios[activeProfilePhotoMode] || ''
+  );
+  const currentDetail = details[profilePreviewPhotoIndex];
+  const previewDetailBox = document.getElementById('profilePreviewSelectedFields');
+  previewDetailBox.innerHTML = currentDetail
+    ? currentDetail.items.map(item => currentDetail.type === 'bio'
+      ? `<div class="profilePreviewBioDetail">${item}</div>`
+      : `<div class="profilePreviewTag">${item}</div>`).join('')
+    : '';
+  previewDetailBox.classList.toggle('has-scrollable-bio', Boolean(currentDetail && currentDetail.type === 'bio'));
+
+  const previewBioDetail = document.querySelector('.profilePreviewBioDetail');
+  if (previewBioDetail) {
+    previewBioDetail.addEventListener('touchstart', e => e.stopPropagation(), { passive: true });
+    previewBioDetail.addEventListener('touchmove', e => e.stopPropagation(), { passive: true });
+    previewBioDetail.addEventListener('wheel', e => e.stopPropagation(), { passive: true });
+    previewBioDetail.addEventListener('mousedown', e => e.stopPropagation());
+  }
+  document.getElementById('profilePreviewDetailFields').innerHTML = details
+    .flatMap(detail => detail.items.map(item => detail.type === 'bio'
+      ? `<div class="profilePreviewDetailBio">${item}</div>`
+      : `<div class="profilePreviewDetailTag">${item}</div>`))
+    .join('');
+  document.getElementById('profilePreviewBio').textContent = '';
+}
+
+function changeProfilePreviewPhoto(direction) {
+  const photos = (modePhotos[activeProfilePhotoMode] || []).filter(Boolean);
+  if (photos.length < 2) return;
+  profilePreviewPhotoIndex = (profilePreviewPhotoIndex + direction + photos.length) % photos.length;
+  renderProfilePreview();
+}
+
+function updateProfilePreviewTabState() {
+  const hasPhoto = hasCurrentModePhoto();
+  profileEditPreviewTab.disabled = !hasPhoto;
+  if (!hasPhoto && profileEditView.classList.contains('previewing')) showProfileEditForm();
+  if (hasPhoto && profileEditView.classList.contains('previewing')) renderProfilePreview();
+}
+
+function showProfileEditForm() {
+  profileEditView.classList.remove('previewing');
+  profileEditEditTab.classList.add('active');
+  profileEditPreviewTab.classList.remove('active');
+  profilePreviewCard.classList.remove('details-open');
+  profilePreviewDetailToggle.textContent = '↑';
+}
+
+function showProfilePreview() {
+  if (!hasCurrentModePhoto()) return;
+  profilePreviewPhotoIndex = 0;
+  profilePreviewCard.classList.remove('details-open');
+  profilePreviewDetailToggle.textContent = '↑';
+  renderProfilePreview();
+  profileEditView.classList.add('previewing');
+  profileEditPreviewTab.classList.add('active');
+  profileEditEditTab.classList.remove('active');
+}
+
+document.getElementById('profileName').addEventListener('input', e => {
+  profileData.name = e.target.value;
+  refreshCardView();
+  if (profileEditView.classList.contains('previewing')) renderProfilePreview();
+});
+document.getElementById('profileAge').addEventListener('input', e => {
+  if (e.target.value !== '') {
+    const number = Number(e.target.value);
+    if (Number.isFinite(number) && number > 100) e.target.value = '100';
+  }
+  profileData.age = e.target.value;
+  refreshCardView();
+  if (profileEditView.classList.contains('previewing')) renderProfilePreview();
+});
+
+const profilePreviewDetailToggle = document.getElementById('profilePreviewDetailToggle');
+function closeProfilePreviewDetails() {
+  profilePreviewCard.classList.remove('details-open');
+  profilePreviewDetailToggle.textContent = '↑';
+  profilePreviewDetailToggle.setAttribute('aria-label', 'Profil detaylarını aç');
+}
+profilePreviewDetailToggle.addEventListener('click', e => {
+  e.stopPropagation();
+  const isOpen = profilePreviewCard.classList.toggle('details-open');
+  // Sembol sabit kalır; CSS dönüşü açıkken oku aşağı çevirir.
+  profilePreviewDetailToggle.textContent = '↑';
+  profilePreviewDetailToggle.setAttribute('aria-label', isOpen ? 'Profil detaylarını kapat' : 'Profil detaylarını aç');
+});
+document.addEventListener('click', e => {
+  if (!profilePreviewCard.classList.contains('details-open')) return;
+  if (e.target.closest('#profilePreviewDetailsSheet') || e.target.closest('#profilePreviewDetailToggle')) return;
+  closeProfilePreviewDetails();
+});
+
+let profilePreviewStartX = null;
+let profilePreviewSuppressClick = false;
+const profilePreviewCard = document.getElementById('profilePreviewCard');
+profilePreviewCard.addEventListener('touchstart', e => {
+  if (e.target.closest('#profilePreviewDetailsSheet') || e.target.closest('#profilePreviewDetailToggle')) return;
+  profilePreviewStartX = e.touches[0].clientX;
+}, { passive: true });
+profilePreviewCard.addEventListener('touchend', e => {
+  if (profilePreviewStartX === null) return;
+  const dx = e.changedTouches[0].clientX - profilePreviewStartX;
+  profilePreviewStartX = null;
+  if (Math.abs(dx) < 40) return;
+  profilePreviewSuppressClick = true;
+  setTimeout(() => { profilePreviewSuppressClick = false; }, 250);
+  changeProfilePreviewPhoto(dx < 0 ? 1 : -1);
+});
+profilePreviewCard.addEventListener('click', e => {
+  if (profilePreviewSuppressClick) return;
+  if (e.target.closest('#profilePreviewDetailsSheet') || e.target.closest('#profilePreviewDetailToggle')) return;
+  const rect = profilePreviewCard.getBoundingClientRect();
+  changeProfilePreviewPhoto(e.clientX < rect.left + rect.width / 2 ? -1 : 1);
+});
+
+profileEditEditTab.addEventListener('click', showProfileEditForm);
+profileEditPreviewTab.addEventListener('click', showProfilePreview);
+updateProfilePreviewTabState();
+
+document.querySelectorAll('#genderSelectRow .genderOption').forEach(opt => {
+  opt.addEventListener('click', () => {
+    document.querySelectorAll('#genderSelectRow .genderOption').forEach(o => o.classList.remove('active'));
+    opt.classList.add('active');
+    profileData.gender = opt.dataset.gender;
+  });
+});
+
+document.querySelectorAll('#personalitySelectRow .personalityOption').forEach(opt => {
+  opt.addEventListener('click', () => {
+    document.querySelectorAll('#personalitySelectRow .personalityOption').forEach(o => o.classList.remove('active'));
+    opt.classList.add('active');
+    profileData.personality = opt.dataset.personality;
+  });
+});
+
+document.querySelectorAll('#zodiacSelectRow .zodiacOption').forEach(opt => {
+  opt.addEventListener('click', () => {
+    document.querySelectorAll('#zodiacSelectRow .zodiacOption').forEach(o => o.classList.remove('active'));
+    opt.classList.add('active');
+    profileData.zodiac = opt.dataset.zodiac;
+  });
+});
+
+// ---- multi-select languages ----
+function renderLangTags() {
+  const wrap = document.getElementById('langSelectTags');
+  wrap.innerHTML = '';
+  profileData.langs.forEach((lang, i) => {
+    const el = document.createElement('div');
+    el.className = 'langSelectedTag';
+    el.innerHTML = `${lang}<div class="removeLangTag" data-idx="${i}">✕</div>`;
+    wrap.appendChild(el);
+  });
+  wrap.querySelectorAll('.removeLangTag').forEach(btn => {
+    btn.addEventListener('click', () => {
+      profileData.langs.splice(parseInt(btn.dataset.idx), 1);
+      renderLangTags();
+      updateLangOptionVisibility();
+    });
+  });
+}
+function updateLangOptionVisibility() {
+  document.querySelectorAll('#addLangRow .langOption').forEach(opt => {
+    opt.classList.toggle('selected', profileData.langs.includes(opt.dataset.lang));
+  });
+}
+document.querySelectorAll('#addLangRow .langOption').forEach(opt => {
+  opt.addEventListener('click', () => {
+    const lang = opt.dataset.lang;
+    if (!profileData.langs.includes(lang)) {
+      profileData.langs.push(lang);
+      renderLangTags();
+      updateLangOptionVisibility();
+    }
+  });
+});
+renderLangTags();
+updateLangOptionVisibility();
+
+const profileBioInput = document.getElementById('profileBio');
+const profileBioCounter = document.getElementById('profileBioCounter');
+
+function syncActiveProfileBioEditor() {
+  profileBioInput.value = modeBios[activeProfilePhotoMode] || '';
+  updateProfileBioEditor();
+}
+
+function updateProfileBioEditor() {
+  const characters = Array.from(profileBioInput.value);
+  if (characters.length > 500) {
+    profileBioInput.value = characters.slice(0, 500).join('');
+  }
+  const remaining = 500 - Array.from(profileBioInput.value).length;
+  profileBioCounter.textContent = remaining;
+  profileBioCounter.style.color = remaining <= 25 ? 'var(--coral)' : 'var(--text-low)';
+  profileBioInput.style.height = 'auto';
+  const maxBioHeight = 120;
+  const contentHeight = Math.max(78, profileBioInput.scrollHeight);
+  profileBioInput.style.height = Math.min(contentHeight, maxBioHeight) + 'px';
+  profileBioInput.style.overflowY = contentHeight > maxBioHeight ? 'auto' : 'hidden';
+  modeBios[activeProfilePhotoMode] = profileBioInput.value;
+  profileData.bio = profileBioInput.value;
+  refreshCardView();
+  if (profileEditView.classList.contains('previewing')) renderProfilePreview();
+}
+
+profileBioInput.addEventListener('input', updateProfileBioEditor);
+updateProfileBioEditor();
+
+function updateModePreferenceVisibility() {
+  const isDating = activeDiscoverModeIndex === 1;
+  document.querySelectorAll('.profileDatingOnlyField').forEach(row => {
+    if (!isDating) {
+      row.style.display = 'none';
+    } else {
+      row.style.display = row.classList.contains('profileField') || row.classList.contains('profileEditSection') ? 'block' : 'flex';
+    }
+  });
+  const ageSection = document.getElementById('agePreferenceSection');
+  if (ageSection) ageSection.style.display = 'block';
+}
+
+// ---- discover mode switching ----
+const discoverModes = [
+  { id: 'friendship', label: 'Arkadaşlık' },
+  { id: 'dating', label: 'Flört' },
+  { id: 'speed-dating', label: 'Hızlı Flört' }
+];
+let activeDiscoverModeIndex = 0;
+let discoverModeTransitioning = false;
+const discoverModeFaces = Array.from(document.querySelectorAll('.discoverModeFace'));
+
+function getDiscoverModeIndex(offset) {
+  const total = discoverModes.length;
+  return (activeDiscoverModeIndex + offset + total) % total;
+}
+
+function renderDiscoverModeSwitcher() {
+  const previousIndex = getDiscoverModeIndex(-1);
+  const nextIndex = getDiscoverModeIndex(1);
+
+  // Her yazı kendi DOM elemanı olarak kalır; yalnızca rolü değişir.
+  // Böylece harfler bir anda değişmez, fiziksel olarak kayarak yer değiştirir.
+  discoverModeFaces.forEach(face => {
+    const index = Number(face.dataset.modeIndex);
+    face.classList.remove('is-current', 'is-prev', 'is-next');
+
+    if (index === activeDiscoverModeIndex) face.classList.add('is-current');
+    else if (index === previousIndex) face.classList.add('is-prev');
+    else if (index === nextIndex) face.classList.add('is-next');
+
+    const mode = discoverModes[index];
+    face.title = mode.label;
+    face.setAttribute('aria-label', mode.label + ' moduna geç');
+  });
+  updateModePreferenceVisibility();
+  setActiveProfilePhotoMode(discoverModes[activeDiscoverModeIndex].id);
+}
+
+function changeDiscoverMode(direction) {
+  if (discoverModeTransitioning) return;
+  discoverModeTransitioning = true;
+  activeDiscoverModeIndex = getDiscoverModeIndex(direction);
+  renderDiscoverModeSwitcher();
+
+  // CSS geçişi tamamlanana kadar yeni bir geçiş başlatma.
+  setTimeout(() => {
+    discoverModeTransitioning = false;
+  }, 600);
+}
+
+discoverModeFaces.forEach(face => {
+  face.addEventListener('click', () => {
+    const index = Number(face.dataset.modeIndex);
+    if (index === getDiscoverModeIndex(1)) changeDiscoverMode(1);
+    else if (index === getDiscoverModeIndex(-1)) changeDiscoverMode(-1);
+  });
+});
+
+let discoverModeStartX = null;
+let discoverModeStartY = null;
+const discoverModeSwitcher = document.getElementById('discoverModeSwitcher');
+
+discoverModeSwitcher.addEventListener('touchstart', e => {
+  const touch = e.touches[0];
+  discoverModeStartX = touch.clientX;
+  discoverModeStartY = touch.clientY;
+}, { passive: true });
+
+discoverModeSwitcher.addEventListener('touchend', e => {
+  if (discoverModeStartX === null) return;
+  const touch = e.changedTouches[0];
+  const dx = touch.clientX - discoverModeStartX;
+  const dy = touch.clientY - discoverModeStartY;
+  discoverModeStartX = null;
+  discoverModeStartY = null;
+  if (Math.abs(dx) < 35 || Math.abs(dx) < Math.abs(dy)) return;
+  // Sola kaydırma sonraki moda, sağa kaydırma önceki moda gider.
+  changeDiscoverMode(dx < 0 ? 1 : -1);
+});
+
+renderDiscoverModeSwitcher();
+
+// ---- discover screen logic ----
+const discoverProfiles = [
+  {
+    id: 'd1', name: 'Selin', age: 20, lang: 'Türkçe',
+    color: 'linear-gradient(135deg, #6FE3C4, #3DA9FF)',
+    bio: 'Üniversitede grafik tasarım okuyorum, boş zamanlarımda bisiklet sürmeyi seviyorum.',
+    interests: ['Tasarım', 'Bisiklet', 'Sinema']
+  },
+  {
+    id: 'd2', name: 'Kerem', age: 22, lang: 'Türkçe',
+    color: 'linear-gradient(135deg, #B98CFF, #FF6B57)',
+    bio: 'Yazılım okuyorum, akşamları halı sahaya çıkıyorum. Yeni arkadaşlıklara açığım.',
+    interests: ['Futbol', 'Kodlama', 'Diziler']
+  },
+  {
+    id: 'd3', name: 'Zeynep', age: 19, lang: 'Türkçe / English',
+    color: 'linear-gradient(135deg, #FFC65C, #6FE3C4)',
+    bio: 'Kitap kurduyum, özellikle fantastik türü severim. Aynı zamanda gitar çalıyorum.',
+    interests: ['Kitap', 'Gitar', 'Kahve']
+  },
+  {
+    id: 'd4', name: 'Baran', age: 21, lang: 'Türkçe',
+    color: 'linear-gradient(135deg, #FF6B57, #FFC65C)',
+    bio: 'Doğa yürüyüşü ve fotoğrafçılıkla ilgileniyorum, hafta sonları genelde dışarıdayım.',
+    interests: ['Doğa', 'Fotoğraf', 'Kamp']
+  }
+];
+
+let discoverIndex = 0;
+let discoverHistory = []; // for undo: { index, type, createdConvId, createdReqRef }
+
+function renderDiscoverCards() {
+  const wrap = document.getElementById('discoverCards');
+  wrap.innerHTML = '';
+  const visible = discoverProfiles.slice(discoverIndex, discoverIndex + 2);
+  visible.forEach((p, i) => {
+    const cardDetails = getProfileCardDetails(p, p.distanceKm);
+    const primaryDetail = cardDetails[0];
+    const primaryBio = primaryDetail && primaryDetail.type === 'bio' ? primaryDetail.items[0] : '';
+    const primaryTags = primaryDetail && primaryDetail.type !== 'bio'
+      ? primaryDetail.items.map(item => `<div class="cardDetailTag">${item}</div>`).join('')
+      : '';
+    const card = document.createElement('div');
+    card.className = 'discoverCard';
+    card.style.zIndex = visible.length - i;
+    card.style.transform = i === 1 ? 'scale(0.96) translateY(10px)' : '';
+    card.dataset.id = p.id;
+    card.innerHTML = `
+      <div class="cardTop">
+        <div class="cardAvatar" style="background:${p.color}"><span>${p.name[0]}</span></div>
+        <div class="cardName">${p.name}</div>
+        <div class="cardMeta">${p.age}</div>
+      </div>
+      <div class="cardBody">
+        <div class="cardBio">${primaryBio}</div>
+        <div class="cardDetailTags">${primaryTags}</div>
+        <div class="cardInterests">${p.interests.map(t => `<div class="cardInterestTag">${t}</div>`).join('')}</div>
+      </div>
+    `;
+    wrap.appendChild(card);
+    const cardBio = card.querySelector('.cardBio');
+    cardBio.addEventListener('touchstart', e => e.stopPropagation(), { passive: true });
+    cardBio.addEventListener('touchmove', e => e.stopPropagation(), { passive: true });
+    cardBio.addEventListener('mousedown', e => e.stopPropagation());
+    if (i === 0) bindSwipeGesture(card);
+  });
+  document.getElementById('discoverEmpty').classList.toggle('show', visible.length === 0);
+}
+renderDiscoverCards();
+
+// ---- swipe gesture: right=like, left=pass, up=super-like, down=message ----
+function bindSwipeGesture(card) {
+  let startX = 0, startY = 0, curX = 0, curY = 0, dragging = false;
+
+  function pointerDown(x, y) {
+    startX = x; startY = y; curX = x; curY = y;
+    dragging = true;
+    card.style.transition = 'none';
+  }
+  function pointerMove(x, y) {
+    if (!dragging) return;
+    curX = x; curY = y;
+    const dx = curX - startX;
+    const dy = curY - startY;
+    const rotate = dx * 0.04;
+    card.style.transform = `translate(${dx}px, ${dy}px) rotate(${rotate}deg)`;
+  }
+  function pointerUp() {
+    if (!dragging) return;
+    dragging = false;
+    card.style.transition = 'transform 0.25s ease, opacity 0.25s ease';
+    const dx = curX - startX;
+    const dy = curY - startY;
+    const THRESHOLD = 90;
+
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > THRESHOLD) {
+      // horizontal swipe
+      if (dx > 0) swipeTopCard('right', false);
+      else swipeTopCard('left', false);
+    } else if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > THRESHOLD) {
+      // vertical swipe
+      if (dy < 0) {
+        // up -> super-like
+        card.style.transform = 'translateY(-130%) scale(0.9)';
+        card.style.opacity = '0';
+        swipeTopCardGesture('superlike');
+      } else {
+        // down -> open message compose, snap card back
+        card.style.transform = '';
+        openDiscoverMsgModalForTop();
+      }
+    } else {
+      // not a decisive swipe, snap back
+      card.style.transform = '';
+    }
+  }
+
+  card.addEventListener('touchstart', e => {
+    const t = e.touches[0];
+    pointerDown(t.clientX, t.clientY);
+  }, { passive: true });
+  card.addEventListener('touchmove', e => {
+    const t = e.touches[0];
+    pointerMove(t.clientX, t.clientY);
+  }, { passive: true });
+  card.addEventListener('touchend', pointerUp);
+
+  const moveHandler = e => pointerMove(e.clientX, e.clientY);
+  card.addEventListener('mousedown', e => {
+    pointerDown(e.clientX, e.clientY);
+    document.addEventListener('mousemove', moveHandler);
+    document.addEventListener('mouseup', () => {
+      document.removeEventListener('mousemove', moveHandler);
+      pointerUp();
+    }, { once: true });
+  });
+}
+
+// helper to trigger the existing swipeTopCard logic without re-adding the CSS swipe class
+// (the gesture handler already animates the card itself for the up/super-like case)
+function swipeTopCardGesture(type) {
+  const wrap = document.getElementById('discoverCards');
+  const top = wrap.querySelector('.discoverCard');
+  if (!top) return;
+  const profile = discoverProfiles[discoverIndex];
+  if (!profile) return;
+
+  const historyEntry = { index: discoverIndex, type };
+
+  const likeMessages = [
+    'Selam! Profilin çok ilgimi çekti, tanışalım mı?',
+    'Merhaba! İlgi alanlarımız epey örtüşüyor gibi, sohbet edelim mi?',
+    'Selam, seninle tanışmak isterim 🙂'
+  ];
+  const msg = likeMessages[Math.floor(Math.random() * likeMessages.length)];
+
+  const exists = conversations.find(c => c.id === profile.id);
+  if (!exists) {
+    const newConv = {
+      id: profile.id,
+      name: profile.name,
+      initial: profile.name[0],
+      color: profile.color,
+      online: true,
+      messages: [{ from: 'me', text: msg }]
+    };
+    conversations.unshift(newConv);
+    convState[newConv.id] = { lastRead: newConv.messages.length };
+    renderConvList();
+    historyEntry.createdConvId = newConv.id;
+  }
+  triggerStarBurst();
+  setTimeout(() => showLikeToast(profile.name, true, true), 280);
+
+  discoverHistory.push(historyEntry);
+
+  setTimeout(() => {
+    discoverIndex++;
+    renderDiscoverCards();
+  }, 260);
+}
+
+function openDiscoverMsgModalForTop() {
+  document.getElementById('discoverMsgBtn').click();
+}
+
+function triggerStarBurst() {
+  const star = document.getElementById('superLikeStar');
+  star.classList.remove('burst');
+  void star.offsetWidth;
+  star.classList.add('burst');
+  setTimeout(() => star.classList.remove('burst'), 800);
+}
+
+function triggerHeartBurst() {
+  const heart = document.getElementById('heartIcon');
+  heart.classList.remove('burst');
+  void heart.offsetWidth;
+  heart.classList.add('burst');
+  setTimeout(() => heart.classList.remove('burst'), 950);
+}
+
+
+function showLikeToast(name, sentMessage, isInstantChat) {
+  const toast = document.getElementById('likeToast');
+  let text;
+  if (isInstantChat) text = `<b>${name}</b> ile sohbet başladı!`;
+  else if (sentMessage) text = `<b>${name}</b>'e mesaj isteği gönderildi`;
+  else text = `<b>${name}</b> beğenildi`;
+  document.getElementById('likeToastText').innerHTML = text;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2400);
+}
+
+function swipeTopCard(direction, isSuperLike) {
+  const wrap = document.getElementById('discoverCards');
+  const top = wrap.querySelector('.discoverCard');
+  if (!top) return;
+  const profile = discoverProfiles[discoverIndex];
+
+  top.classList.add(direction === 'right' ? 'swipe-right' : 'swipe-left');
+
+  if (direction === 'left') { /* no animation */ }
+
+  const historyEntry = { index: discoverIndex, type: direction === 'right' ? (isSuperLike ? 'superlike' : 'like') : 'pass' };
+
+  if (direction === 'right') {
+    const likeMessages = [
+      'Selam! Profilin çok ilgimi çekti, tanışalım mı?',
+      'Merhaba! İlgi alanlarımız epey örtüşüyor gibi, sohbet edelim mi?',
+      'Selam, seninle tanışmak isterim 🙂'
+    ];
+    const msg = likeMessages[Math.floor(Math.random() * likeMessages.length)];
+
+    if (isSuperLike) {
+      // super-like: starts a real conversation immediately, no request step
+      const exists = conversations.find(c => c.id === profile.id);
+      if (!exists) {
+        const newConv = {
+          id: profile.id,
+          name: profile.name,
+          initial: profile.name[0],
+          color: profile.color,
+          online: true,
+          messages: [{ from: 'me', text: msg }]
+        };
+        conversations.unshift(newConv);
+        convState[newConv.id] = { lastRead: newConv.messages.length };
+        renderConvList();
+        historyEntry.createdConvId = newConv.id;
+      }
+      triggerStarBurst();
+      setTimeout(() => showLikeToast(profile.name, true, true), 280);
+    } else {
+      // regular like: goes out as a pending request, limited to 3 messages
+      const newReq = {
+        id: profile.id,
+        name: profile.name,
+        color: profile.color,
+        message: msg,
+        time: 'Şimdi',
+        status: 'pending',
+        sentCount: 1,
+        thread: [{ from: 'me', text: msg }]
+      };
+      sentRequests.push(newReq);
+      renderRequestsDot();
+      historyEntry.createdReqRef = newReq;
+      triggerHeartBurst();
+      setTimeout(() => showLikeToast(profile.name, true, false), 280);
+    }
+  }
+
+  discoverHistory.push(historyEntry);
+
+  setTimeout(() => {
+    discoverIndex++;
+    renderDiscoverCards();
+  }, 260);
+}
+
+document.getElementById('likeBtn').addEventListener('click', () => swipeTopCard('right', false));
+
+// ---- undo last discover action ----
+document.getElementById('undoBtn').addEventListener('click', () => {
+  const entry = discoverHistory.pop();
+  if (!entry) {
+    document.getElementById('likeToastText').textContent = 'Geri alınacak bir işlem yok';
+    document.getElementById('likeToast').classList.add('show');
+    setTimeout(() => document.getElementById('likeToast').classList.remove('show'), 1800);
+    return;
+  }
+
+  // undo side effects
+  if (entry.createdConvId) {
+    const idx = conversations.findIndex(c => c.id === entry.createdConvId);
+    if (idx > -1) conversations.splice(idx, 1);
+    delete convState[entry.createdConvId];
+    renderConvList();
+  }
+  if (entry.createdReqRef) {
+    const idx = sentRequests.indexOf(entry.createdReqRef);
+    if (idx > -1) sentRequests.splice(idx, 1);
+    renderRequestsDot();
+  }
+
+  discoverIndex = entry.index;
+  renderDiscoverCards();
+
+  const profile = discoverProfiles[discoverIndex];
+  if (profile) {
+    document.getElementById('likeToastText').innerHTML = `<b>${profile.name}</b> geri getirildi`;
+    document.getElementById('likeToast').classList.add('show');
+    setTimeout(() => document.getElementById('likeToast').classList.remove('show'), 1800);
+  }
+});
+
+// ---- discover filter (country + age) ----
+function openDiscoverFilter() {
+  document.getElementById('discoverFilterView').classList.add('active');
+}
+function closeDiscoverFilter() {
+  document.getElementById('discoverFilterView').classList.remove('active');
+}
+document.getElementById('discoverFilterBtn').addEventListener('click', openDiscoverFilter);
+document.getElementById('discoverFilterBackBtn').addEventListener('click', closeDiscoverFilter);
+
+document.querySelectorAll('#countryPrefOptions .prefOption').forEach(opt => {
+  opt.addEventListener('click', () => {
+    document.querySelectorAll('#countryPrefOptions .prefOption').forEach(o => o.classList.remove('active'));
+    opt.classList.add('active');
+    preferredCountry = opt.dataset.country;
+    updateAccordionValue('countryAccordionVal', preferredCountry);
+  });
+});
+
+document.getElementById('superLikeBtn').addEventListener('click', () => swipeTopCard('right', true));
+
+createDualRange({
+  trackId: 'discoverDualRangeTrack', fillId: 'discoverDualRangeFill',
+  minHandleId: 'discoverHandleMin', maxHandleId: 'discoverHandleMax',
+  minLabelId: 'discoverLabelMin', maxLabelId: 'discoverLabelMax',
+  displayId: 'discoverAgeRangeDisplay',
+  min: 18, max: 100, valMin: 18, valMax: 25,
+  showMaxPlus: true,
+  formatDisplay: (minValue, maxValue) => `${minValue} - ${maxValue}`,
+  onChange: null
+});
+
+createSingleRange({
+  trackId: 'discoverDistanceTrack', fillId: 'discoverDistanceFill',
+  handleId: 'discoverDistanceHandle', labelId: 'discoverDistanceLabel',
+  displayId: 'discoverDistanceDisplay',
+  min: 1, max: 200, value: 200,
+  onChange: value => {
+    datingPreferences.distanceMinKm = 1;
+    datingPreferences.distanceMaxKm = value;
+  }
+});
+
+document.getElementById('passBtn').addEventListener('click', () => swipeTopCard('left', false));
+
+// ---- discover: custom message compose ----
+document.getElementById('discoverMsgBtn').addEventListener('click', () => {
+  const profile = discoverProfiles[discoverIndex];
+  if (!profile) return;
+  document.getElementById('discoverMsgModalAvatar').style.background = profile.color;
+  document.getElementById('discoverMsgModalAvatar').textContent = profile.name[0];
+  document.getElementById('discoverMsgModalName').textContent = profile.name;
+  document.getElementById('discoverMsgModalInput').value = '';
+  updateDiscoverMsgSendState();
+  document.getElementById('discoverMsgModal').classList.add('show');
+});
+
+function updateDiscoverMsgSendState() {
+  const val = document.getElementById('discoverMsgModalInput').value.trim();
+  document.getElementById('discoverMsgModalSend').classList.toggle('disabled', val.length === 0);
+}
+document.getElementById('discoverMsgModalInput').addEventListener('input', updateDiscoverMsgSendState);
+
+document.getElementById('discoverMsgModalCancel').addEventListener('click', () => {
+  document.getElementById('discoverMsgModal').classList.remove('show');
+});
+
+document.getElementById('discoverMsgModalSend').addEventListener('click', () => {
+  const text = document.getElementById('discoverMsgModalInput').value.trim();
+  if (!text) return;
+  const profile = discoverProfiles[discoverIndex];
+  if (!profile) return;
+
+  sentRequests.push({
+    id: profile.id,
+    name: profile.name,
+    color: profile.color,
+    message: text,
+    time: 'Şimdi',
+    status: 'pending',
+    sentCount: 1,
+    thread: [{ from: 'me', text }]
+  });
+  renderRequestsDot();
+
+  document.getElementById('discoverMsgModal').classList.remove('show');
+  triggerHeartBurst();
+  showLikeToast(profile.name, true, false);
+
+  // move on to the next match, same as like/pass
+  const wrap = document.getElementById('discoverCards');
+  const top = wrap.querySelector('.discoverCard');
+  if (top) top.classList.add('swipe-right');
+  setTimeout(() => {
+    discoverIndex++;
+    renderDiscoverCards();
+  }, 260);
+});
+
+// ---- bottom nav switching ----
+const screenTitles = { messages: 'Mesajlar', like: 'Keşfet', profile: 'Profilim' };
+document.querySelectorAll('.navBtn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (document.getElementById('profileEditView').classList.contains('active')) closeProfileEdit();
+    const target = btn.dataset.screen;
+    document.querySelectorAll('.navBtn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + target).classList.add('active');
+    document.getElementById('topbarTitle').textContent = screenTitles[target];
+    document.getElementById('topbarCount').style.display = target === 'messages' ? 'inline' : 'none';
+    document.getElementById('friendReqsBtn').classList.toggle('visible', target === 'messages');
+    closeChat();
+
+    if (target === 'messages') {
+      // always return to the Mesajlar sub-tab, not wherever İstekler was left
+      document.querySelectorAll('.msgTopTab').forEach(t => t.classList.toggle('active', t.dataset.tab === 'messages'));
+      document.getElementById('convList').classList.remove('hidden');
+      document.getElementById('requestsPanel').classList.remove('active');
+    }
+
+    if (target === 'profile') {
+      // always return to the profile card view, not settings/edit/prefs sub-screens
+      closeProfileEdit();
+      closeSettings();
+      closePersonalPref();
+      closeSocialList();
+      closeProfileView();
+    }
+
+    if (target === 'like') {
+      closeDiscoverFilter();
+    }
+  });
+});
+</script>
+</body>
+</html>
