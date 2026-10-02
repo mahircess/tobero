@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -186,7 +185,263 @@
   }
 
   /* ---- messages: top tabs (Mesajlar / İstekler) ---- */
-  #msgTopTabs {
+  #messageQuickBar {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    border-bottom: 1px solid var(--line);
+  }
+  #messageQuickBar::-webkit-scrollbar { display: none; }
+  .messageQuickItem {
+    flex: 0 0 54px;
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--line);
+    color: var(--text-hi);
+    font-size: 20px;
+    cursor: pointer;
+  }
+  .messageQuickItem span {
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--text-mid);
+  }
+  .messageQuickItem:active { background: var(--bg-panel); }
+  .messageQuickItem--map {
+    background: var(--coral-soft);
+    border-color: var(--coral);
+  }
+  #messageOwnNoteAvatar,
+  .messageNoteAvatar {
+    position: relative;
+    width: 54px;
+    height: 54px;
+    flex: 0 0 54px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #FF6B57, #FFC65C);
+    color: rgba(0,0,0,0.55);
+    font-family: 'Sora', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    cursor: pointer;
+    border: 1px solid var(--line);
+    background-size: cover;
+    background-position: center;
+  }
+  #messageOwnNoteAvatar .notePlus,
+  .messageNoteAvatar .notePlus {
+    position: absolute;
+    right: -1px;
+    bottom: -1px;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #FFFFFF;
+    color: #111111;
+    border: 2px solid var(--bg-deep);
+    font-size: 15px;
+    line-height: 1;
+    font-weight: 800;
+  }
+  #messageNotesList {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .messageNoteButton {
+    position: relative;
+    flex: 0 0 54px;
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    background: var(--bg-elevated);
+    border: 1px solid var(--line);
+    cursor: pointer;
+    overflow: visible;
+  }
+  .messageNoteButton .messageNoteAvatar { width: 100%; height: 100%; border: none; }
+  .messageNoteBubble {
+    position: absolute;
+    left: 50%;
+    bottom: 60px;
+    transform: translateX(-50%);
+    width: max-content;
+    max-width: 128px;
+    max-height: 50px;
+    overflow: hidden;
+    padding: 6px 9px;
+    border-radius: 12px;
+    background: rgba(0,0,0,0.82);
+    border: 1px solid rgba(255,255,255,0.18);
+    color: #FFFFFF;
+    font-size: 10px;
+    line-height: 1.2;
+    text-align: center;
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+    z-index: 5;
+    pointer-events: none;
+  }
+  .messageNoteBubble::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: -5px;
+    width: 10px;
+    height: 10px;
+    transform: translateX(-50%) rotate(45deg);
+    background: rgba(0,0,0,0.82);
+  }
+  #noteComposerBackdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 130;
+    align-items: flex-end;
+    justify-content: center;
+    background: rgba(0,0,0,0.55);
+  }
+  #noteComposerBackdrop.show { display: flex; }
+  #noteComposerCard {
+    width: 100%;
+    max-width: 520px;
+    padding: 20px 18px calc(20px + env(safe-area-inset-bottom, 8px));
+    border-radius: 24px 24px 0 0;
+    background: var(--bg-panel);
+  }
+  #noteComposerTitle {
+    font-family: 'Sora', sans-serif;
+    font-weight: 800;
+    font-size: 16px;
+    margin-bottom: 12px;
+  }
+  #noteInput {
+    width: 100%;
+    min-height: 90px;
+    resize: none;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 12px;
+    background: var(--bg-elevated);
+    color: var(--text-hi);
+    font-family: 'Inter', sans-serif;
+    box-sizing: border-box;
+  }
+  #noteComposerActions { display: flex; gap: 10px; margin-top: 12px; }
+  #noteInput {
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+  #noteInput::-webkit-scrollbar { display: none; width: 0; height: 0; }
+  #noteComposerActions button {
+    flex: 1;
+    padding: 11px;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  #noteViewerBackdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 140;
+    align-items: flex-end;
+    justify-content: center;
+    background: rgba(0,0,0,0.55);
+  }
+  #noteViewerBackdrop.show { display: flex; }
+  #noteViewerCard {
+    width: 100%;
+    max-width: 520px;
+    padding: 18px 16px calc(18px + env(safe-area-inset-bottom, 8px));
+    border-radius: 24px 24px 0 0;
+    background: var(--bg-panel);
+  }
+  #noteViewerHeader {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  #noteViewerAuthor {
+    flex: 1;
+    color: var(--text-hi);
+    font-family: 'Sora', sans-serif;
+    font-size: 14px;
+    font-weight: 800;
+  }
+  #noteViewerClose {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--bg-elevated);
+    color: var(--text-mid);
+    font-size: 18px;
+    cursor: pointer;
+  }
+  #noteViewerText {
+    color: var(--text-hi);
+    font-size: 15px;
+    line-height: 1.45;
+    margin-bottom: 14px;
+  }
+  #noteViewerActions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  #noteReplyInput {
+    flex: 1;
+    min-width: 0;
+    height: 40px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 0 14px;
+    background: var(--bg-elevated);
+    color: var(--text-hi);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+  }
+  #noteReplyInput:focus { outline: none; border-color: var(--coral); }
+  .noteViewerActionBtn {
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    background: var(--bg-elevated);
+    color: var(--text-mid);
+    font-size: 17px;
+    cursor: pointer;
+  }
+  .noteViewerActionBtn.active,
+  .noteViewerActionBtn:active { background: var(--coral-soft); color: var(--coral); }
+  #noteCancelBtn { background: var(--bg-elevated); color: var(--text-mid); }
+  #notePublishBtn { background: var(--coral); color: #1A0F0C; }
+
+  #msgTopTabs { 
     flex-shrink: 0;
     display: flex;
     gap: 8px;
@@ -607,6 +862,117 @@
   }
   #sendBtn:active { background: #e85a47; }
   #sendBtn.disabled { opacity: 0.35; }
+
+  /* ---- events map mock screen ---- */
+  #eventsMapScreen {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 120;
+    flex-direction: column;
+    background: var(--bg-deep);
+  }
+  #eventsMapScreen.active { display: flex; }
+  #eventsMapHeader {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-panel);
+  }
+  #eventsMapBackBtn {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    background: var(--bg-elevated);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    cursor: pointer;
+  }
+  #eventsMapTitle {
+    font-family: 'Sora', sans-serif;
+    font-size: 16px;
+    font-weight: 800;
+  }
+  #eventsMapCanvas {
+    position: relative;
+    flex: 1;
+    overflow: hidden;
+    background:
+      linear-gradient(28deg, transparent 46%, rgba(255,255,255,0.08) 47%, rgba(255,255,255,0.08) 48%, transparent 49%),
+      linear-gradient(-18deg, transparent 48%, rgba(255,255,255,0.06) 49%, rgba(255,255,255,0.06) 50%, transparent 51%),
+      var(--bg-panel);
+  }
+  #eventMapHint {
+    position: absolute;
+    left: 18px;
+    top: 18px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(0,0,0,0.25);
+    color: var(--text-mid);
+    font-size: 11px;
+  }
+  .eventMapMarker {
+    position: absolute;
+    left: 52%;
+    top: 42%;
+    width: 52px;
+    height: 52px;
+    border-radius: 50% 50% 50% 8px;
+    transform: rotate(-45deg);
+    background: var(--coral);
+    border: 3px solid rgba(255,255,255,0.78);
+    box-shadow: 0 8px 22px rgba(0,0,0,0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  .eventMapMarker span {
+    transform: rotate(45deg);
+    font-size: 22px;
+  }
+  #eventDetailSheet {
+    display: none;
+    flex-shrink: 0;
+    padding: 18px 16px calc(18px + env(safe-area-inset-bottom, 8px));
+    border-top: 1px solid var(--line);
+    border-radius: 22px 22px 0 0;
+    background: var(--bg-panel);
+  }
+  #eventDetailSheet.show { display: block; }
+  #eventDetailTitle {
+    font-family: 'Sora', sans-serif;
+    font-size: 17px;
+    font-weight: 800;
+  }
+  #eventDetailMeta {
+    margin-top: 5px;
+    color: var(--text-mid);
+    font-size: 12px;
+  }
+  #eventDetailDescription {
+    margin-top: 12px;
+    color: var(--text-hi);
+    font-size: 14px;
+    line-height: 1.45;
+  }
+  #eventDetailApplyBtn {
+    width: 100%;
+    margin-top: 14px;
+    padding: 12px;
+    border: none;
+    border-radius: 14px;
+    background: var(--coral);
+    color: #1A0F0C;
+    font-weight: 800;
+    cursor: pointer;
+  }
 
   /* ---- bottom nav ---- */
   #bottomNav {
@@ -1129,6 +1495,34 @@
     color: var(--text-low);
   }
 
+  .settingsMenuRow {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--bg-elevated);
+    cursor: pointer;
+  }
+  .settingsMenuRow:active { background: var(--bg-panel); }
+  .settingsMenuTitle {
+    font-family: 'Sora', sans-serif;
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--text-hi);
+  }
+  .settingsMenuSubtitle {
+    margin-top: 3px;
+    color: var(--text-mid);
+    font-size: 11.5px;
+  }
+  .settingsMenuArrow {
+    color: var(--text-low);
+    font-size: 22px;
+  }
+
   /* ---- settings view ---- */
   #settingsView {
     display: none;
@@ -1140,6 +1534,44 @@
     overflow: hidden;
   }
   #settingsView.active { display: flex; }
+  #themesView {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    inset: 0;
+    z-index: 6;
+    background: var(--bg-deep);
+  }
+  #themesView.active { display: flex; }
+  #themesHeader {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  #themesBackBtn {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    background: var(--bg-elevated);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    cursor: pointer;
+  }
+  #themesTitle {
+    font-family: 'Sora', sans-serif;
+    font-size: 15.5px;
+    font-weight: 700;
+  }
+  #themesScroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+  }
   #settingsHeader {
     flex-shrink: 0;
     display: flex; align-items: center; gap: 12px;
@@ -1529,6 +1961,34 @@
     color: var(--coral);
     margin-bottom: 4px;
   }
+  #messages,
+  #discoverFilterScroll,
+  #profileScroll,
+  #profileViewScroll,
+  #personalPrefScroll,
+  #settingsScroll,
+  #themesScroll,
+  #userProfileScroll,
+  #reqMessages {
+    touch-action: pan-y;
+    overscroll-behavior: contain;
+  }
+  /* Mesajlar kaymaya devam etsin; sağdaki beyaz scrollbar görünmesin. */
+  #messages,
+  #reqMessages {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  #messages::-webkit-scrollbar,
+  #reqMessages::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+  #profilePreviewCard {
+    touch-action: pan-y;
+  }
+
   #discoverCards {
     position: relative;
     width: 100%;
@@ -1543,6 +2003,8 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    /* Kartın üst kısmı swipe, iç gövdesi ise kendi scroll alanıdır. */
+    touch-action: none;
     transition: transform 0.25s ease, opacity 0.25s ease;
   }
   .discoverCard.swipe-left { transform: translateX(-130%) rotate(-12deg); opacity: 0; }
@@ -1585,6 +2047,8 @@
     display: flex;
     flex-direction: column;
     overflow-y: auto;
+    touch-action: pan-y;
+    overscroll-behavior: contain;
   }
   .cardBio {
     font-size: 14px;
@@ -2426,8 +2890,30 @@
     width: 100%;
     min-height: 48px;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 8px;
+  }
+  .heightSheetField {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .heightSheetError {
+    min-height: 15px;
+    color: var(--coral);
+    font-size: 11px;
+    line-height: 1.25;
+  }
+  .heightSheetInput.invalid {
+    border-color: var(--coral);
+  }
+  .heightSheetField .heightSheetInput,
+  #sheetHeightFt,
+  #sheetHeightIn {
+    width: 100%;
+    flex: none;
   }
   .heightSheetInput {
     background: var(--bg-elevated);
@@ -2442,8 +2928,8 @@
   .heightSheetInput:focus { outline: none; border-color: var(--coral); }
   #sheetHeightCm { width: 100%; }
   #sheetHeightFt, #sheetHeightIn {
-    flex: 1;
-    width: 50%;
+    flex: none;
+    width: 100%;
     height: auto;
     padding: 12px 14px;
     text-align: left;
@@ -2558,6 +3044,15 @@
     font-size: 21px;
     cursor: pointer;
   }
+  #profileChoiceSheetClose.height-confirm-button {
+    width: auto;
+    min-width: 76px;
+    padding: 0 13px;
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
   #profileChoiceSheetOptions {
     flex: 1;
     overflow-y: auto;
@@ -3442,6 +3937,266 @@
   .profilePreviewBioDetail::-webkit-scrollbar,
   .profilePreviewDetailBio::-webkit-scrollbar,
   .cardBio::-webkit-scrollbar { display: none; }
+  /* Açık ve pembe temalarda yalnızca keşfet mod adları */
+  body.light-theme #discoverModeSwitcher .discoverModeFace,
+  body.pink-theme #discoverModeSwitcher .discoverModeFace {
+    color: #111111 !important;
+    -webkit-text-stroke: 0;
+    text-shadow: none;
+  }
+  #messageOwnNoteWrap {
+    position: relative;
+    flex: 0 0 54px;
+    width: 54px;
+    height: 54px;
+  }
+  #messageOwnNoteBubble {
+    display: none;
+    position: absolute;
+    left: 50%;
+    bottom: 25px;
+    transform: translateX(-50%);
+    width: max-content;
+    max-width: 110px;
+    height: 44px;
+    max-height: 44px;
+    padding: 5px 8px;
+    border-radius: 12px;
+    background: rgba(0,0,0,0.82);
+    border: 1px solid rgba(255,255,255,0.18);
+    color: #FFFFFF;
+    font-size: 10px;
+    line-height: 1.2;
+    text-align: center;
+    white-space: pre-line;
+    height: 50px;
+    max-height: 50px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    z-index: 4;
+  }
+  #messageOwnNoteBubble::after { display: none; }
+  #messageOwnNoteBubble.show { display: block; }
+  #messageOwnNoteBubble.note-one-line,
+  #messageOwnNoteBubble.note-two-lines {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #messageOwnNoteBubble.note-many-lines {
+    display: block;
+    overflow-y: auto;
+  }
+  #messageOwnNoteAvatar #messageOwnNoteInitial { font-size: 20px; font-weight: 800; }
+  #noteCancelBtn.disabled {
+    opacity: 0.35;
+    pointer-events: none;
+  }
+  #messageOwnNoteBubble {
+    bottom: 15px !important;
+    height: 40px !important;
+    max-height: 40px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
+  /* Not balonlarını hızlı mesaj çubuğunun dışına taşı */
+  #messageOwnNoteBubble,
+  .messageNoteBubble {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: auto;
+    transform: translate(-50%, -100%);
+    z-index: 80;
+    pointer-events: auto;
+  }
+
+  /* Prototip balonu küçük ve sabit kalsın; kendi notu eklenince büyümesin. */
+  .messageNoteBubble {
+    max-width: 90px;
+    height: 36px;
+    max-height: 36px;
+    padding: 4px 7px;
+    box-sizing: border-box;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overflow-wrap: anywhere;
+  }
+
+  /* Not balonlarının etrafındaki beyaz çizgi kaldırıldı. */
+  #messageOwnNoteBubble,
+  .messageNoteBubble {
+    border: none;
+  }
+
+
+  /* Balon içindeki kaydırma çubuğu görünmez, kaydırma özelliği korunur. */
+  #messageOwnNoteBubble,
+  .messageNoteBubble {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  #messageOwnNoteBubble::-webkit-scrollbar,
+  .messageNoteBubble::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+
+  /* Kendi balonundaki siyah işaretin oluşmaması için kendi notu kesilir;
+     prototip balonu ise aşağı doğru kaydırılmaya devam eder. */
+  #messageOwnNoteBubble {
+    overflow-y: hidden !important;
+  }
+  #messageOwnNoteBubble::before,
+  #messageOwnNoteBubble::after {
+    display: none !important;
+    content: none !important;
+  }
+  .messageNoteBubble {
+    overflow-y: auto !important;
+  }
+  .messageNoteBubble::after {
+    display: none !important;
+    content: none !important;
+  }
+
+
+  /* Her iki not balonu da sabit olarak 76 x 32 px olsun. */
+  #messageOwnNoteBubble,
+  .messageNoteBubble {
+    width: 80px !important;
+    min-width: 80px;
+    max-width: 80px !important;
+    height: 38px !important;
+    min-height: 38px;
+    max-height: 38px !important;
+    padding: 3px 6px;
+    box-sizing: border-box;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
+  /* Kendi notunda üçüncü satır da küçük artan alana sığsın. */
+  #messageOwnNoteBubble {
+    line-height: 1.05;
+  }
+  /* İki balon aynı yazı ölçüsünü ve 5 satır / 9 karakter düzenini kullansın. */
+  #messageOwnNoteBubble,
+  .messageNoteBubble {
+    font-size: 10px;
+    line-height: 1.05;
+    letter-spacing: 0;
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  /* Sohbet/istek pencerelerinde mesajlar ekranındaki not balonları görünmesin. */
+  body.note-bubbles-hidden #messageOwnNoteBubble,
+  body.note-bubbles-hidden .messageNoteBubble {
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+
+  /* Keşfet filtrelerinde büyük değer gösterimi yeterli; tutacak üstündeki küçük sayıları gizle. */
+  #discoverDualRangeTrack .dualHandleLabel,
+  #discoverDistanceTrack .dualHandleLabel {
+    display: none;
+  }
+
+  /* Profil balonları birbirine çakışmasın diye aralık artırıldı. */
+  #messageQuickBar,
+  #messageNotesList {
+    gap: 24px;
+  }
+
+
+  /* Kendi profil fotoğrafını değiştirme düğmesi */
+  #profileViewAvatar { position: relative; }
+  #profileViewPhotoAddBtn {
+    position: absolute;
+    right: -2px;
+    bottom: -2px;
+    width: 30px;
+    height: 30px;
+    border: 2px solid var(--bg-deep);
+    border-radius: 50%;
+    background: #FFFFFF;
+    color: #111111;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    line-height: 1;
+    font-weight: 800;
+    cursor: pointer;
+    z-index: 2;
+  }
+  #profileViewPhotoAddBtn:active { transform: scale(0.94); }
+  #ownProfilePhotoPicker {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 140;
+    align-items: flex-end;
+    justify-content: center;
+    background: rgba(0,0,0,0.55);
+  }
+  #ownProfilePhotoPicker.show { display: flex; }
+  #ownProfilePhotoPickerCard {
+    width: 100%;
+    max-width: 520px;
+    padding: 20px 18px calc(20px + env(safe-area-inset-bottom, 8px));
+    border-radius: 24px 24px 0 0;
+    background: var(--bg-panel);
+  }
+  #ownProfilePhotoPickerTitle {
+    font-family: 'Sora', sans-serif;
+    font-size: 17px;
+    font-weight: 800;
+    margin-bottom: 8px;
+  }
+  #ownProfilePhotoPickerText {
+    color: var(--text-mid);
+    font-size: 13px;
+    line-height: 1.45;
+    margin-bottom: 16px;
+  }
+  #ownProfilePhotoPickerActions { display: flex; gap: 10px; }
+  #ownProfilePhotoPickerActions button {
+    flex: 1;
+    min-height: 44px;
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  #ownProfilePhotoCancelBtn { background: var(--bg-elevated); color: var(--text-mid); }
+  #ownProfilePhotoChooseBtn { background: var(--coral); color: #1A0F0C; border-color: transparent; }
+
+  /* Profil fotoğrafını büyütme görünümü */
+  #ownProfilePhotoViewer {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 150;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    box-sizing: border-box;
+    background: rgba(0,0,0,0.88);
+  }
+  #ownProfilePhotoViewer.show { display: flex; }
+  #ownProfilePhotoViewer img {
+    display: block;
+    max-width: 100%;
+    max-height: 86vh;
+    object-fit: contain;
+    border-radius: 16px;
+  }
 </style>
 </head>
 <body>
@@ -3459,6 +4214,20 @@
 
     <!-- MESAJLAR -->
     <div class="screen active" id="screen-messages">
+      <div id="messageQuickBar">
+        <div class="messageQuickItem messageQuickItem--map" id="messageMapQuickBtn" aria-label="Haritayı aç">
+          🗺️
+          <span>Harita</span>
+        </div>
+        <div id="messageOwnNoteWrap">
+          <div id="messageOwnNoteBubble"></div>
+          <div id="messageOwnNoteAvatar" aria-label="Not ekle">
+            <span id="messageOwnNoteInitial">A</span>
+            <span class="notePlus">+</span>
+          </div>
+        </div>
+        <div id="messageNotesList"></div>
+      </div>
       <div id="msgTopTabs">
         <div class="msgTopTab active" data-tab="messages">Mesajlar</div>
         <div class="msgTopTab" data-tab="requests">İstekler<span id="requestsDot" class="tabDot"></span></div>
@@ -3596,6 +4365,7 @@
           <div id="profileViewTop">
             <div id="profileViewAvatar" style="background: linear-gradient(135deg, #FF6B57, #FFC65C);">
               <span id="profileViewInitial">A</span>
+              <button type="button" id="profileViewPhotoAddBtn" aria-label="Profil fotoğrafı ekle">+</button>
             </div>
             <div id="profileViewName">Ada</div>
             <div id="profileViewMeta">19 · Türkçe · Koç</div>
@@ -3620,6 +4390,22 @@
           <div id="profileViewBio">Dijital çizim, oyun ve iyi sohbet seven biriyim.</div>
           <div id="profileViewInterests"></div>
         </div>
+      </div>
+
+      <!-- Kendi profil fotoğrafı seçme paneli -->
+      <div id="ownProfilePhotoPicker" aria-hidden="true">
+        <div id="ownProfilePhotoPickerCard">
+          <div id="ownProfilePhotoPickerTitle">Profil fotoğrafı</div>
+          <div id="ownProfilePhotoPickerText">Bu fotoğraf kendi profilinde ve diğer kullanıcıların göreceği profilinde kullanılacak.</div>
+          <div id="ownProfilePhotoPickerActions">
+            <button type="button" id="ownProfilePhotoCancelBtn">Vazgeç</button>
+            <button type="button" id="ownProfilePhotoChooseBtn">Fotoğraf seç</button>
+          </div>
+        </div>
+      </div>
+      <input type="file" id="ownProfilePhotoInput" accept="image/*" hidden>
+      <div id="ownProfilePhotoViewer" aria-hidden="true">
+        <img id="ownProfilePhotoViewerImage" alt="Profil fotoğrafı">
       </div>
 
       <!-- sosyal liste görünümü (arkadaşlar / takip / takipçiler) -->
@@ -3729,8 +4515,21 @@
           <div id="settingsTitle">Ayarlar</div>
         </div>
         <div id="settingsScroll">
-          <div class="settingsSection">
-            <label class="settingsLabel">Tema</label>
+          <div id="themesRow" class="settingsMenuRow">
+            <div>
+              <div class="settingsMenuTitle">Temalar</div>
+              <div class="settingsMenuSubtitle">Uygulama görünümünü değiştir</div>
+            </div>
+            <div class="settingsMenuArrow">›</div>
+          </div>
+        </div>
+
+        <div id="themesView">
+          <div id="themesHeader">
+            <div id="themesBackBtn">←</div>
+            <div id="themesTitle">Temalar</div>
+          </div>
+          <div id="themesScroll">
             <div id="themeOptions">
               <div class="themeOption active" data-theme="dark">
                 <div class="themeSwatch theme-dark-swatch"></div>
@@ -3886,6 +4685,14 @@
             </div>
           </div>
 
+          <div class="profileEditSection profileFriendshipOnlyField">
+            <div class="profileEditSectionTitle">İlişki hedefleri</div>
+            <div class="profileChoiceRow" data-profile-choice="friendshipGoal" data-profile-choice-scope="friendship">
+              <div class="profileChoiceText"><div class="profileChoiceLabel">Aradığım şey</div><div class="profileChoiceValue" id="friendshipChoiceValue-friendshipGoal"></div></div>
+              <div class="profileChoiceArrow">›</div>
+            </div>
+          </div>
+
           <div class="profileEditSection profileDatingOnlyField">
             <div class="profileEditSectionTitle">İlişki hedefleri</div>
             <div class="profileChoiceRow" data-profile-choice="relationshipGoal">
@@ -3950,6 +4757,34 @@
             </div>
             <div class="profileChoiceRow" data-profile-choice="exercise">
               <div class="profileChoiceText"><div class="profileChoiceLabel">Egzersiz</div><div class="profileChoiceValue" id="profileChoiceValue-exercise"></div></div>
+              <div class="profileChoiceArrow">›</div>
+            </div>
+            <div class="profileChoiceRow" data-profile-choice="socialMedia">
+              <div class="profileChoiceText"><div class="profileChoiceLabel">Sosyal medya</div><div class="profileChoiceValue" id="profileChoiceValue-socialMedia"></div></div>
+              <div class="profileChoiceArrow">›</div>
+            </div>
+          </div>
+
+          <div class="profileEditSection profileFriendshipOnlyField">
+            <div class="profileEditSectionTitle">Yaşam tarzı</div>
+            <div class="profileChoiceRow" data-profile-choice="routine" data-profile-choice-scope="friendship">
+              <div class="profileChoiceText"><div class="profileChoiceLabel">Düzenim / Sabah insanı</div><div class="profileChoiceValue" id="friendshipChoiceValue-routine"></div></div>
+              <div class="profileChoiceArrow">›</div>
+            </div>
+            <div class="profileChoiceRow" data-profile-choice="smoking" data-profile-choice-scope="friendship">
+              <div class="profileChoiceText"><div class="profileChoiceLabel">Sigara</div><div class="profileChoiceValue" id="friendshipChoiceValue-smoking"></div></div>
+              <div class="profileChoiceArrow">›</div>
+            </div>
+            <div class="profileChoiceRow" data-profile-choice="alcohol" data-profile-choice-scope="friendship">
+              <div class="profileChoiceText"><div class="profileChoiceLabel">Alkol</div><div class="profileChoiceValue" id="friendshipChoiceValue-alcohol"></div></div>
+              <div class="profileChoiceArrow">›</div>
+            </div>
+            <div class="profileChoiceRow" data-profile-choice="pets" data-profile-choice-scope="friendship">
+              <div class="profileChoiceText"><div class="profileChoiceLabel">Evcil hayvan</div><div class="profileChoiceValue" id="friendshipChoiceValue-pets"></div></div>
+              <div class="profileChoiceArrow">›</div>
+            </div>
+            <div class="profileChoiceRow" data-profile-choice="education" data-profile-choice-scope="friendship">
+              <div class="profileChoiceText"><div class="profileChoiceLabel">Eğitim</div><div class="profileChoiceValue" id="friendshipChoiceValue-education"></div></div>
               <div class="profileChoiceArrow">›</div>
             </div>
           </div>
@@ -4104,6 +4939,49 @@
     <div id="translateMenuBtn">🌐 Çevir</div>
   </div>
 
+  <div id="eventsMapScreen">
+    <div id="eventsMapHeader">
+      <div id="eventsMapBackBtn">←</div>
+      <div id="eventsMapTitle">Etkinlikler</div>
+    </div>
+    <div id="eventsMapCanvas">
+      <div id="eventMapHint">Global etkinlikler</div>
+      <div class="eventMapMarker" id="eventMapMarkerDemo" aria-label="Etkinliği aç"><span>🎵</span></div>
+    </div>
+    <div id="eventDetailSheet">
+      <div id="eventDetailTitle"></div>
+      <div id="eventDetailMeta"></div>
+      <div id="eventDetailDescription"></div>
+      <button type="button" id="eventDetailApplyBtn">Başvur</button>
+    </div>
+  </div>
+
+  <div id="noteComposerBackdrop">
+    <div id="noteComposerCard">
+      <div id="noteComposerTitle">Not ekle</div>
+      <textarea id="noteInput" maxlength="49" placeholder="Kısa bir not yaz..."></textarea>
+      <div id="noteComposerActions">
+        <button type="button" id="noteCancelBtn">Kaldır</button>
+        <button type="button" id="notePublishBtn">Paylaş</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="noteViewerBackdrop">
+    <div id="noteViewerCard">
+      <div id="noteViewerHeader">
+        <div id="noteViewerAuthor"></div>
+        <div id="noteViewerClose">×</div>
+      </div>
+      <div id="noteViewerText"></div>
+      <div id="noteViewerActions">
+        <input type="text" id="noteReplyInput" placeholder="Mesaj gönder...">
+        <button type="button" class="noteViewerActionBtn" id="noteLikeBtn" aria-label="Beğen">♡</button>
+        <button type="button" class="noteViewerActionBtn" id="noteShareBtn" aria-label="Paylaş">↗</button>
+      </div>
+    </div>
+  </div>
+
   <div id="bottomNav">
     <div class="navBtn" data-screen="profile">
       <div class="navIcon">🪪</div>
@@ -4122,6 +5000,15 @@
 </div>
 
 <script>
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, character => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  }[character]));
+}
 // ---- mock data ----
 const conversations = [
   {
@@ -4167,6 +5054,51 @@ const receivedFriendReqs = [
 const convState = {};
 conversations.forEach(c => convState[c.id] = { lastRead: c.id === 'mert' ? c.messages.length : c.messages.length - 1 });
 
+// ---- etkinlik sistemi başlangıç verileri ----
+// Bu prototipte veriler yerelde tutulur; ileride backend'e bağlanacaktır.
+const eventRequests = [
+  {
+    id: 'event-demo-1',
+    mode: 'friendship',
+    title: 'Kadıköy konseri',
+    description: 'Salı günü saat 19:45’te konsere benimle gelmek isteyen var mı?',
+    image: '',
+    location: {
+      name: 'Kadıköy, İstanbul',
+      latitude: null,
+      longitude: null,
+      visibility: 'exact'
+    },
+    date: 'Salı',
+    time: '19:45',
+    createdBy: 'demo-user',
+    capacity: 3,
+    applicants: [],
+    participants: [],
+    status: 'open',
+    createdAt: Date.now()
+  }
+];
+
+const eventApplications = [];
+const friendships = [];
+const friendNotes = [
+  {
+    id: 'note-demo-friend',
+    authorId: 'friend-demo',
+    authorName: 'Elif',
+    text: 'Bugün Kadıköy’de güzel bir konser var 🎶',
+    createdAt: Date.now(),
+    expiresAt: Date.now() + 24 * 60 * 60 * 1000
+  }
+];
+const privateLocations = [];
+const modeConversations = {
+  friendship: [],
+  dating: [],
+  'speed-dating': []
+};
+
 // ---- friend request dot indicator ----
 function updateFriendReqsDot() {
   const dot = document.getElementById('friendReqsDot');
@@ -4174,6 +5106,22 @@ function updateFriendReqsDot() {
 }
 updateFriendReqsDot();
 document.getElementById('friendReqsBtn').classList.add('visible');
+
+// Not balonları yalnızca ana Mesajlar ekranında görünsün.
+function updateMessageNoteBubbleVisibility() {
+  const messagesScreen = document.getElementById('screen-messages');
+  const requestsPanel = document.getElementById('requestsPanel');
+  const chatScreen = document.getElementById('chatScreen');
+  const requestScreen = document.getElementById('requestScreen');
+  const friendReqsScreen = document.getElementById('friendReqsScreen');
+
+  const hidden = !messagesScreen.classList.contains('active')
+    || requestsPanel.classList.contains('active')
+    || chatScreen.classList.contains('active')
+    || requestScreen.classList.contains('active')
+    || friendReqsScreen.classList.contains('active');
+  document.body.classList.toggle('note-bubbles-hidden', hidden);
+}
 
 // ---- friend requests screen ----
 let activeFriendTab = 'received';
@@ -4186,9 +5134,11 @@ function openFriendReqsScreen() {
   document.querySelectorAll('.friendReqsTab').forEach(t => t.classList.toggle('active', t.dataset.ftab === 'received'));
   renderFriendReqs();
   document.getElementById('friendReqsScreen').classList.add('active');
+  updateMessageNoteBubbleVisibility();
 }
 function closeFriendReqsScreen() {
   document.getElementById('friendReqsScreen').classList.remove('active');
+  updateMessageNoteBubbleVisibility();
 }
 
 document.querySelectorAll('.friendReqsTab').forEach(tab => {
@@ -4215,13 +5165,13 @@ function renderFriendReqs() {
     el.className = 'friendReqItem';
     const avatarStyle = r.color.startsWith('linear') ? `background:${r.color}` : `background:${r.color}`;
     const btns = activeFriendTab === 'received'
-      ? `<div class="friendReqAccept" data-id="${r.id}">Kabul Et</div><div class="friendReqReject" data-id="${r.id}">Reddet</div>`
+      ? `<div class="friendReqAccept" data-id="${escapeHtml(r.id)}">Kabul Et</div><div class="friendReqReject" data-id="${escapeHtml(r.id)}">Reddet</div>`
       : `<div class="friendReqPending">İstek gönderildi</div>`;
     el.innerHTML = `
-      <div class="friendReqAvatar" style="${avatarStyle}">${r.name[0]}</div>
+      <div class="friendReqAvatar" style="${escapeHtml(avatarStyle)}">${escapeHtml(r.name[0])}</div>
       <div class="friendReqBody">
-        <div class="friendReqName">${r.name}</div>
-        <div class="friendReqTime">${r.time}</div>
+        <div class="friendReqName">${escapeHtml(r.name)}</div>
+        <div class="friendReqTime">${escapeHtml(r.time)}</div>
         <div class="friendReqBtns">${btns}</div>
       </div>`;
 
@@ -4286,7 +5236,7 @@ function openUserProfile(conv) {
   bioEl.style.display = conv.bio ? 'block' : 'none';
 
   const interestsEl = document.getElementById('userProfileInterests');
-  interestsEl.innerHTML = (conv.interests || []).map(t => `<div class="userProfileTag">${t}</div>`).join('');
+  interestsEl.innerHTML = (conv.interests || []).map(t => `<div class="userProfileTag">${escapeHtml(t)}</div>`).join('');
 
   updateUserProfileFriendBtn(conv);
   document.getElementById('userProfileScreen').classList.add('active');
@@ -4356,28 +5306,46 @@ const receivedRequests = [
 ];
 
 function timeLabel(conv) {
-  return conv.messages[conv.messages.length - 1].day || '';
+  const last = conv.messages[conv.messages.length - 1];
+  return last && last.day ? last.day : '';
+}
+
+function getConversationById(id) {
+  return conversations.find(conv => conv.id === id) || null;
+}
+
+function ensureConversationState(id, messageCount = 0) {
+  if (!convState[id]) convState[id] = { lastRead: messageCount };
+  return convState[id];
+}
+
+function resetChatComposer() {
+  if (typeof input === 'undefined') return;
+  input.value = '';
+  input.style.height = 'auto';
+  updateSendState();
 }
 
 function renderConvList() {
   const list = document.getElementById('convList');
   list.innerHTML = '';
   conversations.forEach(conv => {
-    const last = conv.messages[conv.messages.length - 1];
-    const unread = convState[conv.id].lastRead < conv.messages.length && last.from === 'them';
+    const last = conv.messages[conv.messages.length - 1] || { from: 'them', text: '' };
+    const state = ensureConversationState(conv.id, conv.messages.length);
+    const unread = state.lastRead < conv.messages.length && last.from === 'them';
     const item = document.createElement('div');
     item.className = 'convItem';
     item.innerHTML = `
-      <div class="avatar" style="background:${conv.color}">
-        ${conv.initial}
+      <div class="avatar" style="background:${escapeHtml(conv.color)}">
+        ${escapeHtml(conv.initial)}
         ${conv.online ? '<div class="dot"></div>' : ''}
       </div>
       <div class="convBody">
         <div class="convTop">
-          <div class="convName">${conv.name}</div>
-          <div class="convTime">${timeLabel(conv)}</div>
+          <div class="convName">${escapeHtml(conv.name)}</div>
+          <div class="convTime">${escapeHtml(timeLabel(conv))}</div>
         </div>
-        <div class="convPreview ${unread ? 'unread' : ''}">${last.from === 'me' ? 'Sen: ' : ''}${last.text}</div>
+        <div class="convPreview ${unread ? 'unread' : ''}">${last.from === 'me' ? 'Sen: ' : ''}${escapeHtml(last.text)}</div>
       </div>
       ${unread ? '<div class="unreadDot"></div>' : ''}
     `;
@@ -4421,13 +5389,13 @@ function renderRequests() {
     else badgeText = activeReqSub === 'sent' ? 'İstek gönderildi' : 'Yeni istek';
 
     item.innerHTML = `
-      <div class="reqAvatar" style="background:${r.color}">${r.name[0]}</div>
+      <div class="reqAvatar" style="background:${escapeHtml(r.color)}">${escapeHtml(r.name[0])}</div>
       <div class="reqBody">
         <div class="reqTop">
-          <div class="reqName">${r.name}</div>
-          <div class="reqTime">${r.time}</div>
+          <div class="reqName">${escapeHtml(r.name)}</div>
+          <div class="reqTime">${escapeHtml(r.time)}</div>
         </div>
-        <div class="reqMessage">${r.message}</div>
+        <div class="reqMessage">${escapeHtml(r.message)}</div>
         <div class="reqBadge">${badgeText}</div>
       </div>
     `;
@@ -4444,6 +5412,7 @@ document.querySelectorAll('.msgTopTab').forEach(tab => {
     const target = tab.dataset.tab;
     document.getElementById('convList').classList.toggle('hidden', target !== 'messages');
     document.getElementById('requestsPanel').classList.toggle('active', target === 'requests');
+    updateMessageNoteBubbleVisibility();
     if (target === 'requests') {
       activeReqSub = 'sent';
       document.querySelectorAll('.reqSubTab').forEach(s => s.classList.toggle('active', s.dataset.sub === 'sent'));
@@ -4481,10 +5450,12 @@ function openRequestDetail(req, type) {
 
   renderRequestThread();
   document.getElementById('requestScreen').classList.add('active');
+  updateMessageNoteBubbleVisibility();
 }
 
 function closeRequestDetail() {
   document.getElementById('requestScreen').classList.remove('active');
+  updateMessageNoteBubbleVisibility();
   activeRequest = null;
   activeRequestType = null;
 }
@@ -4579,8 +5550,11 @@ document.getElementById('reqRejectBtn').addEventListener('click', () => {
 });
 
 function promoteRequestToConversation(req) {
-  const exists = conversations.find(c => c.id === req.id);
-  if (exists) return req.id;
+  const exists = getConversationById(req.id);
+  if (exists) {
+    ensureConversationState(exists.id, exists.messages.length);
+    return exists.id;
+  }
   const newConv = {
     id: req.id,
     name: req.name,
@@ -4590,7 +5564,7 @@ function promoteRequestToConversation(req) {
     messages: req.thread.filter(m => !m.system).map(m => ({ from: m.from, text: m.text }))
   };
   conversations.unshift(newConv);
-  convState[newConv.id] = { lastRead: newConv.messages.length };
+  ensureConversationState(newConv.id, newConv.messages.length).lastRead = newConv.messages.length;
   renderConvList();
   return newConv.id;
 }
@@ -4642,9 +5616,12 @@ reqInput.addEventListener('keydown', e => {
 let activeConvId = null;
 
 function openChat(id) {
+  const conv = getConversationById(id);
+  if (!conv) return;
+
   activeConvId = id;
-  const conv = conversations.find(c => c.id === id);
-  convState[id].lastRead = conv.messages.length;
+  ensureConversationState(id, conv.messages.length).lastRead = conv.messages.length;
+  resetChatComposer();
 
   document.getElementById('chatAvatar').style.background = conv.color;
   document.getElementById('chatAvatar').textContent = conv.initial;
@@ -4664,11 +5641,17 @@ function openChat(id) {
 
   renderMessages(conv);
   document.getElementById('chatScreen').classList.add('active');
+  updateMessageNoteBubbleVisibility();
   renderConvList();
 }
 
 function closeChat() {
   document.getElementById('chatScreen').classList.remove('active');
+  hideTranslateMenu();
+  activeBubbleEl = null;
+  activeBubbleMsg = null;
+  resetChatComposer();
+  updateMessageNoteBubbleVisibility();
   activeConvId = null;
   renderConvList();
 }
@@ -4690,6 +5673,7 @@ let activeBubbleMsg = null;
 function renderMessages(conv) {
   const box = document.getElementById('messages');
   box.innerHTML = '';
+  if (!conv || !Array.isArray(conv.messages)) return;
   let lastDay = null;
   conv.messages.forEach(m => {
     if (m.day && m.day !== lastDay) {
@@ -4776,14 +5760,19 @@ updateSendState();
 
 function sendMessage() {
   const text = input.value.trim();
-  if (!text || !activeConvId) return;
-  const conv = conversations.find(c => c.id === activeConvId);
+  if (!text || !activeConvId || !document.getElementById('chatScreen').classList.contains('active')) return;
+  const conv = getConversationById(activeConvId);
+  if (!conv) {
+    closeChat();
+    return;
+  }
+  ensureConversationState(activeConvId, conv.messages.length);
   conv.messages.push({ from: 'me', text });
   input.value = '';
   input.style.height = 'auto';
   updateSendState();
   renderMessages(conv);
-  convState[activeConvId].lastRead = conv.messages.length;
+  ensureConversationState(activeConvId, conv.messages.length).lastRead = conv.messages.length;
 
   // small simulated reply for realism
   setTimeout(() => {
@@ -4791,7 +5780,7 @@ function sendMessage() {
     conv.messages.push({ from: 'them', text: replies[Math.floor(Math.random() * replies.length)] });
     if (activeConvId === conv.id) {
       renderMessages(conv);
-      convState[conv.id].lastRead = conv.messages.length;
+      ensureConversationState(conv.id, conv.messages.length).lastRead = conv.messages.length;
     } else {
       renderConvList();
     }
@@ -4809,6 +5798,7 @@ input.addEventListener('keydown', e => {
 // ---- profile screen logic ----
 const profileData = {
   name: 'Ada',
+  profilePhoto: '',
   age: 19,
   langs: ['Türkçe'],
   gender: 'Erkek',
@@ -4822,6 +5812,7 @@ const profileData = {
   alcohol: '',
   pets: '',
   exercise: '',
+  socialMedia: '',
   familyPlans: '',
   education: '',
   relationshipGoal: '',
@@ -4840,11 +5831,22 @@ const modeBios = {
   dating: '',
   'speed-dating': ''
 };
+const friendshipProfileData = {
+  routine: '',
+  smoking: '',
+  alcohol: '',
+  pets: '',
+  education: '',
+  relationshipGoal: ''
+};
 let activeProfilePhotoMode = 'friendship';
 
 // Profil kartında fotoğrafların altında gösterilecek detayların ortak öncelik sırası.
 function getProfileCardDetails(profile, distanceKm = null, bioOverride = null) {
-  const bio = bioOverride !== null ? bioOverride : (profile.bio || '');
+  const modeProfile = profile === profileData && activeProfilePhotoMode === 'friendship'
+    ? { ...profile, ...friendshipProfileData }
+    : profile;
+  const bio = bioOverride !== null ? bioOverride : (modeProfile.bio || '');
   const details = [];
   const addGroup = (type, values) => {
     const items = (Array.isArray(values) ? values : [values]).filter(Boolean);
@@ -4857,8 +5859,8 @@ function getProfileCardDetails(profile, distanceKm = null, bioOverride = null) {
   }
 
   // Dil ve cinsiyet gösterilmez; yalnızca algoritma verisi olarak kalır.
-  addGroup('about', [profile.personality, profile.zodiac, profile.education, profile.familyPlans]);
-  addGroup('lifestyle', [profile.pets, profile.alcohol, profile.smoking, profile.exercise]);
+  addGroup('about', [modeProfile.personality, modeProfile.zodiac, modeProfile.education, modeProfile.familyPlans, modeProfile.relationshipGoal]);
+  addGroup('lifestyle', [modeProfile.routine, modeProfile.pets, modeProfile.alcohol, modeProfile.smoking, modeProfile.exercise, modeProfile.socialMedia]);
 
   return details;
 }
@@ -4894,16 +5896,22 @@ const profileChoiceConfigs = {
     title: 'Burç', options: ['Koç', 'Boğa', 'İkizler', 'Yengeç', 'Aslan', 'Başak', 'Terazi', 'Akrep', 'Yay', 'Oğlak', 'Kova', 'Balık']
   },
   smoking: {
-    title: 'Sigara durumu', options: ['Aktif içiyorum', 'Bırakmaya çalışıyorum', 'Bıraktım', 'Hiç içmedim']
+    title: 'Sigara durumu', options: ['Aktif içiyorum', 'Bırakmaya çalışıyorum', 'Bıraktım', 'Hiç içmedim', 'İçkiyle birlikte']
   },
   alcohol: {
-    title: 'Alkol durumu', options: ['Düzenli tüketiyorum', 'Azaltmaya çalışıyorum', 'Bıraktım', 'Hiç tüketmedim']
+    title: 'Alkol durumu', options: ['Düzenli tüketiyorum', 'Azaltmaya çalışıyorum', 'Bıraktım', 'Hiç tüketmedim', 'Özel günlerde', 'Nadiren']
   },
   pets: {
     title: 'Evcil hayvanlar', options: ['Hayvan istiyorum', 'Kedi', 'Köpek', 'Sürüngen', 'Kuş', 'Tavşan', 'Hamster', 'Diğer', 'Hoşlanmam', 'Hayvanlara alerjim var', 'Hayvanım yok ama çok severim']
   },
   exercise: {
     title: 'Egzersiz', options: ['Ara ara', 'Sık sık', 'Asla yapmam', 'Her gün']
+  },
+  routine: {
+    title: 'Düzenim / Sabah insanı', options: ['Gece', 'Sabah', 'Değişir']
+  },
+  socialMedia: {
+    title: 'Sosyal medya', options: ['Fenomen bir kullanıcıyım', 'Sosyal olarak aktif', 'Kullanmıyorum', 'Sadece takipçiyim']
   },
   familyPlans: {
     title: 'Aile planları', options: ['Çocuk istiyorum', 'Çocuk istemiyorum', 'Çocuklarım var ve daha fazlasını istiyorum', 'Çocuklarım var ve daha fazlasını istemiyorum', 'Henüz emin değilim']
@@ -4913,13 +5921,55 @@ const profileChoiceConfigs = {
   },
   relationshipGoal: {
     title: 'Aradığım şey', options: ['Uzun süreli ilişki', 'Uzun ilişki ama kısa da olur', 'Kısa ilişki ama uzun da olur', 'Kısa süreli eğlence', 'Henüz karar vermedim']
+  },
+  friendshipGoal: {
+    title: 'Aradığım şey', options: ['Sohbet', 'Aktivite', 'Oyun duosu', 'Spor partneri', 'Yeni taşındım']
   }
 };
 let preferredGender = 'Herkes';
 let preferredZodiacs = ['Tümü'];
 let preferredLangs = ['Tümü'];
 let preferredCountry = 'Tümü';
+
+// Keşfet filtreleri profil düzenleme tercihlerinden ayrı tutulur.
+const discoverFilters = {
+  ageMin: 18,
+  ageMax: 25,
+  distanceMaxKm: 200
+};
+let discoverFilterRefreshTimer = null;
+let discoverFilterVersion = 0;
+let resettingDiscoverFilters = false;
+let discoverAgeRangeController = null;
+let discoverDistanceRangeController = null;
+
+function scheduleDiscoverFilterRefresh() {
+  if (resettingDiscoverFilters) return;
+  clearTimeout(discoverFilterRefreshTimer);
+  discoverFilterRefreshTimer = setTimeout(applyDiscoverFilters, 120);
+}
+
+function resetDiscoverFilters() {
+  clearTimeout(discoverFilterRefreshTimer);
+  discoverFilterRefreshTimer = null;
+  resettingDiscoverFilters = true;
+  preferredGender = 'Herkes';
+  preferredZodiacs = ['Tümü'];
+  preferredLangs = ['Tümü'];
+  preferredCountry = 'Tümü';
+  discoverFilters.ageMin = 18;
+  discoverFilters.ageMax = 25;
+  discoverFilters.distanceMaxKm = 200;
+
+  if (discoverAgeRangeController) discoverAgeRangeController.setValues(18, 25);
+  if (discoverDistanceRangeController) discoverDistanceRangeController.setValue(200);
+  resettingDiscoverFilters = false;
+  syncProfileChoiceRows();
+  applyDiscoverFilters();
+}
 let activeProfileChoiceKey = null;
+let heightSheetDraft = null;
+let heightSheetErrors = { cm: '', ft: '', in: '' };
 
 let activeProfileChoiceScope = 'profile';
 
@@ -4934,6 +5984,7 @@ function getProfileChoiceOptions(key, scope = activeProfileChoiceScope) {
 }
 
 function getProfileChoiceValue(key, scope = activeProfileChoiceScope) {
+  if (scope === 'friendship') return friendshipProfileData[key];
   if (scope === 'dating') return datingPreferences[key];
   if (scope === 'preference') {
     if (key === 'gender') return preferredGender;
@@ -4973,6 +6024,8 @@ function syncProfileChoiceRows() {
     if (datingValueEl) datingValueEl.textContent = getProfileChoiceSummary(key, 'dating');
     const preferenceValueEl = document.getElementById('discoverPreferenceValue-' + key);
     if (preferenceValueEl) preferenceValueEl.textContent = getProfileChoiceSummary(key, 'preference');
+    const friendshipValueEl = document.getElementById('friendshipChoiceValue-' + key);
+    if (friendshipValueEl) friendshipValueEl.textContent = getProfileChoiceSummary(key, 'friendship');
   });
 }
 
@@ -4984,12 +6037,29 @@ function renderProfileChoiceOptions() {
   document.getElementById('profileChoiceSheetTitle').textContent = config.title;
 
   if (config.type === 'height') {
+    const draft = heightSheetDraft || {
+      unit: profileData.heightUnit,
+      cm: String(profileData.heightCm || ''),
+      ft: String(profileData.heightFt || ''),
+      in: String(profileData.heightIn || '')
+    };
+    heightSheetDraft = draft;
+
     optionsEl.innerHTML = `
       <div class="heightSheetForm">
         <div class="heightSheetInputArea">
-          <input type="number" class="heightSheetInput" id="sheetHeightCm" min="80" max="272" placeholder="cm">
-          <input type="number" class="heightSheetInput" id="sheetHeightFt" min="1" max="8" placeholder="ft" hidden>
-          <input type="number" class="heightSheetInput" id="sheetHeightIn" min="1" max="11" placeholder="in" hidden>
+          <div class="heightSheetField" id="sheetHeightCmField">
+            <div class="heightSheetError" id="sheetHeightCmError"></div>
+            <input type="text" inputmode="numeric" class="heightSheetInput" id="sheetHeightCm" placeholder="cm" autocomplete="off">
+          </div>
+          <div class="heightSheetField" id="sheetHeightFtField">
+            <div class="heightSheetError" id="sheetHeightFtError"></div>
+            <input type="text" inputmode="numeric" class="heightSheetInput" id="sheetHeightFt" placeholder="ft" autocomplete="off">
+          </div>
+          <div class="heightSheetField" id="sheetHeightInField">
+            <div class="heightSheetError" id="sheetHeightInError"></div>
+            <input type="text" inputmode="numeric" class="heightSheetInput" id="sheetHeightIn" placeholder="in" autocomplete="off">
+          </div>
         </div>
         <div class="heightSheetBottomRow">
           <button type="button" id="resetHeightBtn" class="disabled">Boy sıfırlama</button>
@@ -5004,68 +6074,71 @@ function renderProfileChoiceOptions() {
     const ftInput = document.getElementById('sheetHeightFt');
     const inInput = document.getElementById('sheetHeightIn');
     const resetButton = document.getElementById('resetHeightBtn');
-    cmInput.value = profileData.heightCm || '';
-    ftInput.value = profileData.heightFt || '';
-    inInput.value = profileData.heightIn || '';
+    cmInput.value = draft.cm;
+    ftInput.value = draft.ft;
+    inInput.value = draft.in;
+
+    const updateHeightErrorDisplay = () => {
+      const errorMap = {
+        cm: ['sheetHeightCmError', 'sheetHeightCm'],
+        ft: ['sheetHeightFtError', 'sheetHeightFt'],
+        in: ['sheetHeightInError', 'sheetHeightIn']
+      };
+      Object.entries(errorMap).forEach(([keyName, ids]) => {
+        const errorEl = document.getElementById(ids[0]);
+        const inputEl = document.getElementById(ids[1]);
+        if (errorEl) errorEl.textContent = heightSheetErrors[keyName] || '';
+        if (inputEl) inputEl.classList.toggle('invalid', Boolean(heightSheetErrors[keyName]));
+      });
+    };
 
     const syncHeightState = () => {
-      cmInput.hidden = profileData.heightUnit === 'ftin';
-      ftInput.hidden = profileData.heightUnit !== 'ftin';
-      inInput.hidden = profileData.heightUnit !== 'ftin';
+      const isCm = draft.unit === 'cm';
+      cmInput.parentElement.hidden = !isCm;
+      ftInput.parentElement.hidden = isCm;
+      inInput.parentElement.hidden = isCm;
       optionsEl.querySelectorAll('[data-sheet-height-unit]').forEach(unit => {
-        unit.classList.toggle('active', unit.dataset.sheetHeightUnit === profileData.heightUnit);
+        unit.classList.toggle('active', unit.dataset.sheetHeightUnit === draft.unit);
       });
-      const hasHeight = profileData.heightUnit === 'cm'
-        ? Boolean(profileData.heightCm)
-        : Boolean(profileData.heightFt || profileData.heightIn);
+      const hasHeight = isCm ? Boolean(draft.cm) : Boolean(draft.ft || draft.in);
       resetButton.classList.toggle('disabled', !hasHeight);
-      syncProfileChoiceRows();
+      updateHeightErrorDisplay();
     };
 
-    const boundedValue = (input, min, max) => {
-      if (input.value === '') return '';
-      const number = Math.max(min, Math.min(max, parseInt(input.value, 10)));
-      input.value = number;
-      return String(number);
+    const bindHeightInput = (input, keyName) => {
+      input.addEventListener('input', () => {
+        const digits = input.value.replace(/\D/g, '');
+        if (digits.length > 10) {
+          input.value = '';
+          draft[keyName] = '';
+          heightSheetErrors[keyName] = '';
+        } else {
+          input.value = digits;
+          draft[keyName] = digits;
+          heightSheetErrors[keyName] = '';
+        }
+        syncHeightState();
+      });
     };
-    cmInput.addEventListener('input', e => {
-      if (e.target.value !== '') {
-        const number = Number(e.target.value);
-        if (Number.isFinite(number) && number > 272) e.target.value = '272';
-      }
-      profileData.heightCm = e.target.value;
-      syncHeightState();
-    });
-    ftInput.addEventListener('input', e => {
-      profileData.heightFt = boundedValue(e.target, 1, 8);
-      syncHeightState();
-    });
-    inInput.addEventListener('input', e => {
-      profileData.heightIn = boundedValue(e.target, 1, 11);
-      syncHeightState();
-    });
+    bindHeightInput(cmInput, 'cm');
+    bindHeightInput(ftInput, 'ft');
+    bindHeightInput(inInput, 'in');
+
     resetButton.addEventListener('click', () => {
-      profileData.heightCm = '';
-      profileData.heightFt = '';
-      profileData.heightIn = '';
+      draft.cm = '';
+      draft.ft = '';
+      draft.in = '';
+      heightSheetErrors = { cm: '', ft: '', in: '' };
       cmInput.value = '';
       ftInput.value = '';
       inInput.value = '';
       syncHeightState();
     });
+
     optionsEl.querySelectorAll('[data-sheet-height-unit]').forEach(unit => {
       unit.addEventListener('click', () => {
-        if (unit.dataset.sheetHeightUnit === 'cm') {
-          profileData.heightUnit = 'cm';
-          profileData.heightFt = '';
-          profileData.heightIn = '';
-        } else {
-          profileData.heightUnit = 'ftin';
-          profileData.heightCm = '';
-        }
-        cmInput.value = profileData.heightCm || '';
-        ftInput.value = profileData.heightFt || '';
-        inInput.value = profileData.heightIn || '';
+        draft.unit = unit.dataset.sheetHeightUnit;
+        heightSheetErrors = { cm: '', ft: '', in: '' };
         syncHeightState();
       });
     });
@@ -5110,7 +6183,7 @@ function renderProfileChoiceOptions() {
           else preferredLangs = values;
         }
       } else {
-        const store = scope === 'dating' ? datingPreferences : profileData;
+        const store = scope === 'friendship' ? friendshipProfileData : (scope === 'dating' ? datingPreferences : profileData);
         if (isMultiple) {
           const current = key === 'languages' && scope === 'profile' ? profileData.langs : (Array.isArray(store[key]) ? store[key] : []);
           const values = [...current];
@@ -5131,21 +6204,81 @@ function renderProfileChoiceOptions() {
       syncProfileChoiceRows();
       refreshCardView();
       renderProfileChoiceOptions();
+      if (scope === 'preference' && typeof applyDiscoverFilters === 'function') {
+        applyDiscoverFilters();
+      }
     });
   });
+}
+
+function commitHeightChoice() {
+  if (!heightSheetDraft) return false;
+  const draft = heightSheetDraft;
+  const errors = { cm: '', ft: '', in: '' };
+
+  if (draft.unit === 'cm') {
+    const value = Number(draft.cm);
+    if (!Number.isInteger(value) || value < 90 || value > 257) {
+      errors.cm = 'Lütfen 90-257 arasında bir sayı girin';
+    }
+  } else {
+    const ft = Number(draft.ft);
+    const inch = Number(draft.in);
+    if (!Number.isInteger(ft) || ft < 2 || ft > 8) {
+      errors.ft = 'Lütfen 2-8 arası bir sayı girin';
+    }
+    if (!Number.isInteger(inch) || inch < 0 || inch > 11) {
+      errors.in = 'Lütfen 0-11 arası bir sayı girin';
+    }
+  }
+
+  heightSheetErrors = errors;
+  Object.entries(errors).forEach(([keyName, message]) => {
+    const errorEl = document.getElementById('sheetHeight' + keyName.charAt(0).toUpperCase() + keyName.slice(1) + 'Error');
+    const inputEl = document.getElementById('sheetHeight' + keyName.charAt(0).toUpperCase() + keyName.slice(1));
+    if (errorEl) errorEl.textContent = message;
+    if (inputEl) inputEl.classList.toggle('invalid', Boolean(message));
+  });
+
+  if (Object.values(errors).some(Boolean)) return false;
+
+  profileData.heightUnit = draft.unit;
+  profileData.heightCm = draft.unit === 'cm' ? draft.cm : '';
+  profileData.heightFt = draft.unit === 'ftin' ? draft.ft : '';
+  profileData.heightIn = draft.unit === 'ftin' ? draft.in : '';
+  syncProfileChoiceRows();
+  refreshCardView();
+  closeProfileChoiceSheet();
+  return true;
 }
 
 function openProfileChoiceSheet(key, scope = 'profile') {
   activeProfileChoiceKey = key;
   activeProfileChoiceScope = scope;
+  heightSheetErrors = { cm: '', ft: '', in: '' };
+  heightSheetDraft = key === 'height'
+    ? {
+        unit: profileData.heightUnit,
+        cm: String(profileData.heightCm || ''),
+        ft: String(profileData.heightFt || ''),
+        in: String(profileData.heightIn || '')
+      }
+    : null;
+  const closeButton = document.getElementById('profileChoiceSheetClose');
+  closeButton.textContent = key === 'height' ? 'Tamam' : '×';
+  closeButton.classList.toggle('height-confirm-button', key === 'height');
   renderProfileChoiceOptions();
   document.getElementById('profileChoiceSheetBackdrop').classList.add('show');
 }
 
 function closeProfileChoiceSheet() {
   document.getElementById('profileChoiceSheetBackdrop').classList.remove('show');
+  document.getElementById('profileChoiceSheetClose').textContent = '×';
+  document.getElementById('profileChoiceSheetClose').classList.remove('height-confirm-button');
   activeProfileChoiceKey = null;
   activeProfileChoiceScope = 'profile';
+  heightSheetDraft = null;
+  heightSheetErrors = { cm: '', ft: '', in: '' };
 }
 
 document.querySelectorAll('.profileChoiceRow').forEach(row => {
@@ -5154,12 +6287,46 @@ document.querySelectorAll('.profileChoiceRow').forEach(row => {
     openProfileChoiceSheet(row.dataset.profileChoice, scope);
   });
 });
-document.getElementById('profileChoiceSheetClose').addEventListener('click', closeProfileChoiceSheet);
+document.getElementById('profileChoiceSheetClose').addEventListener('click', () => {
+  if (activeProfileChoiceKey === 'height') commitHeightChoice();
+  else closeProfileChoiceSheet();
+});
 document.getElementById('profileChoiceSheetBackdrop').addEventListener('click', e => {
   if (e.target.id === 'profileChoiceSheetBackdrop') closeProfileChoiceSheet();
 });
 
 syncProfileChoiceRows();
+
+function getCurrentOwnProfilePhoto() {
+  if (profileData.profilePhoto) return profileData.profilePhoto;
+  const activePhotos = typeof modePhotos !== 'undefined' ? (modePhotos[activeProfilePhotoMode] || []) : [];
+  if (activePhotos.some(Boolean)) return activePhotos.find(Boolean);
+  const friendshipPhotos = typeof modePhotos !== 'undefined' ? (modePhotos.friendship || []) : [];
+  return friendshipPhotos.find(Boolean) || '';
+}
+
+function applyOwnProfilePhoto(avatarId, initialId, initial) {
+  const avatar = document.getElementById(avatarId);
+  const initialEl = document.getElementById(initialId);
+  if (!avatar) return;
+
+  const photo = getCurrentOwnProfilePhoto();
+  if (photo) {
+    avatar.style.backgroundImage = `url("${photo}")`;
+    avatar.style.backgroundSize = 'cover';
+    avatar.style.backgroundPosition = 'center';
+    if (initialEl) initialEl.style.display = 'none';
+  } else {
+    // Fotoğraf seçilmemişse mevcut Ada profilinin varsayılan görünümünü koru.
+    avatar.style.backgroundImage = 'linear-gradient(135deg, #FF6B57, #FFC65C)';
+    avatar.style.backgroundSize = '';
+    avatar.style.backgroundPosition = '';
+    if (initialEl) {
+      initialEl.textContent = initial;
+      initialEl.style.display = '';
+    }
+  }
+}
 
 function refreshCardView() {
   const name = profileData.name || 'Ada';
@@ -5170,6 +6337,7 @@ function refreshCardView() {
   document.getElementById('profileMainName').textContent = name;
   document.getElementById('profileMainMeta').textContent = [profileData.age, profileData.langs?.join('/')].filter(Boolean).join(' · ');
   document.getElementById('profileMainInitial').textContent = initial;
+  applyOwnProfilePhoto('profileMainAvatar', 'profileMainInitial', initial);
 
   // preview screen
   document.getElementById('profileViewName').textContent = name;
@@ -5178,9 +6346,10 @@ function refreshCardView() {
   pers.textContent = profileData.personality || '';
   pers.style.display = profileData.personality ? 'inline-block' : 'none';
   document.getElementById('profileViewInitial').textContent = initial;
+  applyOwnProfilePhoto('profileViewAvatar', 'profileViewInitial', initial);
   document.getElementById('profileViewBio').textContent = profileData.bio || '';
   const interestsEl = document.getElementById('profileViewInterests');
-  interestsEl.innerHTML = (profileData.interests || []).map(t => `<div class="userProfileTag">${t}</div>`).join('');
+  interestsEl.innerHTML = (profileData.interests || []).map(t => `<div class="userProfileTag">${escapeHtml(t)}</div>`).join('');
 
   // edit form initial
   const editInitial = document.getElementById('profilePhotoInitial');
@@ -5218,10 +6387,10 @@ function openSocialList(type) {
     el.className = 'socialListItem';
     const avatarStyle = item.color.startsWith('linear') ? `background:${item.color}` : `background:${item.color}`;
     el.innerHTML = `
-      <div class="socialListAvatar" style="${avatarStyle}">${item.name[0]}</div>
+      <div class="socialListAvatar" style="${escapeHtml(avatarStyle)}">${escapeHtml(item.name[0])}</div>
       <div>
-        <div class="socialListName">${item.name}</div>
-        <div class="socialListMeta">${item.meta}</div>
+        <div class="socialListName">${escapeHtml(item.name)}</div>
+        <div class="socialListMeta">${escapeHtml(item.meta)}</div>
       </div>`;
     el.addEventListener('click', () => {
       // prefer conversations data if available, fallback to socialData item
@@ -5272,16 +6441,93 @@ document.getElementById('profileMainRow').addEventListener('click', openProfileV
 document.getElementById('profileViewBackBtn').addEventListener('click', closeProfileView);
 document.getElementById('profileBackBtn').addEventListener('click', closeProfileEdit);
 
+// ---- kendi profil fotoğrafı ----
+const ownProfilePhotoPicker = document.getElementById('ownProfilePhotoPicker');
+const ownProfilePhotoInput = document.getElementById('ownProfilePhotoInput');
+const ownProfilePhotoChooseBtn = document.getElementById('ownProfilePhotoChooseBtn');
+const ownProfilePhotoCancelBtn = document.getElementById('ownProfilePhotoCancelBtn');
+
+function closeOwnProfilePhotoPicker() {
+  ownProfilePhotoPicker.classList.remove('show');
+  ownProfilePhotoPicker.setAttribute('aria-hidden', 'true');
+}
+
+function openOwnProfilePhotoPicker() {
+  ownProfilePhotoPicker.classList.add('show');
+  ownProfilePhotoPicker.setAttribute('aria-hidden', 'false');
+}
+
+document.getElementById('profileViewPhotoAddBtn').addEventListener('click', openOwnProfilePhotoPicker);
+ownProfilePhotoCancelBtn.addEventListener('click', closeOwnProfilePhotoPicker);
+ownProfilePhotoPicker.addEventListener('click', e => {
+  if (e.target === ownProfilePhotoPicker) closeOwnProfilePhotoPicker();
+});
+ownProfilePhotoChooseBtn.addEventListener('click', () => {
+  ownProfilePhotoInput.value = '';
+  ownProfilePhotoInput.click();
+});
+ownProfilePhotoInput.addEventListener('change', e => {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = event => {
+    profileData.profilePhoto = event.target.result;
+    refreshCardView();
+    if (typeof renderMessageNotes === 'function') renderMessageNotes();
+    if (typeof renderProfilePreview === 'function') renderProfilePreview();
+    closeOwnProfilePhotoPicker();
+  };
+  reader.readAsDataURL(file);
+});
+
+const ownProfilePhotoViewer = document.getElementById('ownProfilePhotoViewer');
+const ownProfilePhotoViewerImage = document.getElementById('ownProfilePhotoViewerImage');
+
+function closeOwnProfilePhotoViewer() {
+  ownProfilePhotoViewer.classList.remove('show');
+  ownProfilePhotoViewer.setAttribute('aria-hidden', 'true');
+  ownProfilePhotoViewerImage.removeAttribute('src');
+}
+
+function openOwnProfilePhotoViewer() {
+  const photo = getCurrentOwnProfilePhoto();
+  if (!photo) return;
+  ownProfilePhotoViewerImage.src = photo;
+  ownProfilePhotoViewer.classList.add('show');
+  ownProfilePhotoViewer.setAttribute('aria-hidden', 'false');
+}
+
+document.getElementById('profileViewAvatar').addEventListener('click', e => {
+  if (e.target.closest('#profileViewPhotoAddBtn')) return;
+  openOwnProfilePhotoViewer();
+});
+ownProfilePhotoViewer.addEventListener('click', e => {
+  if (e.target === ownProfilePhotoViewer) closeOwnProfilePhotoViewer();
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeOwnProfilePhotoViewer();
+});
+
 function openSettings() {
   closeProfileEdit();
   closePersonalPref();
+  closeThemes();
   document.getElementById('settingsView').classList.add('active');
 }
+function openThemes() {
+  document.getElementById('themesView').classList.add('active');
+}
+function closeThemes() {
+  document.getElementById('themesView').classList.remove('active');
+}
 function closeSettings() {
+  closeThemes();
   document.getElementById('settingsView').classList.remove('active');
 }
 document.getElementById('settingsRow').addEventListener('click', openSettings);
 document.getElementById('settingsBackBtn').addEventListener('click', closeSettings);
+document.getElementById('themesRow').addEventListener('click', openThemes);
+document.getElementById('themesBackBtn').addEventListener('click', closeThemes);
 
 // ---- kişisel tercihler (cinsiyet + yaş + burç + dil) ----
 function openPersonalPref() {
@@ -5515,6 +6761,14 @@ function createDualRange({ trackId, fillId, minHandleId, maxHandleId, minLabelId
     else curMax = value;
     render();
   });
+
+  return {
+    setValues(nextMin, nextMax) {
+      curMin = Math.max(min, Math.min(max, nextMin));
+      curMax = Math.max(curMin, Math.min(max, nextMax));
+      render();
+    }
+  };
 }
 
 function createSingleRange({ trackId, fillId, handleId, labelId, displayId, min, max, value, onChange }) {
@@ -5597,6 +6851,13 @@ function createSingleRange({ trackId, fillId, handleId, labelId, displayId, min,
     render();
   });
   render();
+
+  return {
+    setValue(nextValue) {
+      current = Math.max(min, Math.min(max, nextValue));
+      render();
+    }
+  };
 }
 
 createDualRange({
@@ -5627,7 +6888,7 @@ function renderInterests() {
   profileData.interests.forEach((tag, i) => {
     const el = document.createElement('div');
     el.className = 'interestTag';
-    el.innerHTML = `${tag}<div class="removeTag" data-idx="${i}">✕</div>`;
+    el.innerHTML = `${escapeHtml(tag)}<div class="removeTag" data-idx="${i}">✕</div>`;
     wrap.appendChild(el);
   });
   wrap.querySelectorAll('.removeTag').forEach(btn => {
@@ -5674,7 +6935,7 @@ function renderProfilePhotos() {
     const photo = photos[index];
     slot.classList.toggle('has-photo', Boolean(photo));
     slot.innerHTML = photo
-      ? `<img src="${photo}" alt="Profil fotoğrafı ${index + 1}"><span class="profilePhotoRemove" data-photo-remove="true">×</span>`
+      ? `<img src="${escapeHtml(photo)}" alt="Profil fotoğrafı ${index + 1}"><span class="profilePhotoRemove" data-photo-remove="true">×</span>`
       : '<span class="profilePhotoPlus">+</span><span class="profilePhotoAddText">Ekle</span>';
   });
 }
@@ -5729,7 +6990,7 @@ function startPhotoReorder(slot, pointerId, clientX, clientY) {
   photoDragGhost.style.height = slot.getBoundingClientRect().height + 'px';
   photoDragGhost.style.left = clientX + 'px';
   photoDragGhost.style.top = clientY + 'px';
-  photoDragGhost.innerHTML = `<img src="${photos[index]}" alt="">`;
+  photoDragGhost.innerHTML = `<img src="${escapeHtml(photos[index])}" alt="">`;
   document.body.appendChild(photoDragGhost);
   if (slot.setPointerCapture) slot.setPointerCapture(pointerId);
 }
@@ -5857,7 +7118,7 @@ const profileEditPreviewTab = document.getElementById('profileEditPreviewTab');
 const profilePreviewView = document.getElementById('profilePreviewView');
 
 function hasCurrentModePhoto() {
-  return (modePhotos[activeProfilePhotoMode] || []).some(Boolean);
+  return Boolean(profileData.profilePhoto) || (modePhotos[activeProfilePhotoMode] || []).some(Boolean);
 }
 
 let profilePreviewPhotoIndex = 0;
@@ -5880,12 +7141,15 @@ function getProfilePreviewSelectedFields() {
 }
 
 function renderProfilePreview() {
-  const photos = (modePhotos[activeProfilePhotoMode] || []).filter(Boolean);
+  const modePhotosList = (modePhotos[activeProfilePhotoMode] || []).filter(Boolean);
+  const photos = profileData.profilePhoto
+    ? [profileData.profilePhoto, ...modePhotosList.filter(photo => photo !== profileData.profilePhoto)]
+    : modePhotosList;
   if (profilePreviewPhotoIndex >= photos.length) profilePreviewPhotoIndex = 0;
 
   const photoEl = document.getElementById('profilePreviewPhoto');
   photoEl.innerHTML = photos.length
-    ? `<img src="${photos[profilePreviewPhotoIndex]}" alt="Profil fotoğrafı ${profilePreviewPhotoIndex + 1}">`
+    ? `<img src="${escapeHtml(photos[profilePreviewPhotoIndex])}" alt="Profil fotoğrafı ${profilePreviewPhotoIndex + 1}">`
     : '';
 
   const indicators = document.getElementById('profilePreviewPhotoIndicators');
@@ -5905,8 +7169,8 @@ function renderProfilePreview() {
   const previewDetailBox = document.getElementById('profilePreviewSelectedFields');
   previewDetailBox.innerHTML = currentDetail
     ? currentDetail.items.map(item => currentDetail.type === 'bio'
-      ? `<div class="profilePreviewBioDetail">${item}</div>`
-      : `<div class="profilePreviewTag">${item}</div>`).join('')
+      ? `<div class="profilePreviewBioDetail">${escapeHtml(item)}</div>`
+      : `<div class="profilePreviewTag">${escapeHtml(item)}</div>`).join('')
     : '';
   previewDetailBox.classList.toggle('has-scrollable-bio', Boolean(currentDetail && currentDetail.type === 'bio'));
 
@@ -5919,8 +7183,8 @@ function renderProfilePreview() {
   }
   document.getElementById('profilePreviewDetailFields').innerHTML = details
     .flatMap(detail => detail.items.map(item => detail.type === 'bio'
-      ? `<div class="profilePreviewDetailBio">${item}</div>`
-      : `<div class="profilePreviewDetailTag">${item}</div>`))
+      ? `<div class="profilePreviewDetailBio">${escapeHtml(item)}</div>`
+      : `<div class="profilePreviewDetailTag">${escapeHtml(item)}</div>`))
     .join('');
   document.getElementById('profilePreviewBio').textContent = '';
 }
@@ -6050,7 +7314,7 @@ function renderLangTags() {
   profileData.langs.forEach((lang, i) => {
     const el = document.createElement('div');
     el.className = 'langSelectedTag';
-    el.innerHTML = `${lang}<div class="removeLangTag" data-idx="${i}">✕</div>`;
+    el.innerHTML = `${escapeHtml(lang)}<div class="removeLangTag" data-idx="${i}">✕</div>`;
     wrap.appendChild(el);
   });
   wrap.querySelectorAll('.removeLangTag').forEach(btn => {
@@ -6111,12 +7375,16 @@ updateProfileBioEditor();
 
 function updateModePreferenceVisibility() {
   const isDating = activeDiscoverModeIndex === 1;
+  const isFriendship = activeDiscoverModeIndex === 0;
   document.querySelectorAll('.profileDatingOnlyField').forEach(row => {
     if (!isDating) {
       row.style.display = 'none';
     } else {
       row.style.display = row.classList.contains('profileField') || row.classList.contains('profileEditSection') ? 'block' : 'flex';
     }
+  });
+  document.querySelectorAll('.profileFriendshipOnlyField').forEach(row => {
+    row.style.display = isFriendship ? 'block' : 'none';
   });
   const ageSection = document.getElementById('agePreferenceSection');
   if (ageSection) ageSection.style.display = 'block';
@@ -6164,6 +7432,9 @@ function changeDiscoverMode(direction) {
   discoverModeTransitioning = true;
   activeDiscoverModeIndex = getDiscoverModeIndex(direction);
   renderDiscoverModeSwitcher();
+  resetDiscoverFilters();
+  // Mod değişince yalnızca fotoğraf/bio değil, o moda ait kart kaynağı da yenilenir.
+  requestAnimationFrame(renderDiscoverCards);
 
   // CSS geçişi tamamlanana kadar yeni bir geçiş başlatma.
   setTimeout(() => {
@@ -6204,46 +7475,266 @@ discoverModeSwitcher.addEventListener('touchend', e => {
 renderDiscoverModeSwitcher();
 
 // ---- discover screen logic ----
-const discoverProfiles = [
-  {
-    id: 'd1', name: 'Selin', age: 20, lang: 'Türkçe',
-    color: 'linear-gradient(135deg, #6FE3C4, #3DA9FF)',
-    bio: 'Üniversitede grafik tasarım okuyorum, boş zamanlarımda bisiklet sürmeyi seviyorum.',
-    interests: ['Tasarım', 'Bisiklet', 'Sinema']
-  },
-  {
-    id: 'd2', name: 'Kerem', age: 22, lang: 'Türkçe',
-    color: 'linear-gradient(135deg, #B98CFF, #FF6B57)',
-    bio: 'Yazılım okuyorum, akşamları halı sahaya çıkıyorum. Yeni arkadaşlıklara açığım.',
-    interests: ['Futbol', 'Kodlama', 'Diziler']
-  },
-  {
-    id: 'd3', name: 'Zeynep', age: 19, lang: 'Türkçe / English',
-    color: 'linear-gradient(135deg, #FFC65C, #6FE3C4)',
-    bio: 'Kitap kurduyum, özellikle fantastik türü severim. Aynı zamanda gitar çalıyorum.',
-    interests: ['Kitap', 'Gitar', 'Kahve']
-  },
-  {
-    id: 'd4', name: 'Baran', age: 21, lang: 'Türkçe',
-    color: 'linear-gradient(135deg, #FF6B57, #FFC65C)',
-    bio: 'Doğa yürüyüşü ve fotoğrafçılıkla ilgileniyorum, hafta sonları genelde dışarıdayım.',
-    interests: ['Doğa', 'Fotoğraf', 'Kamp']
-  }
-];
+const discoverProfilesByMode = {
+  friendship: [
+    {
+      id: 'friend-selin', name: 'Selin', age: 20, lang: 'Türkçe', languages: ['Türkçe'],
+      gender: 'Kadın', country: 'Türkiye', zodiac: 'Terazi', distanceKm: 4,
+      color: 'linear-gradient(135deg, #6FE3C4, #3DA9FF)',
+      bio: 'Üniversitede grafik tasarım okuyorum, boş zamanlarımda bisiklet sürmeyi seviyorum.',
+      interests: ['Tasarım', 'Bisiklet', 'Sinema']
+    },
+    {
+      id: 'friend-kerem', name: 'Kerem', age: 22, lang: 'Türkçe', languages: ['Türkçe'],
+      gender: 'Erkek', country: 'Türkiye', zodiac: 'Koç', distanceKm: 8,
+      color: 'linear-gradient(135deg, #B98CFF, #FF6B57)',
+      bio: 'Yazılım okuyorum, akşamları halı sahaya çıkıyorum. Yeni arkadaşlıklara açığım.',
+      interests: ['Futbol', 'Kodlama', 'Diziler']
+    },
+    {
+      id: 'friend-zeynep', name: 'Zeynep', age: 19, lang: 'Türkçe / English', languages: ['Türkçe', 'English'],
+      gender: 'Kadın', country: 'Türkiye', zodiac: 'Balık', distanceKm: 12,
+      color: 'linear-gradient(135deg, #FFC65C, #6FE3C4)',
+      bio: 'Kitap kurduyum, özellikle fantastik türü severim. Aynı zamanda gitar çalıyorum.',
+      interests: ['Kitap', 'Gitar', 'Kahve']
+    },
+    {
+      id: 'friend-baran', name: 'Baran', age: 21, lang: 'Türkçe', languages: ['Türkçe'],
+      gender: 'Erkek', country: 'Türkiye', zodiac: 'Yay', distanceKm: 18,
+      color: 'linear-gradient(135deg, #FF6B57, #FFC65C)',
+      bio: 'Doğa yürüyüşü ve fotoğrafçılıkla ilgileniyorum, hafta sonları genelde dışarıdayım.',
+      interests: ['Doğa', 'Fotoğraf', 'Kamp']
+    }
+  ],
 
-let discoverIndex = 0;
-let discoverHistory = []; // for undo: { index, type, createdConvId, createdReqRef }
+  dating: [
+    {
+      id: 'dating-derya', name: 'Derya', age: 24, lang: 'Türkçe', languages: ['Türkçe'],
+      gender: 'Kadın', country: 'Türkiye', zodiac: 'İkizler', distanceKm: 6,
+      color: 'linear-gradient(135deg, #FF8A7A, #FFC65C)',
+      bio: 'Kahve, seyahat ve uzun sohbetleri seviyorum. Yeni bir ilişkiye açığım.',
+      interests: ['Seyahat', 'Kahve', 'Müzik']
+    },
+    {
+      id: 'dating-mert', name: 'Mert', age: 27, lang: 'Türkçe / English', languages: ['Türkçe', 'English'],
+      gender: 'Erkek', country: 'Türkiye', zodiac: 'Aslan', distanceKm: 11,
+      color: 'linear-gradient(135deg, #6FE3C4, #B98CFF)',
+      bio: 'Yazılım geliştiriyorum, hafta sonları yeni yerler keşfetmeyi seviyorum.',
+      interests: ['Teknoloji', 'Gezi', 'Spor']
+    },
+    {
+      id: 'dating-elif', name: 'Elif', age: 23, lang: 'Türkçe', languages: ['Türkçe'],
+      gender: 'Kadın', country: 'Türkiye', zodiac: 'Yengeç', distanceKm: 15,
+      color: 'linear-gradient(135deg, #FFC65C, #FF6B57)',
+      bio: 'Resim ve müzikle ilgileniyorum; sakin ama güzel bir ilişki arıyorum.',
+      interests: ['Resim', 'Müzik', 'Konser']
+    },
+    {
+      id: 'dating-arda', name: 'Arda', age: 25, lang: 'Türkçe', languages: ['Türkçe'],
+      gender: 'Erkek', country: 'Türkiye', zodiac: 'Oğlak', distanceKm: 22,
+      color: 'linear-gradient(135deg, #3DA9FF, #FF6B57)',
+      bio: 'Spor yapmayı ve yeni insanlarla tanışmayı seviyorum.',
+      interests: ['Spor', 'Sinema', 'Yemek']
+    }
+  ],
+
+  'speed-dating': [
+    {
+      id: 'speed-eda', name: 'Eda', age: 21, lang: 'Türkçe', languages: ['Türkçe'],
+      gender: 'Kadın', country: 'Türkiye', zodiac: 'Başak', distanceKm: 3,
+      color: 'linear-gradient(135deg, #B98CFF, #6FE3C4)',
+      bio: 'Hızlı tanışma, iyi enerji ve bol kahkaha için buradayım.',
+      interests: ['Dans', 'Kahve', 'Oyun']
+    },
+    {
+      id: 'speed-can', name: 'Can', age: 23, lang: 'Türkçe / English', languages: ['Türkçe', 'English'],
+      gender: 'Erkek', country: 'Türkiye', zodiac: 'Akrep', distanceKm: 9,
+      color: 'linear-gradient(135deg, #FF6B57, #6FE3C4)',
+      bio: 'Kısa sohbetlerde bile ortak noktaları keşfetmeyi seviyorum.',
+      interests: ['Oyun', 'Müzik', 'Teknoloji']
+    },
+    {
+      id: 'speed-naz', name: 'Naz', age: 26, lang: 'Türkçe', languages: ['Türkçe'],
+      gender: 'Kadın', country: 'Türkiye', zodiac: 'Boğa', distanceKm: 14,
+      color: 'linear-gradient(135deg, #FFC65C, #B98CFF)',
+      bio: 'Güzel bir sohbetle başlayan spontane tanışmalara açığım.',
+      interests: ['Kitap', 'Seyahat', 'Sinema']
+    },
+    {
+      id: 'speed-emir', name: 'Emir', age: 28, lang: 'Türkçe', languages: ['Türkçe'],
+      gender: 'Erkek', country: 'Türkiye', zodiac: 'Kova', distanceKm: 19,
+      color: 'linear-gradient(135deg, #3DA9FF, #FFC65C)',
+      bio: 'Kısa ve eğlenceli buluşmalarla yeni birini tanımak istiyorum.',
+      interests: ['Konser', 'Gezi', 'Fotoğraf']
+    }
+  ]
+};
+
+const discoverModeState = {
+  friendship: { index: 0, history: [], actedIds: new Set(), priorityIds: [] },
+  dating: { index: 0, history: [], actedIds: new Set(), priorityIds: [] },
+  'speed-dating': { index: 0, history: [], actedIds: new Set(), priorityIds: [] }
+};
+
+function getActiveDiscoverModeId() {
+  return discoverModes[activeDiscoverModeIndex].id;
+}
+
+function getActiveDiscoverState() {
+  return discoverModeState[getActiveDiscoverModeId()];
+}
+
+function getActiveDiscoverProfiles() {
+  return discoverProfilesByMode[getActiveDiscoverModeId()] || [];
+}
+
+function getActiveDiscoverProfile() {
+  const state = getActiveDiscoverState();
+  return getFilteredDiscoverProfiles()[state.index] || null;
+}
+
+// İşlem başladıktan sonra mod değişse bile yalnızca başladığı mod yeniden çizilsin.
+// İşlenmiş profil filtrelenmiş listeden çıktığı için index artırılmaz;
+// aksi halde bir sonraki profil atlanabilir ve kartlar tekrar görünebilir.
+function advanceDiscoverModeAfterAction(modeId, historyEntry) {
+  const state = discoverModeState[modeId];
+  if (!state || !state.history.includes(historyEntry)) return;
+  if (getActiveDiscoverModeId() === modeId) renderDiscoverCards();
+}
+
+function addDiscoverFriendRequest(profile, message = '') {
+  const existing = sentFriendReqs.find(request => request.id === profile.id);
+  if (existing) return null;
+
+  const request = {
+    id: profile.id,
+    name: profile.name,
+    color: profile.color,
+    message,
+    time: 'Şimdi',
+    mode: 'friendship'
+  };
+  sentFriendReqs.push(request);
+  return request;
+}
+
+function addDiscoverDatingRequest(profile, message) {
+  const requestAlreadyExists = sentRequests.some(request => request.id === profile.id);
+  const conversationAlreadyExists = (modeConversations.dating || []).some(conversation => conversation.profileId === profile.id);
+  if (requestAlreadyExists || conversationAlreadyExists) return null;
+
+  const request = {
+    id: profile.id,
+    name: profile.name,
+    color: profile.color,
+    message,
+    time: 'Şimdi',
+    status: 'pending',
+    sentCount: 1,
+    mode: 'dating',
+    thread: [{ from: 'me', text: message }]
+  };
+  sentRequests.push(request);
+  return request;
+}
+
+function addDiscoverModeConversation(modeId, profile, message, actionType) {
+  const list = modeConversations[modeId] || (modeConversations[modeId] = []);
+  const existingConversation = list.find(conversation => conversation.profileId === profile.id);
+  const existingDatingRequest = modeId === 'dating'
+    && sentRequests.some(request => request.id === profile.id);
+  if (existingConversation || existingDatingRequest) return null;
+
+  const conversation = {
+    id: `${modeId}:${profile.id}`,
+    profileId: profile.id,
+    name: profile.name,
+    initial: profile.name[0],
+    color: profile.color,
+    mode: modeId,
+    actionType,
+    online: true,
+    messages: [{ from: 'me', text: message }]
+  };
+  list.push(conversation);
+  return conversation;
+}
+
+function showDiscoverActionToast(text) {
+  const toast = document.getElementById('likeToast');
+  document.getElementById('likeToastText').textContent = text;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2400);
+}
+
+function markDiscoverProfileActed(modeId, profileId) {
+  const state = discoverModeState[modeId];
+  if (!state) return;
+  state.actedIds.add(profileId);
+  state.priorityIds = state.priorityIds.filter(id => id !== profileId);
+}
+
+function preferenceIncludes(selectedValues, value) {
+  if (!value) return true;
+  const values = Array.isArray(selectedValues) ? selectedValues : [selectedValues];
+  return !values.length || values.includes('Tümü') || values.includes(value);
+}
+
+function profileMatchesDiscoverFilters(profile) {
+  const age = Number(profile.age);
+  const distance = Number(profile.distanceKm);
+  const languageList = profile.languages || (profile.lang ? profile.lang.split('/').map(value => value.trim()) : []);
+
+  if (Number.isFinite(age) && (age < discoverFilters.ageMin || age > discoverFilters.ageMax)) return false;
+  if (Number.isFinite(distance) && distance > discoverFilters.distanceMaxKm) return false;
+  if (preferredCountry !== 'Tümü' && profile.country !== preferredCountry) return false;
+  if (preferredGender && preferredGender !== 'Herkes' && profile.gender !== preferredGender) return false;
+  if (!preferenceIncludes(preferredZodiacs, profile.zodiac)) return false;
+  if (!preferredLangs.includes('Tümü') && !languageList.some(language => preferredLangs.includes(language))) return false;
+  return true;
+}
+
+function getFilteredDiscoverProfiles() {
+  const state = getActiveDiscoverState();
+  const available = getActiveDiscoverProfiles().filter(profile =>
+    !state.actedIds.has(profile.id) && profileMatchesDiscoverFilters(profile)
+  );
+  const priority = state.priorityIds
+    .map(id => available.find(profile => profile.id === id))
+    .filter(Boolean);
+  const prioritySet = new Set(priority.map(profile => profile.id));
+  return [
+    ...priority,
+    ...available.filter(profile => !prioritySet.has(profile.id))
+  ];
+}
+
+function applyDiscoverFilters() {
+  clearTimeout(discoverFilterRefreshTimer);
+  discoverFilterRefreshTimer = null;
+  discoverFilterVersion++;
+  // Filtreler ortak olduğu için tüm modların eski index/geçmişi sıfırlanır.
+  // Böylece başka moda geçince eski filtreye ait kart sırası kullanılmaz.
+  Object.values(discoverModeState).forEach(state => {
+    state.index = 0;
+    // Geçmiş korunur; böylece filtre değiştirildikten sonra Undo hâlâ çalışır.
+  });
+  renderDiscoverCards();
+}
 
 function renderDiscoverCards() {
   const wrap = document.getElementById('discoverCards');
   wrap.innerHTML = '';
-  const visible = discoverProfiles.slice(discoverIndex, discoverIndex + 2);
+  const state = getActiveDiscoverState();
+  const profiles = getFilteredDiscoverProfiles();
+  if (state.index > profiles.length) state.index = profiles.length;
+  const visible = profiles.slice(state.index, state.index + 2);
   visible.forEach((p, i) => {
     const cardDetails = getProfileCardDetails(p, p.distanceKm);
     const primaryDetail = cardDetails[0];
     const primaryBio = primaryDetail && primaryDetail.type === 'bio' ? primaryDetail.items[0] : '';
     const primaryTags = primaryDetail && primaryDetail.type !== 'bio'
-      ? primaryDetail.items.map(item => `<div class="cardDetailTag">${item}</div>`).join('')
+      ? primaryDetail.items.map(item => `<div class="cardDetailTag">${escapeHtml(item)}</div>`).join('')
       : '';
     const card = document.createElement('div');
     card.className = 'discoverCard';
@@ -6252,17 +7743,21 @@ function renderDiscoverCards() {
     card.dataset.id = p.id;
     card.innerHTML = `
       <div class="cardTop">
-        <div class="cardAvatar" style="background:${p.color}"><span>${p.name[0]}</span></div>
-        <div class="cardName">${p.name}</div>
-        <div class="cardMeta">${p.age}</div>
+        <div class="cardAvatar" style="background:${escapeHtml(p.color)}"><span>${escapeHtml(p.name[0])}</span></div>
+        <div class="cardName">${escapeHtml(p.name)}</div>
+        <div class="cardMeta">${escapeHtml(p.age)}</div>
       </div>
       <div class="cardBody">
-        <div class="cardBio">${primaryBio}</div>
+        <div class="cardBio">${escapeHtml(primaryBio)}</div>
         <div class="cardDetailTags">${primaryTags}</div>
-        <div class="cardInterests">${p.interests.map(t => `<div class="cardInterestTag">${t}</div>`).join('')}</div>
+        <div class="cardInterests">${p.interests.map(t => `<div class="cardInterestTag">${escapeHtml(t)}</div>`).join('')}</div>
       </div>
     `;
     wrap.appendChild(card);
+    const cardBody = card.querySelector('.cardBody');
+    cardBody.addEventListener('touchstart', e => e.stopPropagation(), { passive: true });
+    cardBody.addEventListener('touchmove', e => e.stopPropagation(), { passive: true });
+    cardBody.addEventListener('touchend', e => e.stopPropagation(), { passive: true });
     const cardBio = card.querySelector('.cardBio');
     cardBio.addEventListener('touchstart', e => e.stopPropagation(), { passive: true });
     cardBio.addEventListener('touchmove', e => e.stopPropagation(), { passive: true });
@@ -6347,11 +7842,17 @@ function swipeTopCardGesture(type) {
   const wrap = document.getElementById('discoverCards');
   const top = wrap.querySelector('.discoverCard');
   if (!top) return;
-  const profile = discoverProfiles[discoverIndex];
+  const profile = getActiveDiscoverProfile();
   if (!profile) return;
 
-  const historyEntry = { index: discoverIndex, type };
-
+  const modeId = getActiveDiscoverModeId();
+  const historyEntry = {
+    index: getActiveDiscoverState().index,
+    profileId: profile.id,
+    filterVersion: discoverFilterVersion,
+    type,
+    mode: modeId
+  };
   const likeMessages = [
     'Selam! Profilin çok ilgimi çekti, tanışalım mı?',
     'Merhaba! İlgi alanlarımız epey örtüşüyor gibi, sohbet edelim mi?',
@@ -6359,29 +7860,34 @@ function swipeTopCardGesture(type) {
   ];
   const msg = likeMessages[Math.floor(Math.random() * likeMessages.length)];
 
-  const exists = conversations.find(c => c.id === profile.id);
-  if (!exists) {
-    const newConv = {
-      id: profile.id,
-      name: profile.name,
-      initial: profile.name[0],
-      color: profile.color,
-      online: true,
-      messages: [{ from: 'me', text: msg }]
-    };
-    conversations.unshift(newConv);
-    convState[newConv.id] = { lastRead: newConv.messages.length };
-    renderConvList();
-    historyEntry.createdConvId = newConv.id;
+  if (modeId === 'friendship') {
+    const request = addDiscoverFriendRequest(profile, msg);
+    if (request) {
+      historyEntry.createdFriendReqRef = request;
+      showDiscoverActionToast(`${profile.name} için arkadaşlık isteği gönderildi`);
+    } else {
+      showDiscoverActionToast(`${profile.name} için bu modda zaten işlem yapılmış`);
+    }
+  } else {
+    const conversation = addDiscoverModeConversation(modeId, profile, msg, 'superlike');
+    if (conversation) {
+      historyEntry.createdModeConversation = conversation;
+      showDiscoverActionToast(
+        modeId === 'speed-dating'
+          ? `${profile.name} için Hızlı Flört eşleşmesi oluşturuldu`
+          : `${profile.name} için Flört eşleşmesi oluşturuldu`
+      );
+    } else {
+      showDiscoverActionToast(`${profile.name} için bu modda zaten işlem yapılmış`);
+    }
   }
-  triggerStarBurst();
-  setTimeout(() => showLikeToast(profile.name, true, true), 280);
 
-  discoverHistory.push(historyEntry);
+  triggerStarBurst();
+  markDiscoverProfileActed(modeId, profile.id);
+  getActiveDiscoverState().history.push(historyEntry);
 
   setTimeout(() => {
-    discoverIndex++;
-    renderDiscoverCards();
+    advanceDiscoverModeAfterAction(modeId, historyEntry);
   }, 260);
 }
 
@@ -6409,9 +7915,10 @@ function triggerHeartBurst() {
 function showLikeToast(name, sentMessage, isInstantChat) {
   const toast = document.getElementById('likeToast');
   let text;
-  if (isInstantChat) text = `<b>${name}</b> ile sohbet başladı!`;
-  else if (sentMessage) text = `<b>${name}</b>'e mesaj isteği gönderildi`;
-  else text = `<b>${name}</b> beğenildi`;
+  const safeName = escapeHtml(name);
+  if (isInstantChat) text = `<b>${safeName}</b> ile sohbet başladı!`;
+  else if (sentMessage) text = `<b>${safeName}</b>'e mesaj isteği gönderildi`;
+  else text = `<b>${safeName}</b> beğenildi`;
   document.getElementById('likeToastText').innerHTML = text;
   toast.classList.add('show');
   setTimeout(() => toast.classList.remove('show'), 2400);
@@ -6421,13 +7928,18 @@ function swipeTopCard(direction, isSuperLike) {
   const wrap = document.getElementById('discoverCards');
   const top = wrap.querySelector('.discoverCard');
   if (!top) return;
-  const profile = discoverProfiles[discoverIndex];
+  const profile = getActiveDiscoverProfile();
+  if (!profile) return;
+  const modeId = getActiveDiscoverModeId();
 
   top.classList.add(direction === 'right' ? 'swipe-right' : 'swipe-left');
-
-  if (direction === 'left') { /* no animation */ }
-
-  const historyEntry = { index: discoverIndex, type: direction === 'right' ? (isSuperLike ? 'superlike' : 'like') : 'pass' };
+  const historyEntry = {
+    index: getActiveDiscoverState().index,
+    profileId: profile.id,
+    filterVersion: discoverFilterVersion,
+    type: direction === 'right' ? (isSuperLike ? 'superlike' : 'like') : 'pass',
+    mode: modeId
+  };
 
   if (direction === 'right') {
     const likeMessages = [
@@ -6437,50 +7949,51 @@ function swipeTopCard(direction, isSuperLike) {
     ];
     const msg = likeMessages[Math.floor(Math.random() * likeMessages.length)];
 
-    if (isSuperLike) {
-      // super-like: starts a real conversation immediately, no request step
-      const exists = conversations.find(c => c.id === profile.id);
-      if (!exists) {
-        const newConv = {
-          id: profile.id,
-          name: profile.name,
-          initial: profile.name[0],
-          color: profile.color,
-          online: true,
-          messages: [{ from: 'me', text: msg }]
-        };
-        conversations.unshift(newConv);
-        convState[newConv.id] = { lastRead: newConv.messages.length };
-        renderConvList();
-        historyEntry.createdConvId = newConv.id;
+    if (modeId === 'friendship') {
+      const request = addDiscoverFriendRequest(profile, msg);
+      if (request) {
+        historyEntry.createdFriendReqRef = request;
+        triggerHeartBurst();
+        showDiscoverActionToast(`${profile.name} için arkadaşlık isteği gönderildi`);
+      } else {
+        showDiscoverActionToast(`${profile.name} için bu modda zaten işlem yapılmış`);
       }
-      triggerStarBurst();
-      setTimeout(() => showLikeToast(profile.name, true, true), 280);
+    } else if (modeId === 'speed-dating') {
+      const conversation = addDiscoverModeConversation(modeId, profile, msg, isSuperLike ? 'superlike' : 'like');
+      if (conversation) {
+        historyEntry.createdModeConversation = conversation;
+        if (isSuperLike) triggerStarBurst();
+        else triggerHeartBurst();
+        showDiscoverActionToast(`${profile.name} için Hızlı Flört eşleşmesi oluşturuldu`);
+      } else {
+        showDiscoverActionToast(`${profile.name} için bu modda zaten işlem yapılmış`);
+      }
+    } else if (isSuperLike) {
+      const conversation = addDiscoverModeConversation(modeId, profile, msg, 'superlike');
+      if (conversation) {
+        historyEntry.createdModeConversation = conversation;
+        triggerStarBurst();
+        showDiscoverActionToast(`${profile.name} için Flört eşleşmesi oluşturuldu`);
+      } else {
+        showDiscoverActionToast(`${profile.name} için bu modda zaten işlem yapılmış`);
+      }
     } else {
-      // regular like: goes out as a pending request, limited to 3 messages
-      const newReq = {
-        id: profile.id,
-        name: profile.name,
-        color: profile.color,
-        message: msg,
-        time: 'Şimdi',
-        status: 'pending',
-        sentCount: 1,
-        thread: [{ from: 'me', text: msg }]
-      };
-      sentRequests.push(newReq);
-      renderRequestsDot();
-      historyEntry.createdReqRef = newReq;
-      triggerHeartBurst();
-      setTimeout(() => showLikeToast(profile.name, true, false), 280);
+      const request = addDiscoverDatingRequest(profile, msg);
+      if (request) {
+        historyEntry.createdReqRef = request;
+        triggerHeartBurst();
+        setTimeout(() => showLikeToast(profile.name, true, false), 280);
+      } else {
+        showDiscoverActionToast(`${profile.name} için bu modda zaten işlem yapılmış`);
+      }
     }
   }
 
-  discoverHistory.push(historyEntry);
+  markDiscoverProfileActed(modeId, profile.id);
+  getActiveDiscoverState().history.push(historyEntry);
 
   setTimeout(() => {
-    discoverIndex++;
-    renderDiscoverCards();
+    advanceDiscoverModeAfterAction(modeId, historyEntry);
   }, 260);
 }
 
@@ -6488,7 +8001,7 @@ document.getElementById('likeBtn').addEventListener('click', () => swipeTopCard(
 
 // ---- undo last discover action ----
 document.getElementById('undoBtn').addEventListener('click', () => {
-  const entry = discoverHistory.pop();
+  const entry = getActiveDiscoverState().history.pop();
   if (!entry) {
     document.getElementById('likeToastText').textContent = 'Geri alınacak bir işlem yok';
     document.getElementById('likeToast').classList.add('show');
@@ -6497,6 +8010,14 @@ document.getElementById('undoBtn').addEventListener('click', () => {
   }
 
   // undo side effects
+  if (entry.profileId) {
+    const state = getActiveDiscoverState();
+    state.actedIds.delete(entry.profileId);
+    state.priorityIds = [
+      entry.profileId,
+      ...state.priorityIds.filter(id => id !== entry.profileId)
+    ];
+  }
   if (entry.createdConvId) {
     const idx = conversations.findIndex(c => c.id === entry.createdConvId);
     if (idx > -1) conversations.splice(idx, 1);
@@ -6508,13 +8029,25 @@ document.getElementById('undoBtn').addEventListener('click', () => {
     if (idx > -1) sentRequests.splice(idx, 1);
     renderRequestsDot();
   }
+  if (entry.createdFriendReqRef) {
+    const idx = sentFriendReqs.indexOf(entry.createdFriendReqRef);
+    if (idx > -1) sentFriendReqs.splice(idx, 1);
+  }
+  if (entry.createdModeConversation) {
+    const modeList = modeConversations[entry.createdModeConversation.mode] || [];
+    const idx = modeList.indexOf(entry.createdModeConversation);
+    if (idx > -1) modeList.splice(idx, 1);
+  }
 
-  discoverIndex = entry.index;
+  const currentState = getActiveDiscoverState();
+  // Undo sonrası geri gelen profil eski filtrenin sonuna değil,
+  // mevcut listenin başına dönsün.
+  currentState.index = 0;
   renderDiscoverCards();
 
-  const profile = discoverProfiles[discoverIndex];
+  const profile = getActiveDiscoverProfile();
   if (profile) {
-    document.getElementById('likeToastText').innerHTML = `<b>${profile.name}</b> geri getirildi`;
+    document.getElementById('likeToastText').innerHTML = `<b>${escapeHtml(profile.name)}</b> geri getirildi`;
     document.getElementById('likeToast').classList.add('show');
     setTimeout(() => document.getElementById('likeToast').classList.remove('show'), 1800);
   }
@@ -6536,12 +8069,13 @@ document.querySelectorAll('#countryPrefOptions .prefOption').forEach(opt => {
     opt.classList.add('active');
     preferredCountry = opt.dataset.country;
     updateAccordionValue('countryAccordionVal', preferredCountry);
+    applyDiscoverFilters();
   });
 });
 
 document.getElementById('superLikeBtn').addEventListener('click', () => swipeTopCard('right', true));
 
-createDualRange({
+discoverAgeRangeController = createDualRange({
   trackId: 'discoverDualRangeTrack', fillId: 'discoverDualRangeFill',
   minHandleId: 'discoverHandleMin', maxHandleId: 'discoverHandleMax',
   minLabelId: 'discoverLabelMin', maxLabelId: 'discoverLabelMax',
@@ -6549,17 +8083,21 @@ createDualRange({
   min: 18, max: 100, valMin: 18, valMax: 25,
   showMaxPlus: true,
   formatDisplay: (minValue, maxValue) => `${minValue} - ${maxValue}`,
-  onChange: null
+  onChange: (minValue, maxValue) => {
+    discoverFilters.ageMin = Math.round(minValue);
+    discoverFilters.ageMax = Math.round(maxValue);
+    scheduleDiscoverFilterRefresh();
+  }
 });
 
-createSingleRange({
+discoverDistanceRangeController = createSingleRange({
   trackId: 'discoverDistanceTrack', fillId: 'discoverDistanceFill',
   handleId: 'discoverDistanceHandle', labelId: 'discoverDistanceLabel',
   displayId: 'discoverDistanceDisplay',
   min: 1, max: 200, value: 200,
   onChange: value => {
-    datingPreferences.distanceMinKm = 1;
-    datingPreferences.distanceMaxKm = value;
+    discoverFilters.distanceMaxKm = value;
+    scheduleDiscoverFilterRefresh();
   }
 });
 
@@ -6567,7 +8105,7 @@ document.getElementById('passBtn').addEventListener('click', () => swipeTopCard(
 
 // ---- discover: custom message compose ----
 document.getElementById('discoverMsgBtn').addEventListener('click', () => {
-  const profile = discoverProfiles[discoverIndex];
+  const profile = getActiveDiscoverProfile();
   if (!profile) return;
   document.getElementById('discoverMsgModalAvatar').style.background = profile.color;
   document.getElementById('discoverMsgModalAvatar').textContent = profile.name[0];
@@ -6590,34 +8128,271 @@ document.getElementById('discoverMsgModalCancel').addEventListener('click', () =
 document.getElementById('discoverMsgModalSend').addEventListener('click', () => {
   const text = document.getElementById('discoverMsgModalInput').value.trim();
   if (!text) return;
-  const profile = discoverProfiles[discoverIndex];
+  const profile = getActiveDiscoverProfile();
   if (!profile) return;
 
-  sentRequests.push({
-    id: profile.id,
-    name: profile.name,
-    color: profile.color,
-    message: text,
-    time: 'Şimdi',
-    status: 'pending',
-    sentCount: 1,
-    thread: [{ from: 'me', text }]
-  });
-  renderRequestsDot();
+  const modeId = getActiveDiscoverModeId();
+  const historyEntry = {
+    index: getActiveDiscoverState().index,
+    profileId: profile.id,
+    filterVersion: discoverFilterVersion,
+    type: 'message',
+    mode: modeId
+  };
 
+  if (modeId === 'friendship') {
+    const request = addDiscoverFriendRequest(profile, text);
+    if (request) {
+      historyEntry.createdFriendReqRef = request;
+      showDiscoverActionToast(`${profile.name} için arkadaşlık isteği gönderildi`);
+    } else {
+      showDiscoverActionToast(`${profile.name} için bu modda zaten işlem yapılmış`);
+    }
+  } else if (modeId === 'speed-dating') {
+    const conversation = addDiscoverModeConversation(modeId, profile, text, 'message');
+    if (conversation) {
+      historyEntry.createdModeConversation = conversation;
+      showDiscoverActionToast(`${profile.name} için Hızlı Flört mesajı kaydedildi`);
+    } else {
+      showDiscoverActionToast(`${profile.name} için bu modda zaten işlem yapılmış`);
+    }
+  } else {
+    const request = addDiscoverDatingRequest(profile, text);
+    if (request) {
+      historyEntry.createdReqRef = request;
+      renderRequestsDot();
+      showLikeToast(profile.name, true, false);
+    } else {
+      showDiscoverActionToast(`${profile.name} için bu modda zaten işlem yapılmış`);
+    }
+  }
+
+  markDiscoverProfileActed(modeId, profile.id);
+  getActiveDiscoverState().history.push(historyEntry);
   document.getElementById('discoverMsgModal').classList.remove('show');
-  triggerHeartBurst();
-  showLikeToast(profile.name, true, false);
+  if (modeId === 'friendship' || modeId === 'speed-dating') triggerHeartBurst();
 
-  // move on to the next match, same as like/pass
   const wrap = document.getElementById('discoverCards');
   const top = wrap.querySelector('.discoverCard');
   if (top) top.classList.add('swipe-right');
   setTimeout(() => {
-    discoverIndex++;
-    renderDiscoverCards();
+    advanceDiscoverModeAfterAction(modeId, historyEntry);
   }, 260);
 });
+
+// ---- mock events map ----
+const eventsMapScreen = document.getElementById('eventsMapScreen');
+const eventDetailSheet = document.getElementById('eventDetailSheet');
+const demoEvent = eventRequests[0];
+
+function openEventsMap() {
+  eventsMapScreen.classList.add('active');
+  eventDetailSheet.classList.remove('show');
+}
+function closeEventsMap() {
+  eventDetailSheet.classList.remove('show');
+  eventsMapScreen.classList.remove('active');
+}
+function openDemoEventDetail() {
+  if (!demoEvent) return;
+  document.getElementById('eventDetailTitle').textContent = demoEvent.title;
+  document.getElementById('eventDetailMeta').textContent = `${demoEvent.location.name} · ${demoEvent.date} · ${demoEvent.time}`;
+  document.getElementById('eventDetailDescription').textContent = demoEvent.description;
+  eventDetailSheet.classList.add('show');
+}
+
+document.getElementById('messageMapQuickBtn').addEventListener('click', openEventsMap);
+document.getElementById('eventsMapBackBtn').addEventListener('click', closeEventsMap);
+document.getElementById('eventMapMarkerDemo').addEventListener('click', openDemoEventDetail);
+
+// ---- message notes ----
+const messageOwnNoteAvatar = document.getElementById('messageOwnNoteAvatar');
+const messageOwnNoteBubble = document.getElementById('messageOwnNoteBubble');
+const messageNotesList = document.getElementById('messageNotesList');
+const noteComposerBackdrop = document.getElementById('noteComposerBackdrop');
+const noteInput = document.getElementById('noteInput');
+const noteCancelBtn = document.getElementById('noteCancelBtn');
+const noteViewerBackdrop = document.getElementById('noteViewerBackdrop');
+const noteViewerAuthor = document.getElementById('noteViewerAuthor');
+const noteViewerText = document.getElementById('noteViewerText');
+const noteReplyInput = document.getElementById('noteReplyInput');
+const noteLikeBtn = document.getElementById('noteLikeBtn');
+let activeViewedNote = null;
+
+function openFriendNoteViewer(note) {
+  activeViewedNote = note;
+  noteViewerAuthor.textContent = note.authorName || 'Not';
+  noteViewerText.textContent = normalizeNoteText(note.text);
+  noteLikeBtn.classList.toggle('active', Boolean(note.liked));
+  noteViewerBackdrop.classList.add('show');
+  noteReplyInput.value = '';
+}
+function closeFriendNoteViewer() {
+  noteViewerBackdrop.classList.remove('show');
+  activeViewedNote = null;
+}
+document.getElementById('noteViewerClose').addEventListener('click', closeFriendNoteViewer);
+noteViewerBackdrop.addEventListener('click', e => {
+  if (e.target === noteViewerBackdrop) closeFriendNoteViewer();
+});
+noteLikeBtn.addEventListener('click', () => {
+  if (!activeViewedNote) return;
+  activeViewedNote.liked = !activeViewedNote.liked;
+  noteLikeBtn.classList.toggle('active', activeViewedNote.liked);
+});
+document.getElementById('noteShareBtn').addEventListener('click', () => {
+  if (typeof showLikeToast === 'function') showLikeToast('Not paylaşımı hazır', true, false);
+});
+noteReplyInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    const message = noteReplyInput.value.trim();
+    if (!message || !activeViewedNote) return;
+    if (typeof showLikeToast === 'function') showLikeToast('Mesaj gönderildi', true, false);
+    noteReplyInput.value = '';
+  }
+});
+
+function normalizeNoteText(value) {
+  const characters = Array.from(String(value || '').replace(/\r/g, ''));
+  const lines = [];
+  let currentLine = '';
+
+  for (const character of characters) {
+    if (character === '\n') {
+      lines.push(currentLine);
+      currentLine = '';
+      if (lines.length === 5) break;
+      continue;
+    }
+    if (currentLine.length >= 9) {
+      lines.push(currentLine);
+      currentLine = '';
+      if (lines.length === 5) break;
+    }
+    currentLine += character;
+  }
+
+  if (lines.length < 5 && currentLine.length > 0) lines.push(currentLine);
+  return lines.slice(0, 5).join('\n');
+}
+
+function normalizeNoteInput() {
+  const normalized = normalizeNoteText(noteInput.value);
+  if (noteInput.value !== normalized) noteInput.value = normalized;
+}
+noteInput.addEventListener('input', normalizeNoteInput);
+
+function positionMessageNoteBubbles() {
+  const avatarRect = messageOwnNoteAvatar.getBoundingClientRect();
+  messageOwnNoteBubble.style.left = avatarRect.left + avatarRect.width / 2 + 'px';
+  messageOwnNoteBubble.style.top = avatarRect.top + 24 + 'px';
+
+  document.querySelectorAll('.messageNoteButton').forEach(button => {
+    const bubble = button.querySelector('.messageNoteBubble');
+    if (!bubble) return;
+    const rect = button.getBoundingClientRect();
+    bubble.style.left = rect.left + rect.width / 2 + 'px';
+    bubble.style.top = rect.top + 24 + 'px';
+
+  });
+}
+
+function renderMessageNotes() {
+  const now = Date.now();
+  const validNotes = friendNotes.filter(note => !note.expiresAt || note.expiresAt > now);
+  friendNotes.splice(0, friendNotes.length, ...validNotes);
+  const ownNote = friendNotes.find(note => note.authorId === 'self');
+  const initialEl = document.getElementById('messageOwnNoteInitial');
+  const ownPhoto = getCurrentOwnProfilePhoto();
+
+  if (ownPhoto) {
+    messageOwnNoteAvatar.style.backgroundImage = `url("${ownPhoto}")`;
+    if (initialEl) initialEl.textContent = '';
+  } else {
+    messageOwnNoteAvatar.style.backgroundImage = '';
+    if (initialEl) initialEl.textContent = typeof profileData !== 'undefined' ? (profileData.name || 'B')[0] : 'B';
+  }
+
+  const ownText = ownNote ? normalizeNoteText(ownNote.text) : '';
+  const noteLines = ownText ? ownText.split('\n').length : 0;
+  messageOwnNoteBubble.textContent = ownText;
+  messageOwnNoteBubble.classList.remove('note-one-line', 'note-two-lines', 'note-many-lines');
+  if (noteLines === 1) messageOwnNoteBubble.classList.add('note-one-line');
+  else if (noteLines === 2) messageOwnNoteBubble.classList.add('note-two-lines');
+  else if (noteLines >= 3) messageOwnNoteBubble.classList.add('note-many-lines');
+  messageOwnNoteBubble.classList.toggle('show', Boolean(ownNote));
+  messageOwnNoteBubble.scrollTop = 0;
+  messageNotesList.innerHTML = '';
+
+  // Kendi notu ayrı bir buton oluşturmaz; profil butonunun üstünde görünür.
+  friendNotes.filter(note => note.authorId !== 'self').forEach(note => {
+    const button = document.createElement('div');
+    button.className = 'messageNoteButton';
+    button.title = normalizeNoteText(note.text);
+
+    const bubble = document.createElement('div');
+    bubble.className = 'messageNoteBubble';
+    bubble.textContent = normalizeNoteText(note.text);
+
+    const avatar = document.createElement('div');
+    avatar.className = 'messageNoteAvatar';
+    avatar.textContent = note.authorName ? note.authorName[0] : '?';
+
+    button.append(bubble, avatar);
+    button.addEventListener('click', () => openFriendNoteViewer(note));
+    messageNotesList.appendChild(button);
+  });
+  requestAnimationFrame(positionMessageNoteBubbles);
+}
+
+function openNoteComposer() {
+  const ownNote = friendNotes.find(note => note.authorId === 'self');
+  noteInput.value = ownNote ? normalizeNoteText(ownNote.text) : '';
+  noteCancelBtn.classList.toggle('disabled', !ownNote);
+  noteComposerBackdrop.classList.add('show');
+  noteInput.focus();
+}
+function closeNoteComposer() {
+  noteComposerBackdrop.classList.remove('show');
+}
+messageOwnNoteAvatar.addEventListener('click', openNoteComposer);
+messageOwnNoteBubble.addEventListener('click', openNoteComposer);
+noteCancelBtn.addEventListener('click', () => {
+  const index = friendNotes.findIndex(note => note.authorId === 'self');
+  if (index >= 0) friendNotes.splice(index, 1);
+  renderMessageNotes();
+  closeNoteComposer();
+});
+noteComposerBackdrop.addEventListener('click', e => {
+  if (e.target === noteComposerBackdrop) closeNoteComposer();
+});
+document.getElementById('notePublishBtn').addEventListener('click', () => {
+  const text = normalizeNoteText(noteInput.value).trim();
+  if (!text) return;
+  const now = Date.now();
+  const existingNote = friendNotes.find(note => note.authorId === 'self');
+  if (existingNote) {
+    existingNote.text = text;
+    existingNote.createdAt = now;
+    existingNote.expiresAt = now + 24 * 60 * 60 * 1000;
+  } else {
+    friendNotes.push({
+      id: 'note-' + now,
+      authorId: 'self',
+      authorName: typeof profileData !== 'undefined' ? profileData.name : 'Ben',
+      text,
+      createdAt: now,
+      expiresAt: now + 24 * 60 * 60 * 1000
+    });
+  }
+  renderMessageNotes();
+  closeNoteComposer();
+});
+renderMessageNotes();
+updateMessageNoteBubbleVisibility();
+document.getElementById('messageQuickBar').addEventListener('scroll', positionMessageNoteBubbles);
+window.addEventListener('resize', positionMessageNoteBubbles);
 
 // ---- bottom nav switching ----
 const screenTitles = { messages: 'Mesajlar', like: 'Keşfet', profile: 'Profilim' };
@@ -6633,12 +8408,15 @@ document.querySelectorAll('.navBtn').forEach(btn => {
     document.getElementById('topbarCount').style.display = target === 'messages' ? 'inline' : 'none';
     document.getElementById('friendReqsBtn').classList.toggle('visible', target === 'messages');
     closeChat();
+    updateMessageNoteBubbleVisibility();
 
     if (target === 'messages') {
       // always return to the Mesajlar sub-tab, not wherever İstekler was left
       document.querySelectorAll('.msgTopTab').forEach(t => t.classList.toggle('active', t.dataset.tab === 'messages'));
       document.getElementById('convList').classList.remove('hidden');
       document.getElementById('requestsPanel').classList.remove('active');
+      // Mesajlar ekranı gizliyken ölçüm 0,0 olabildiği için balonları yeniden hizala.
+      requestAnimationFrame(positionMessageNoteBubbles);
     }
 
     if (target === 'profile') {
@@ -6656,5 +8434,5 @@ document.querySelectorAll('.navBtn').forEach(btn => {
   });
 });
 </script>
-</body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a44387d16a11f2ed',t:'MTc5MDk0MjI1Ng=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
