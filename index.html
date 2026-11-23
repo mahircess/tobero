@@ -359,6 +359,44 @@
     cursor: pointer;
   }
 
+  #ownNoteLikesBackdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 145;
+    align-items: flex-end;
+    justify-content: center;
+    background: rgba(0,0,0,0.58);
+  }
+  #ownNoteLikesBackdrop.show { display: flex; }
+  #ownNoteLikesSheet {
+    width: 100%;
+    max-width: 520px;
+    max-height: min(76vh, 620px);
+    display: flex;
+    flex-direction: column;
+    padding: 10px 16px calc(18px + env(safe-area-inset-bottom, 8px));
+    border-radius: 26px 26px 0 0;
+    background: var(--bg-panel);
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+  .ownNoteSheetHandle { width: 38px; height: 4px; border-radius: 9px; background: var(--text-low); opacity: .65; margin: 0 auto 18px; flex-shrink: 0; }
+  #ownNoteSheetAvatar { width: 56px; height: 56px; border-radius: 50%; margin: 0 auto 12px; background: var(--coral); display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:20px;background-size:cover;background-position:center;flex-shrink:0; }
+  #ownNoteSheetMeta { color: var(--text-low); font-size: 12px; text-align:center; margin-bottom: 8px; }
+  #ownNoteSheetText { color: var(--text-hi); font-size: 15px; line-height: 1.4; text-align:center; white-space:pre-wrap; overflow-wrap:anywhere; margin: 0 auto 16px; max-width: 430px; flex-shrink:0; }
+  #ownNoteLikesList { overflow-y:auto; min-height: 40px; flex: 1; }
+  .ownNoteLikeRow { display:flex;align-items:center;gap:11px;padding:10px 2px;border-bottom:1px solid var(--line); }
+  .ownNoteLikeAvatar { width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;flex-shrink:0;background-size:cover;background-position:center; }
+  .ownNoteLikeName { flex:1;min-width:0;color:var(--text-hi);font-size:14px;font-weight:700; }
+  .ownNoteLikeAction { width:40px;height:40px;border:0;border-radius:50%;background:var(--bg-elevated);color:var(--text-hi);font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0; }
+  .ownNoteLikeAction:active { background:var(--bg-deep); }
+  #ownNoteLikesEmpty { color:var(--text-low);font-size:13px;text-align:center;padding:20px 8px; }
+  #ownNoteSheetActions { display:flex;flex-direction:column;gap:10px;margin-top:14px;flex-shrink:0; }
+  #ownNoteNewBtn,#ownNoteDeleteBtn { width:100%;min-height:48px;border:0;border-radius:13px;font:700 14px 'Inter',sans-serif;cursor:pointer; }
+  #ownNoteNewBtn { background:var(--coral);color:#1A0F0C; }
+  #ownNoteDeleteBtn { background:transparent;color:var(--coral); }
+
   #noteViewerBackdrop {
     display: none;
     position: fixed;
@@ -411,10 +449,14 @@
     display: flex;
     align-items: center;
     gap: 8px;
+    transition: gap .16s ease;
   }
+  #noteViewerActions.has-reply { gap: 8px; }
+  #noteReplyComposer { position: relative; flex: 1; min-width: 0; }
   #noteReplyInput {
-    flex: 1;
-    min-width: 0;
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
     height: 40px;
     border: 1px solid var(--line);
     border-radius: 999px;
@@ -425,6 +467,50 @@
     font-size: 13px;
   }
   #noteReplyInput:focus { outline: none; border-color: var(--coral); }
+  #noteReplyComposer.has-text #noteReplyInput { padding-right: 48px; }
+  #noteReplySendBtn {
+    display: none;
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 32px;
+    height: 32px;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 50%;
+    background: var(--coral);
+    color: #1A0F0C;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+  #noteReplySendBtn:active { transform: translateY(-50%) scale(.94); }
+  #noteReplyComposer.has-text #noteReplySendBtn { display: flex; }
+  #noteViewerActions.has-reply #noteLikeBtn { display: none; }
+  #noteSentToast {
+    position: fixed;
+    left: 50%; top: 50%;
+    transform: translate(-50%,-50%) scale(.96);
+    z-index: 250;
+    display: none;
+    padding: 15px 22px;
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 15px;
+    background: rgba(12,12,14,.78);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    text-align: center;
+    box-shadow: 0 12px 34px rgba(0,0,0,.28);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    opacity: 0;
+    transition: opacity .15s ease, transform .15s ease;
+    pointer-events: none;
+  }
+  #noteSentToast.show { display:block; opacity:1; transform:translate(-50%,-50%) scale(1); }
   .noteViewerActionBtn {
     width: 40px;
     height: 40px;
@@ -436,8 +522,19 @@
     font-size: 17px;
     cursor: pointer;
   }
-  .noteViewerActionBtn.active,
-  .noteViewerActionBtn:active { background: var(--coral-soft); color: var(--coral); }
+  .noteViewerActionBtn.active {
+    background: var(--bg-elevated);
+    border-color: transparent;
+    color: var(--coral);
+  }
+  .noteViewerActionBtn:active { transform: scale(0.94); }
+  @keyframes noteHeartPop {
+    0% { transform: scale(1); }
+    35% { transform: scale(1.42); filter: drop-shadow(0 0 8px rgba(255,77,109,.6)); }
+    70% { transform: scale(.92); }
+    100% { transform: scale(1); filter: none; }
+  }
+  .noteViewerActionBtn.like-pop { animation: noteHeartPop .42s ease-out; }
   #noteCancelBtn { background: var(--bg-elevated); color: var(--text-mid); }
   #notePublishBtn { background: var(--coral); color: #1A0F0C; }
 
@@ -756,6 +853,72 @@
   #chatHeaderInfo { flex: 1; min-width: 0; }
   #chatHeaderName { font-family: 'Sora', sans-serif; font-weight: 700; font-size: 15.5px; }
   #chatHeaderStatus { font-size: 11.5px; color: var(--mint); font-weight: 500; }
+  #anonChatTimerBar {
+    display: none;
+    height: 22px;
+    background: var(--bg-panel);
+    border-bottom: 1px solid var(--line);
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-low);
+    letter-spacing: 0.5px;
+  }
+  #anonChatTimerBar.show { display: flex; }
+  #anonChatTimer { font-variant-numeric: tabular-nums; }
+  #chatHeader { position: relative; z-index: 12; }
+  #anonChatLockedOverlay {
+    display: none;
+    position: absolute;
+    inset: 0;
+    background: var(--bg-card);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 24px;
+    z-index: 10;
+  }
+  #anonChatLockedOverlay.show { display: flex; }
+  #anonChatLockedText { font-weight: 700; font-size: 14px; color: var(--text); margin-bottom: 8px; }
+  #anonChatLockedSub { font-size: 12px; color: var(--text-low); }
+  #composer.anon-locked { opacity: 0.3; pointer-events: none; }
+  #anonContinueModal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+  }
+  #anonContinueModal.show { display: flex; }
+  #anonContinueCard {
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 20px;
+    width: 88%;
+    max-width: 340px;
+    text-align: center;
+  }
+  #anonContinueTitle { font-weight: 800; font-size: 16px; line-height: 1.3; margin-bottom: 14px; color: var(--text); text-align: center; }
+  .anonContinueBtn {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin-top: 8px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    text-align: center;
+  }
+  .anonContinueBtn:active { opacity: 0.85; }
+  .anonContinueBtn[data-anon-action="friend"] { background: #22C55E; color: white; }
+  .anonContinueBtn[data-anon-action="anon"] { background: #3B82F6; color: white; border: none; }
+  .anonContinueBtn[data-anon-action="close"] { background: #EF4444; color: white; }
+  .anonContinueSubtitle { font-size: 10px; font-weight: 500; opacity: 0.9; margin-top: 1px; line-height: 1; }
   #chatAvatar {
     width: 38px; height: 38px; border-radius: 12px;
     display: flex; align-items: center; justify-content: center;
@@ -821,6 +984,27 @@
     border-bottom-right-radius: 6px;
     font-weight: 500;
   }
+  .messageNoteReplyGroup { display:flex; flex-direction:column; gap:5px; max-width:84%; }
+  .messageNoteReplyLabel { align-self:center; padding:2px 8px 4px; color:var(--text-low); font-size:11px; text-align:center; }
+  .messageNoteReplyGroup.me { align-self:flex-end; align-items:flex-end; }
+  .messageNoteReplyGroup.them { align-self:flex-start; align-items:flex-start; }
+  .messageNoteReference {
+    width:max-content;
+    max-width:100%;
+    min-width:190px;
+    padding:9px 11px;
+    border-radius:14px;
+    background:var(--bg-elevated);
+    border:1px solid var(--line);
+    cursor:pointer;
+    box-sizing:border-box;
+  }
+  .messageNoteReference:active { filter:brightness(.92); }
+  .messageNoteReferenceHeader { display:flex;align-items:center;gap:7px;margin-bottom:6px; }
+  .messageNoteReferenceAvatar { width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:800;flex-shrink:0;background-size:cover;background-position:center; }
+  .messageNoteReferenceAuthor { font-size:11px; font-weight:700; color:var(--text-mid); }
+  .messageNoteReferenceText { padding-left:31px;font-size:12.5px; line-height:1.35; color:var(--text-hi); white-space:pre-wrap; overflow:hidden; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; }
+
   .dayLabel {
     align-self: center;
     font-size: 11px;
@@ -1608,58 +1792,36 @@
     margin-bottom: 10px;
   }
   #themeOptions {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 8px;
-  }
-  .themeOption {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 5px;
-    padding: 8px 6px;
-    border-radius: 12px;
-    border: 1.5px solid var(--line);
-    background: var(--bg-elevated);
+    gap: 10px;
   }
-  .themeOption.active {
-    border-color: var(--coral);
-  }
-  .themeSwatch {
+  .themeOption {
     width: 100%;
-    height: 28px;
-    border-radius: 7px;
+    min-height: 48px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0 16px;
+    border-radius: 12px;
+    border: 2px solid transparent;
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: transform 0.12s ease, border-color 0.12s ease;
   }
-  .theme-dark-swatch {
-    background: linear-gradient(135deg, #0A0C1C 50%, #191D3A 50%);
-    border: 1px solid rgba(255,255,255,0.1);
+  .themeOption:active { transform: scale(0.985); }
+  .themeOption {
+    background: var(--bg-elevated);
+    border-color: var(--line);
+    color: var(--text-hi);
   }
-  .theme-light-swatch {
-    background: linear-gradient(135deg, #EDEDF2 50%, #E4E4EC 50%);
-    border: 1px solid rgba(0,0,0,0.08);
-  }
-  .theme-black-swatch {
-    background: linear-gradient(135deg, #000000 50%, #181818 50%);
-    border: 1px solid rgba(255,255,255,0.1);
-  }
-  .theme-red-swatch {
-    background: linear-gradient(135deg, #1A0707 50%, #FF4D4D 50%);
-    border: 1px solid rgba(255,255,255,0.1);
-  }
-  .theme-pink-swatch {
-    background: linear-gradient(135deg, #FBD6E8 50%, #FF1577 50%);
-    border: 1px solid rgba(0,0,0,0.08);
-  }
-  .theme-purple-swatch {
-    background: linear-gradient(135deg, #160A2E 50%, #C77DFF 50%);
-    border: 1px solid rgba(255,255,255,0.1);
-  }
+  .themeOption.active { border-color: var(--coral); }
   .themeOptionLabel {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--text-mid);
+    font-size: 14px;
+    font-weight: 700;
+    color: inherit;
   }
-  .themeOption.active .themeOptionLabel { color: var(--text-hi); }
 
   /* ---- discover screen ---- */
   #discoverStack {
@@ -2097,7 +2259,19 @@
   #discoverEmpty.show { display: flex; }
   #discoverEmpty .icon { font-size: 40px; margin-bottom: 6px; }
   #discoverEmpty h2 { font-family: 'Sora', sans-serif; font-size: 17px; font-weight: 700; }
-  #discoverEmpty p { font-size: 13.5px; color: var(--text-mid); max-width: 230px; line-height: 1.5; }
+  #discoverEmpty p { font-size: 13.5px; color: var(--text-mid); max-width: 250px; line-height: 1.5; }
+  #emptyDiscoverFilterBtn {
+    margin-top: 4px;
+    min-height: 42px;
+    padding: 0 18px;
+    border: 0;
+    border-radius: 12px;
+    background: var(--coral);
+    color: #1A0F0C;
+    font: 700 13px 'Inter', sans-serif;
+    cursor: pointer;
+  }
+  #emptyDiscoverFilterBtn:active { filter: brightness(.92); }
 
   #discoverActions {
     flex-shrink: 0;
@@ -2140,6 +2314,14 @@
     font-size: 18px;
   }
   .discoverBtn--message:active { background: var(--bg-panel); }
+  #discoverActions.anonymous-mode #superLikeBtn,
+  #discoverActions.anonymous-mode #likeBtn { display: none; }
+  #discoverActions.anonymous-mode { width: min(276px, 100%); margin-inline: auto; justify-content: space-between; gap: 0; }
+  #discoverActions.anonymous-mode #discoverMsgBtn {
+    width: 60px;
+    height: 60px;
+    font-size: 24px;
+  }
 
   /* ---- like notification toast ---- */
   #likeToast {
@@ -2303,20 +2485,20 @@
   }
   #userProfileName { font-family: 'Sora', sans-serif; font-size: 20px; font-weight: 700; }
   #userProfileMeta { font-size: 13px; color: var(--text-mid); margin-top: 3px; }
+  #userProfileSocialStats { display:flex;align-items:center;justify-content:center;gap:40px;padding:0 0 18px; }
+  .userProfileSocialStat { display:flex;flex-direction:column;align-items:center;gap:3px;min-width:72px; }
+  .userProfileSocialStatNum { font-family:'Sora',sans-serif;font-size:17px;font-weight:800;color:var(--text-hi);line-height:1; }
+  .userProfileSocialStatLabel { font-size:11px;font-weight:500;color:var(--text-low); }
+  .userProfileTag {
+    font-size: 12.5px; font-weight: 600;
+    color: var(--coral); background: var(--coral-soft);
+    padding: 7px 13px; border-radius: 999px;
+  }
   #userProfileBio {
     font-size: 14px; color: var(--text-mid); line-height: 1.55;
     margin-bottom: 16px;
     background: var(--bg-elevated);
     border-radius: 14px; padding: 12px 14px;
-  }
-  #userProfileInterests {
-    display: flex; flex-wrap: wrap; gap: 8px;
-    margin-bottom: 24px;
-  }
-  .userProfileTag {
-    font-size: 12.5px; font-weight: 600;
-    color: var(--coral); background: var(--coral-soft);
-    padding: 7px 13px; border-radius: 999px;
   }
   #userProfileActions { display: flex; gap: 10px; }
   #userProfileMsgBtn, #userProfileFriendBtn {
@@ -2406,7 +2588,8 @@
     padding: 7px 14px; border-radius: 999px;
     font-size: 12px; font-weight: 700;
   }
-  .friendReqAccept { background: var(--mint); color: #07261D; }
+  .friendReqAccept { background: var(--mint); color: #07261D; cursor:pointer; text-align:center; line-height:1.25; }
+  .friendReqAccept[data-action="send-friend"], .friendReqAccept[data-action="withdraw-friend"] { max-width:210px; white-space:normal; }
   .friendReqAccept:active { filter: brightness(0.9); }
   .friendReqReject { background: var(--bg-elevated); border: 1px solid var(--line); color: var(--text-mid); }
   .friendReqReject:active { background: var(--bg-panel); }
@@ -4197,6 +4380,46 @@
     object-fit: contain;
     border-radius: 16px;
   }
+
+  /* ---- DM sohbet bilgileri ve gecmis icerik ---- */
+  #chatInfoScreen {
+    display:none; flex-direction:column; position:fixed; inset:0; z-index:35;
+    background:var(--bg-deep); color:var(--text-hi); overflow:hidden;
+  }
+  #chatInfoScreen.active { display:flex; }
+  #chatInfoHeader { display:flex; align-items:center; gap:12px; padding:14px 16px; border-bottom:1px solid var(--line); flex-shrink:0; }
+  #chatInfoBackBtn { width:36px;height:36px;border-radius:12px;background:var(--bg-elevated);display:flex;align-items:center;justify-content:center;font-size:21px;cursor:pointer; }
+  #chatInfoTitle { font-family:'Sora',sans-serif;font-weight:700;font-size:16px; }
+  #chatInfoScroll { flex:1;overflow-y:auto;overscroll-behavior:contain; }
+  #chatInfoPerson { text-align:center;padding:27px 18px 18px; }
+  #chatInfoAvatar { width:88px;height:88px;border-radius:50%;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:34px;font-weight:700;background-size:cover;background-position:center; }
+  #chatInfoName { font-size:20px;font-weight:750; }
+  #chatInfoStatus { margin-top:5px;font-size:12px;color:var(--mint); }
+  #chatInfoActions { display:flex;justify-content:center;gap:16px;padding:0 14px 23px; }
+  .chatInfoAction { border:0;background:transparent;color:var(--text-hi);width:92px;display:flex;flex-direction:column;align-items:center;gap:7px;font:inherit;font-size:12px;font-weight:600;cursor:pointer; }
+  .chatInfoActionIcon { width:48px;height:48px;border-radius:50%;background:var(--bg-elevated);display:flex;align-items:center;justify-content:center;font-size:21px; }
+  #chatInfoTabs { display:flex;position:sticky;top:0;background:var(--bg-deep);z-index:1;border-bottom:1px solid var(--line); }
+  .chatInfoTab { flex:1;text-align:center;padding:14px 6px 12px;color:var(--text-low);font-size:13px;font-weight:650;cursor:pointer;border-bottom:2px solid transparent; }
+  .chatInfoTab.active { color:var(--text-hi);border-bottom-color:var(--coral); }
+  #chatInfoContent { padding:13px 16px 28px; }
+  .chatInfoMessage { padding:13px 14px;margin:0 0 9px;border-radius:14px;background:var(--bg-elevated);border:1px solid var(--line); }
+  .chatInfoMessageMeta { display:flex;justify-content:space-between;gap:10px;margin-bottom:6px;font-size:11px;color:var(--text-low); }
+  .chatInfoMessageText { font-size:13px;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--text-hi); }
+  .chatInfoEmpty { padding:42px 20px;text-align:center;color:var(--text-low);font-size:13px;line-height:1.5; }
+  .chatInfoEmptyIcon { font-size:28px;margin-bottom:9px; }
+  #chatInfoSearchPanel { display:none;flex:1;min-height:0;flex-direction:column; }
+  #chatInfoSearchPanel.show { display:flex; }
+  #chatInfoSearchInputWrap { padding:12px 16px;border-bottom:1px solid var(--line); }
+  #chatInfoSearchInput { width:100%;height:44px;box-sizing:border-box;border:1px solid var(--line);border-radius:12px;background:var(--bg-elevated);color:var(--text-hi);padding:0 14px;font:inherit;font-size:14px;outline:none; }
+  #chatInfoSearchInput:focus { border-color:var(--coral); }
+  #chatInfoSearchResults { flex:1;overflow-y:auto;padding:8px 16px 24px; }
+  .chatInfoSearchResult { display:block;width:100%;text-align:left;padding:12px 13px;margin:0 0 8px;border:1px solid var(--line);border-radius:13px;background:var(--bg-elevated);color:var(--text-hi);cursor:pointer; }
+  .chatInfoSearchResultMeta { display:flex;justify-content:space-between;gap:10px;margin-bottom:6px;font-size:11px;color:var(--text-low); }
+  .chatInfoSearchResultText { font-size:13px;line-height:1.4;overflow-wrap:anywhere; }
+  mark.chatSearchMatch { background:#55A8FF;color:#081B33;border-radius:3px;padding:0 1px;box-shadow:0 0 0 1px rgba(85,168,255,.3); }
+  .chatInfoSearchEmpty { text-align:center;padding:34px 18px;color:var(--text-low);font-size:13px;line-height:1.5; }
+  .bubble.chatSearchHit, .messageNoteReplyGroup.chatSearchHit { outline:2px solid #55A8FF;outline-offset:2px; }
+
 </style>
 </head>
 <body>
@@ -4206,7 +4429,7 @@
     <h1 id="topbarTitle">Mesajlar</h1>
     <div style="display:flex;align-items:center;gap:10px;">
       <span class="count" id="topbarCount">3 sohbet</span>
-      <div id="friendReqsBtn">👥<span id="friendReqsDot"></span></div>
+      <div id="friendReqsBtn" aria-label="Bildirimler" title="Bildirimler">🔔<span id="friendReqsDot"></span></div>
     </div>
   </div>
 
@@ -4221,9 +4444,8 @@
         </div>
         <div id="messageOwnNoteWrap">
           <div id="messageOwnNoteBubble"></div>
-          <div id="messageOwnNoteAvatar" aria-label="Not ekle">
+          <div id="messageOwnNoteAvatar" aria-label="Kendi notunu aç">
             <span id="messageOwnNoteInitial">A</span>
-            <span class="notePlus">+</span>
           </div>
         </div>
         <div id="messageNotesList"></div>
@@ -4250,7 +4472,7 @@
         <div id="discoverModeSwitcher" aria-label="Keşfet modu seçimi">
           <div class="discoverModeFace" data-mode-index="0">Arkadaşlık</div>
           <div class="discoverModeFace" data-mode-index="1">Flört</div>
-          <div class="discoverModeFace" data-mode-index="2">Hızlı Flört</div>
+          <div class="discoverModeFace" data-mode-index="2">Anonim</div>
         </div>
         <div id="discoverTopBtns">
           <div class="discoverTopBtn" id="undoBtn">↺</div>
@@ -4260,7 +4482,8 @@
         <div id="discoverEmpty">
           <div class="icon">🎉</div>
           <h2>Şimdilik bu kadar</h2>
-          <p>Yeni profiller için daha sonra tekrar uğra.</p>
+          <p>Yeni profiller görmek için filtrelerini düzenle.</p>
+          <button type="button" id="emptyDiscoverFilterBtn">Filtreleri düzenle</button>
         </div>
       </div>
       <div id="discoverActions">
@@ -4532,27 +4755,21 @@
           <div id="themesScroll">
             <div id="themeOptions">
               <div class="themeOption active" data-theme="dark">
-                <div class="themeSwatch theme-dark-swatch"></div>
                 <div class="themeOptionLabel">Koyu</div>
               </div>
               <div class="themeOption" data-theme="light">
-                <div class="themeSwatch theme-light-swatch"></div>
                 <div class="themeOptionLabel">Açık</div>
               </div>
               <div class="themeOption" data-theme="black">
-                <div class="themeSwatch theme-black-swatch"></div>
                 <div class="themeOptionLabel">Siyah</div>
               </div>
               <div class="themeOption" data-theme="red">
-                <div class="themeSwatch theme-red-swatch"></div>
                 <div class="themeOptionLabel">Kırmızı</div>
               </div>
               <div class="themeOption" data-theme="pink">
-                <div class="themeSwatch theme-pink-swatch"></div>
                 <div class="themeOptionLabel">Pembe</div>
               </div>
               <div class="themeOption" data-theme="purple">
-                <div class="themeSwatch theme-purple-swatch"></div>
                 <div class="themeOptionLabel">Mor</div>
               </div>
             </div>
@@ -4701,6 +4918,14 @@
             </div>
           </div>
 
+          <div class="profileEditSection profileAnonymousOnlyField">
+            <div class="profileEditSectionTitle">İlişki hedefleri</div>
+            <div class="profileChoiceRow" data-profile-choice="anonymousGoal" data-profile-choice-scope="anonymous">
+              <div class="profileChoiceText"><div class="profileChoiceLabel">Aradığım şey</div><div class="profileChoiceValue" id="anonymousChoiceValue-anonymousGoal"></div></div>
+              <div class="profileChoiceArrow">›</div>
+            </div>
+          </div>
+
           <div class="profileEditSection profileDatingOnlyField">
             <div class="profileEditSectionTitle">Boyun</div>
             <div class="profileChoiceRow" data-profile-choice="height">
@@ -4725,6 +4950,14 @@
             </div>
             <div class="profileChoiceRow" data-profile-choice="personality">
               <div class="profileChoiceText"><div class="profileChoiceLabel">Kişilik tipi</div><div class="profileChoiceValue" id="profileChoiceValue-personality"></div></div>
+              <div class="profileChoiceArrow">›</div>
+            </div>
+            <div class="profileChoiceRow profileAnonymousOnlyField" data-profile-choice="anonymousMood" data-profile-choice-scope="anonymous">
+              <div class="profileChoiceText"><div class="profileChoiceLabel">Ruh hali</div><div class="profileChoiceValue" id="anonymousChoiceValue-anonymousMood"></div></div>
+              <div class="profileChoiceArrow">›</div>
+            </div>
+            <div class="profileChoiceRow profileAnonymousOnlyField" data-profile-choice="chatStyle" data-profile-choice-scope="anonymous">
+              <div class="profileChoiceText"><div class="profileChoiceLabel">Sohbet tarzı</div><div class="profileChoiceValue" id="anonymousChoiceValue-chatStyle"></div></div>
               <div class="profileChoiceArrow">›</div>
             </div>
             <div class="profileChoiceRow" data-profile-choice="zodiac">
@@ -4872,10 +5105,57 @@
         <div id="chatHeaderStatus">çevrimiçi</div>
       </div>
     </div>
+    <div id="anonChatTimerBar"><span id="anonChatTimer">01:00:00</span></div>
+
+
     <div id="messages"></div>
     <div id="composer">
       <textarea id="msgInput" placeholder="Mesaj yaz..." rows="1"></textarea>
       <div id="sendBtn">➤</div>
+    </div>
+    <div id="anonChatLockedOverlay">
+      <div id="anonChatLockedText">Arkadaşlık isteği gönderildi</div>
+      <div id="anonChatLockedSub">Karşı taraf ve sen arkadaş olunca sohbet açılacak</div>
+    </div>
+  </div>
+
+
+  <!-- DM CHAT INFO / SHARED HISTORY -->
+  <div id="chatInfoScreen" aria-label="Sohbet bilgileri">
+    <div id="chatInfoHeader">
+      <div id="chatInfoBackBtn" aria-label="Sohbete dön">‹</div>
+      <div id="chatInfoTitle">Sohbet bilgileri</div>
+    </div>
+    <div id="chatInfoSearchPanel">
+      <div id="chatInfoSearchInputWrap"><input id="chatInfoSearchInput" type="search" placeholder="Mesajlarda ara..." autocomplete="off" aria-label="Mesajlarda ara"></div>
+      <div id="chatInfoSearchResults"></div>
+    </div>
+    <div id="chatInfoScroll">
+      <div id="chatInfoPerson">
+        <div id="chatInfoAvatar"></div>
+        <div id="chatInfoName"></div>
+        <div id="chatInfoStatus"></div>
+      </div>
+      <div id="chatInfoActions">
+        <button type="button" class="chatInfoAction" id="chatInfoCreateGroupBtn"><span class="chatInfoActionIcon">👥</span><span>Grup oluştur</span></button>
+        <button type="button" class="chatInfoAction" id="chatInfoProfileBtn"><span class="chatInfoActionIcon">♙</span><span>Profili görüntüle</span></button>
+        <button type="button" class="chatInfoAction" id="chatInfoSearchBtn"><span class="chatInfoActionIcon">⌕</span><span>Mesajları ara</span></button>
+      </div>
+      <div id="chatInfoTabs" role="tablist">
+        <div class="chatInfoTab active" data-chat-info-tab="photos" role="tab">Fotoğraflar</div>
+        <div class="chatInfoTab" data-chat-info-tab="videos" role="tab">Videolar</div>
+        <div class="chatInfoTab" data-chat-info-tab="files" role="tab">Dosyalar</div>
+      </div>
+      <div id="chatInfoContent"></div>
+    </div>
+  </div>
+
+  <div id="anonContinueModal">
+    <div id="anonContinueCard">
+      <div id="anonContinueTitle">Anonim konuşma süreniz doldu!<br><span style="font-size:13px;font-weight:500;opacity:0.9;">Devam etmek için bir seçenek seçin.</span></div>
+      <div class="anonContinueBtn" data-anon-action="friend">Arkadaş olarak devam et</div>
+      <div class="anonContinueBtn" data-anon-action="anon">Anonim devam et<div class="anonContinueSubtitle">+2 saat</div></div>
+      <div class="anonContinueBtn" data-anon-action="close">Kapat</div>
     </div>
   </div>
 
@@ -4891,8 +5171,17 @@
         <div id="userProfileName"></div>
         <div id="userProfileMeta"></div>
       </div>
+      <div id="userProfileSocialStats" aria-label="Takip bilgileri">
+        <div class="userProfileSocialStat">
+          <div class="userProfileSocialStatNum" id="userProfileFollowersCount">0</div>
+          <div class="userProfileSocialStatLabel">Takipçi</div>
+        </div>
+        <div class="userProfileSocialStat">
+          <div class="userProfileSocialStatNum" id="userProfileFollowingCount">0</div>
+          <div class="userProfileSocialStatLabel">Takip</div>
+        </div>
+      </div>
       <div id="userProfileBio"></div>
-      <div id="userProfileInterests"></div>
       <div id="userProfileActions">
         <div id="userProfileMsgBtn">💬 Mesaj At</div>
         <div id="userProfileFriendBtn"></div>
@@ -4904,11 +5193,7 @@
   <div id="friendReqsScreen">
     <div id="friendReqsHeader">
       <div id="friendReqsBackBtn">←</div>
-      <div id="friendReqsTitle">Arkadaşlık İstekleri</div>
-    </div>
-    <div id="friendReqsSubTabs">
-      <div class="friendReqsTab active" data-ftab="received">Gelen</div>
-      <div class="friendReqsTab" data-ftab="sent">Gönderilen</div>
+      <div id="friendReqsTitle">Bildirimler</div>
     </div>
     <div id="friendReqsList"></div>
   </div>
@@ -4967,6 +5252,20 @@
     </div>
   </div>
 
+  <div id="ownNoteLikesBackdrop">
+    <div id="ownNoteLikesSheet" role="dialog" aria-modal="true" aria-label="Not beğenileri">
+      <div class="ownNoteSheetHandle"></div>
+      <div id="ownNoteSheetAvatar"></div>
+      <div id="ownNoteSheetMeta">Arkadaşlarla paylaşılıyor</div>
+      <div id="ownNoteSheetText"></div>
+      <div id="ownNoteLikesList"></div>
+      <div id="ownNoteSheetActions">
+        <button type="button" id="ownNoteNewBtn">Yeni bir not bırak</button>
+        <button type="button" id="ownNoteDeleteBtn">Notu sil</button>
+      </div>
+    </div>
+  </div>
+
   <div id="noteViewerBackdrop">
     <div id="noteViewerCard">
       <div id="noteViewerHeader">
@@ -4975,12 +5274,16 @@
       </div>
       <div id="noteViewerText"></div>
       <div id="noteViewerActions">
-        <input type="text" id="noteReplyInput" placeholder="Mesaj gönder...">
+        <div id="noteReplyComposer">
+          <input type="text" id="noteReplyInput" placeholder="Mesaj gönder...">
+          <button type="button" id="noteReplySendBtn" aria-label="Mesaj gönder">➤</button>
+        </div>
         <button type="button" class="noteViewerActionBtn" id="noteLikeBtn" aria-label="Beğen">♡</button>
-        <button type="button" class="noteViewerActionBtn" id="noteShareBtn" aria-label="Paylaş">↗</button>
       </div>
     </div>
   </div>
+
+  <div id="noteSentToast" role="status" aria-live="polite">Mesaj gönderildi</div>
 
   <div id="bottomNav">
     <div class="navBtn" data-screen="profile">
@@ -5049,7 +5352,7 @@ const sentFriendReqs = [
   { id: 'derya', name: 'Derya', color: '#FFC65C', time: 'Bugün' }
 ];
 const receivedFriendReqs = [
-  { id: 'cem', name: 'Cem', color: 'linear-gradient(135deg,#FF6B57,#FFC65C)', time: 'Dün', age: 23, bio: 'Müzisyen, konser düşkünü.' }
+  { id: 'cem', name: 'Cem', color: 'linear-gradient(135deg,#FF6B57,#FFC65C)', time: 'Dün', createdAt: Date.now() - 26 * 60 * 60 * 1000, age: 23, lang: 'Türkçe', meta: '23 · Türkçe', bio: 'Müzisyen, konser düşkünü.', status: 'pending', outgoingStatus: 'none', followingCount: 0, followersCount: 0, followApplied: false, reciprocalFollowApplied: false }
 ];
 const convState = {};
 conversations.forEach(c => convState[c.id] = { lastRead: c.id === 'mert' ? c.messages.length : c.messages.length - 1 });
@@ -5090,6 +5393,15 @@ const friendNotes = [
     text: 'Bugün Kadıköy’de güzel bir konser var 🎶',
     createdAt: Date.now(),
     expiresAt: Date.now() + 24 * 60 * 60 * 1000
+  },
+  {
+    id: 'note-demo-self',
+    authorId: 'self',
+    authorName: 'Ada',
+    text: 'Güzel bir gün, güzel bir kahve ☕',
+    likes: [{ id: 'elif', name: 'Elif', color: '#FF6B57' }],
+    createdAt: Date.now(),
+    expiresAt: Date.now() + 24 * 60 * 60 * 1000
   }
 ];
 const privateLocations = [];
@@ -5100,9 +5412,27 @@ const modeConversations = {
 };
 
 // ---- friend request dot indicator ----
+const appNotifications = [];
+
+function addAppNotification(notification) {
+  appNotifications.unshift({
+    id: notification.id || `notification-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    type: notification.type || 'general',
+    title: notification.title || '',
+    text: notification.text || '',
+    actorName: notification.actorName || '',
+    actorId: notification.actorId || '',
+    createdAt: notification.createdAt || Date.now(),
+    read: false
+  });
+  updateFriendReqsDot();
+  if (document.getElementById('friendReqsScreen').classList.contains('active')) renderFriendReqs();
+}
+
 function updateFriendReqsDot() {
   const dot = document.getElementById('friendReqsDot');
-  dot.classList.toggle('show', receivedFriendReqs.length > 0);
+  if (!dot) return;
+  dot.classList.toggle('show', receivedFriendReqs.length > 0 || appNotifications.some(item => !item.read));
 }
 updateFriendReqsDot();
 document.getElementById('friendReqsBtn').classList.add('visible');
@@ -5110,13 +5440,11 @@ document.getElementById('friendReqsBtn').classList.add('visible');
 // Not balonları yalnızca ana Mesajlar ekranında görünsün.
 function updateMessageNoteBubbleVisibility() {
   const messagesScreen = document.getElementById('screen-messages');
-  const requestsPanel = document.getElementById('requestsPanel');
   const chatScreen = document.getElementById('chatScreen');
   const requestScreen = document.getElementById('requestScreen');
   const friendReqsScreen = document.getElementById('friendReqsScreen');
 
   const hidden = !messagesScreen.classList.contains('active')
-    || requestsPanel.classList.contains('active')
     || chatScreen.classList.contains('active')
     || requestScreen.classList.contains('active')
     || friendReqsScreen.classList.contains('active');
@@ -5130,10 +5458,10 @@ document.getElementById('friendReqsBtn').addEventListener('click', openFriendReq
 document.getElementById('friendReqsBackBtn').addEventListener('click', closeFriendReqsScreen);
 
 function openFriendReqsScreen() {
-  activeFriendTab = 'received';
-  document.querySelectorAll('.friendReqsTab').forEach(t => t.classList.toggle('active', t.dataset.ftab === 'received'));
+  appNotifications.forEach(item => { item.read = true; });
   renderFriendReqs();
   document.getElementById('friendReqsScreen').classList.add('active');
+  updateFriendReqsDot();
   updateMessageNoteBubbleVisibility();
 }
 function closeFriendReqsScreen() {
@@ -5141,73 +5469,138 @@ function closeFriendReqsScreen() {
   updateMessageNoteBubbleVisibility();
 }
 
-document.querySelectorAll('.friendReqsTab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.friendReqsTab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    activeFriendTab = tab.dataset.ftab;
-    renderFriendReqs();
-  });
-});
+function formatRelativeNotificationTime(timestamp) {
+  const time = Number(timestamp);
+  if (!Number.isFinite(time) || time <= 0) return 'Az önce';
+  const elapsed = Math.max(0, Date.now() - time);
+  const minutes = Math.floor(elapsed / 60000);
+  const hours = Math.floor(elapsed / 3600000);
+  const days = Math.floor(elapsed / 86400000);
+  if (minutes < 1) return 'Az önce';
+  if (minutes < 60) return `${minutes} dakika önce`;
+  if (hours < 24) return `${hours} saat önce`;
+  if (days === 1) return 'Dün';
+  return `${days} gün önce`;
+}
 
 function renderFriendReqs() {
   const list = document.getElementById('friendReqsList');
+  if (!list) return;
   list.innerHTML = '';
-  const data = activeFriendTab === 'received' ? receivedFriendReqs : sentFriendReqs;
 
-  if (data.length === 0) {
-    list.innerHTML = `<div class="reqEmpty">${activeFriendTab === 'received' ? 'Gelen arkadaşlık isteği yok.' : 'Henüz arkadaşlık isteği göndermedin.'}</div>`;
+  const rows = [];
+  receivedFriendReqs.forEach(r => rows.push({ kind: 'incoming-friend', data: r, sortTime: r.createdAt || 0 }));
+  appNotifications.forEach(n => rows.push({ kind: 'notification', data: n, sortTime: n.createdAt || 0 }));
+  rows.sort((a, b) => b.sortTime - a.sortTime);
+
+  if (!rows.length) {
+    list.innerHTML = '<div class="reqEmpty">Şimdilik bildirimin yok.</div>';
     return;
   }
 
-  data.forEach(r => {
+  rows.forEach(row => {
+    const item = row.data;
     const el = document.createElement('div');
-    el.className = 'friendReqItem';
-    const avatarStyle = r.color.startsWith('linear') ? `background:${r.color}` : `background:${r.color}`;
-    const btns = activeFriendTab === 'received'
-      ? `<div class="friendReqAccept" data-id="${escapeHtml(r.id)}">Kabul Et</div><div class="friendReqReject" data-id="${escapeHtml(r.id)}">Reddet</div>`
-      : `<div class="friendReqPending">İstek gönderildi</div>`;
+    el.className = 'friendReqItem notificationItem';
+    const isRequest = row.kind !== 'notification';
+    const name = item.name || item.actorName || 'Bildirim';
+    const color = item.color || '#FF6B57';
+    const initial = name ? name[0] : '🔔';
+    let description = '';
+    let actions = '';
+
+    if (row.kind === 'incoming-friend') {
+      const requestState = item.status || 'pending';
+      if (requestState === 'pending') {
+        description = 'sana takip isteği gönderdi';
+        actions = `<div class="friendReqBtns"><div class="friendReqAccept" data-action="accept-follow" data-id="${escapeHtml(item.id)}">Kabul Et</div><div class="friendReqReject" data-action="reject-follow" data-id="${escapeHtml(item.id)}">Reddet</div></div>`;
+      } else if (requestState === 'accepted') {
+        description = 'Takip isteğini kabul ettin';
+        const outgoingStatus = item.outgoingStatus || 'none';
+        const label = outgoingStatus === 'friends' ? 'Mesaj gönder' : (outgoingStatus === 'sent' ? 'İstek gönderildi' : 'Sende arkadaşlık isteği gönder');
+        const action = outgoingStatus === 'friends' ? 'open-message' : (outgoingStatus === 'sent' ? 'withdraw-friend' : 'send-friend');
+        actions = `<div class="friendReqBtns"><div class="friendReqAccept" data-action="${action}" data-id="${escapeHtml(item.id)}">${label}</div></div>`;
+      } else {
+        description = 'Takip isteğini reddettin';
+        actions = '<div class="friendReqBtns"><div class="friendReqPending">Reddedildi</div></div>';
+      }
+    } else if (row.kind === 'sent-friend') {
+      description = 'Arkadaşlık isteği gönderildi';
+      actions = '<div class="friendReqBtns"><div class="friendReqPending">Beklemede</div></div>';
+    } else {
+      description = item.text || item.title || 'Yeni bildirim';
+    }
+
     el.innerHTML = `
-      <div class="friendReqAvatar" style="${escapeHtml(avatarStyle)}">${escapeHtml(r.name[0])}</div>
+      <div class="friendReqAvatar" style="background:${escapeHtml(color)}">${escapeHtml(initial)}</div>
       <div class="friendReqBody">
-        <div class="friendReqName">${escapeHtml(r.name)}</div>
-        <div class="friendReqTime">${escapeHtml(r.time)}</div>
-        <div class="friendReqBtns">${btns}</div>
+        <div class="friendReqName">${escapeHtml(name)}</div>
+        <div class="friendReqTime">${escapeHtml(description)} · ${escapeHtml(formatRelativeNotificationTime(item.createdAt))}</div>
+        ${actions}
       </div>`;
 
-    // tap anywhere on item (except buttons) to open profile
-    el.addEventListener('click', (e) => {
-      if (e.target.closest('.friendReqAccept') || e.target.closest('.friendReqReject')) return;
-      const conv = conversations.find(c => c.id === r.id);
-      const profileData = conv || {
-        id: r.id, name: r.name, color: r.color, initial: r.name[0],
-        friendStatus: activeFriendTab === 'received' ? 'received' : 'sent',
-        age: r.age, bio: r.bio, interests: []
-      };
-      openUserProfile(profileData);
-    });
-
+    if (row.kind === 'notification') {
+      el.addEventListener('click', () => {
+        item.read = true;
+        updateFriendReqsDot();
+        if (item.type === 'note-like') {
+          const note = friendNotes.find(n => n.id === item.noteId);
+          if (note) openFriendNoteViewer(note);
+        }
+      });
+    } else {
+      el.addEventListener('click', e => {
+        if (e.target.closest('.friendReqAccept') || e.target.closest('.friendReqReject')) return;
+        const conv = conversations.find(c => c.id === item.id);
+        if (conv && row.kind === 'incoming-friend') {
+          conv.followersCount = item.followersCount || 0;
+          conv.followingCount = item.followingCount || 0;
+        }
+        const outgoingStatus = item.outgoingStatus || 'none';
+        const friendStatus = outgoingStatus === 'friends' ? 'friends' : (outgoingStatus === 'sent' ? 'sent' : ((item.status || 'pending') === 'pending' ? 'received' : 'none'));
+        if (conv && row.kind === 'incoming-friend') conv.friendStatus = friendStatus;
+        const profile = conv || {
+          id: item.id, name: item.name, color: item.color, initial: item.name?.[0] || '?',
+          friendStatus,
+          followersCount: item.followersCount || 0, followingCount: item.followingCount || 0,
+          age: item.age, bio: item.bio, interests: []
+        };
+        openUserProfile(profile);
+      });
+    }
     list.appendChild(el);
   });
 
   list.querySelectorAll('.friendReqAccept').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const id = btn.dataset.id;
-      const req = receivedFriendReqs.find(r => r.id === id);
-      const idx = receivedFriendReqs.indexOf(req);
-      if (idx > -1) receivedFriendReqs.splice(idx, 1);
-      const conv = conversations.find(c => c.id === id);
-      if (conv) conv.friendStatus = 'friends';
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const req = receivedFriendReqs.find(r => r.id === btn.dataset.id);
+      if (!req) return;
+      const action = btn.dataset.action;
+
+      if (action === 'accept-follow' && acceptIncomingFollowRequest(req)) {
+        showDiscoverActionToast(`${req.name} artık seni takip ediyor`);
+      } else if (action === 'send-friend' && sendReciprocalFriendRequest(req)) {
+        showDiscoverActionToast('İstek gönderildi');
+      } else if (action === 'withdraw-friend' && withdrawReciprocalFriendRequest(req)) {
+        showDiscoverActionToast('İstek geri çekildi');
+      } else if (action === 'open-message' && req.outgoingStatus === 'friends') {
+        const conv = ensureAcceptedFriendConversation(req);
+        closeFriendReqsScreen();
+        openChat(conv.id);
+        return;
+      }
       updateFriendReqsDot();
       renderFriendReqs();
       renderConvList();
     });
   });
   list.querySelectorAll('.friendReqReject').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const id = btn.dataset.id;
-      const idx = receivedFriendReqs.findIndex(r => r.id === id);
-      if (idx > -1) receivedFriendReqs.splice(idx, 1);
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const req = receivedFriendReqs.find(r => r.id === btn.dataset.id);
+      if (!req || req.status !== 'pending') return;
+      req.status = 'rejected';
       updateFriendReqsDot();
       renderFriendReqs();
     });
@@ -5235,8 +5628,11 @@ function openUserProfile(conv) {
   bioEl.textContent = conv.bio || '';
   bioEl.style.display = conv.bio ? 'block' : 'none';
 
-  const interestsEl = document.getElementById('userProfileInterests');
-  interestsEl.innerHTML = (conv.interests || []).map(t => `<div class="userProfileTag">${escapeHtml(t)}</div>`).join('');
+  // Başka kullanıcının takip sayıları; veri yoksa prototipte 0 gösterilir.
+  const followerCount = Number.isFinite(conv.followersCount) ? conv.followersCount : (Array.isArray(conv.followers) ? conv.followers.length : 0);
+  const followingCount = Number.isFinite(conv.followingCount) ? conv.followingCount : (Array.isArray(conv.following) ? conv.following.length : 0);
+  document.getElementById('userProfileFollowersCount').textContent = String(followerCount);
+  document.getElementById('userProfileFollowingCount').textContent = String(followingCount);
 
   updateUserProfileFriendBtn(conv);
   document.getElementById('userProfileScreen').classList.add('active');
@@ -5247,11 +5643,176 @@ function closeUserProfile() {
 }
 document.getElementById('userProfileBackBtn').addEventListener('click', closeUserProfile);
 
+// Sohbet basligindaki ad/cevre ici alanindan acilan gecmis ve paylasilanlar bolumu.
+let activeChatInfoConv = null;
+let activeChatInfoTab = 'photos';
+function openChatInfo(conv) {
+  if (!conv) return;
+  activeChatInfoConv = conv;
+  const avatar = document.getElementById('chatInfoAvatar');
+  avatar.style.background = conv.color || '#FF6B57';
+  avatar.style.backgroundImage = conv.profilePhoto || conv.avatarUrl ? `url("${conv.profilePhoto || conv.avatarUrl}")` : '';
+  avatar.textContent = conv.profilePhoto || conv.avatarUrl ? '' : (conv.initial || conv.name?.[0] || '?');
+  document.getElementById('chatInfoName').textContent = conv.name || '';
+  const status = document.getElementById('chatInfoStatus');
+  status.textContent = conv.online ? '● çevrimiçi' : 'son görülme: birkaç saat önce';
+  status.style.color = conv.online ? 'var(--mint)' : 'var(--text-low)';
+  activeChatInfoTab = 'photos';
+  document.querySelectorAll('.chatInfoTab').forEach(tab => tab.classList.toggle('active', tab.dataset.chatInfoTab === activeChatInfoTab));
+  renderChatInfoContent();
+  document.getElementById('chatInfoScreen').classList.add('active');
+}
+let chatInfoSearchMode = false;
+function openChatInfoSearch() {
+  chatInfoSearchMode = true;
+  document.getElementById('chatInfoTitle').textContent = 'Mesajlarda ara';
+  document.getElementById('chatInfoScroll').style.display = 'none';
+  document.getElementById('chatInfoSearchPanel').classList.add('show');
+  const input = document.getElementById('chatInfoSearchInput');
+  input.value = '';
+  renderChatInfoSearchResults('');
+  requestAnimationFrame(() => input.focus());
+}
+function closeChatInfoSearch() {
+  chatInfoSearchMode = false;
+  document.getElementById('chatInfoTitle').textContent = 'Sohbet bilgileri';
+  document.getElementById('chatInfoScroll').style.display = '';
+  document.getElementById('chatInfoSearchPanel').classList.remove('show');
+}
+function closeChatInfo() {
+  document.getElementById('chatInfoScreen').classList.remove('active');
+  activeChatInfoConv = null;
+  chatInfoSearchMode = false;
+  document.getElementById('chatInfoScroll').style.display = '';
+  document.getElementById('chatInfoSearchPanel').classList.remove('show');
+}
+function appendSearchHighlightedText(element, rawText, rawQuery) {
+  const text = String(rawText || '');
+  const query = String(rawQuery || '').trim();
+  element.replaceChildren();
+  if (!query) { element.textContent = text; return; }
+  const foldedText = text.toLocaleLowerCase('tr-TR');
+  const foldedQuery = query.toLocaleLowerCase('tr-TR');
+  if (!foldedQuery) { element.textContent = text; return; }
+  let searchFrom = 0;
+  let textFrom = 0;
+  let matchAt = foldedText.indexOf(foldedQuery, searchFrom);
+  while (matchAt !== -1) {
+    if (matchAt > textFrom) element.appendChild(document.createTextNode(text.slice(textFrom, matchAt)));
+    const matchEnd = matchAt + query.length;
+    const mark = document.createElement('mark');
+    mark.className = 'chatSearchMatch';
+    mark.textContent = text.slice(matchAt, matchEnd);
+    element.appendChild(mark);
+    textFrom = matchEnd;
+    searchFrom = matchAt + foldedQuery.length;
+    matchAt = foldedText.indexOf(foldedQuery, searchFrom);
+  }
+  if (textFrom < text.length) element.appendChild(document.createTextNode(text.slice(textFrom)));
+}
+function getChatSearchSnippet(text, query, maxLength = 180) {
+  if (text.length <= maxLength) return text;
+  const index = text.toLocaleLowerCase('tr-TR').indexOf(String(query).toLocaleLowerCase('tr-TR'));
+  if (index < 0) return `${text.slice(0, maxLength - 1)}…`;
+  let start = Math.max(0, index - Math.floor(maxLength / 3));
+  let end = Math.min(text.length, start + maxLength);
+  if (end - start < maxLength) start = Math.max(0, end - maxLength);
+  return `${start > 0 ? '…' : ''}${text.slice(start, end)}${end < text.length ? '…' : ''}`;
+}
+function highlightSearchMatchInMessage(target, query) {
+  if (!target) return;
+  const textElements = target.matches('.bubble')
+    ? [target]
+    : [...target.querySelectorAll('.messageNoteReferenceText, .bubble')];
+  textElements.forEach(element => appendSearchHighlightedText(element, element.textContent, query));
+}
+function clearChatSearchHighlights(target) {
+  if (!target) return;
+  target.querySelectorAll('mark.chatSearchMatch').forEach(mark => mark.replaceWith(document.createTextNode(mark.textContent)));
+  target.normalize();
+}
+
+function renderChatInfoSearchResults(rawQuery) {
+  const results = document.getElementById('chatInfoSearchResults');
+  results.replaceChildren();
+  const query = String(rawQuery || '').trim().toLocaleLowerCase('tr-TR');
+  if (!query) {
+    results.innerHTML = '<div class="chatInfoSearchEmpty">Aradığın kelimeyi veya harfi yaz.</div>';
+    return;
+  }
+  const messages = Array.isArray(activeChatInfoConv?.messages) ? activeChatInfoConv.messages : [];
+  const matches = messages.map((message, index) => ({ message, index }))
+    .reverse()
+    .filter(({ message }) => `${message.text || ''} ${message.noteReference?.text || ''}`.toLocaleLowerCase('tr-TR').includes(query));
+  if (!matches.length) {
+    results.innerHTML = '<div class="chatInfoSearchEmpty">Bu kelimeyi içeren mesaj bulunamadı.</div>';
+    return;
+  }
+  matches.forEach(({ message, index }) => {
+    const result = document.createElement('button');
+    result.type = 'button';
+    result.className = 'chatInfoSearchResult';
+    const meta = document.createElement('div');
+    meta.className = 'chatInfoSearchResultMeta';
+    const sender = document.createElement('span');
+    sender.textContent = message.from === 'me' ? 'Sen' : (activeChatInfoConv?.name || 'Karşı taraf');
+    const day = document.createElement('span');
+    day.textContent = message.day || 'Mesaj';
+    meta.append(sender, day);
+    const text = document.createElement('div');
+    text.className = 'chatInfoSearchResultText';
+    const fullText = [message.text, message.noteReference?.text].filter(Boolean).join(' — ');
+    const snippet = getChatSearchSnippet(fullText, query);
+    appendSearchHighlightedText(text, snippet, query);
+    result.append(meta, text);
+    result.addEventListener('click', () => {
+      closeChatInfo();
+      document.querySelectorAll('#messages .chatSearchHit').forEach(previous => {
+        clearChatSearchHighlights(previous);
+        previous.classList.remove('chatSearchHit');
+      });
+      const target = document.querySelector(`#messages [data-message-index="${index}"]`);
+      if (target) {
+        highlightSearchMatchInMessage(target, query);
+        target.classList.add('chatSearchHit');
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    });
+    results.appendChild(result);
+  });
+}
+function renderChatInfoContent() {
+  const content = document.getElementById('chatInfoContent');
+  content.replaceChildren();
+  const conv = activeChatInfoConv;
+  if (!conv) return;
+  const typeName = activeChatInfoTab === 'photos' ? 'fotoğraf' : (activeChatInfoTab === 'videos' ? 'video' : 'dosya');
+  const icon = activeChatInfoTab === 'photos' ? '▧' : (activeChatInfoTab === 'videos' ? '▶' : '▤');
+  content.innerHTML = `<div class="chatInfoEmpty"><div class="chatInfoEmptyIcon">${icon}</div>Bu sohbette henüz ${typeName} bulunmuyor.</div>`;
+}
+document.getElementById('chatInfoBackBtn').addEventListener('click', () => {
+  if (chatInfoSearchMode) closeChatInfoSearch();
+  else closeChatInfo();
+});
+document.getElementById('chatInfoSearchBtn').addEventListener('click', openChatInfoSearch);
+document.getElementById('chatInfoSearchInput').addEventListener('input', event => renderChatInfoSearchResults(event.target.value));
+document.querySelectorAll('.chatInfoTab').forEach(tab => tab.addEventListener('click', () => {
+  activeChatInfoTab = tab.dataset.chatInfoTab;
+  document.querySelectorAll('.chatInfoTab').forEach(item => item.classList.toggle('active', item === tab));
+  renderChatInfoContent();
+}));
+document.getElementById('chatInfoProfileBtn').addEventListener('click', () => {
+  const conv = activeChatInfoConv;
+  closeChatInfo();
+  if (conv) openUserProfile(conv);
+});
+
+
 function updateUserProfileFriendBtn(conv) {
   const btn = document.getElementById('userProfileFriendBtn');
   btn.className = '';
   btn.classList.add('status-' + (conv.friendStatus || 'none'));
-  const labels = { none: '+ Arkadaş Ekle', sent: 'İstek Gönderildi', received: 'İsteği Kabul Et', friends: '✓ Arkadaş' };
+  const labels = { none: '+ Arkadaş Ekle', sent: 'İstek Gönderildi', received: 'İsteği Kabul Et', friends: 'Arkadaş' };
   btn.textContent = labels[conv.friendStatus || 'none'];
 }
 
@@ -5260,23 +5821,55 @@ document.getElementById('userProfileFriendBtn').addEventListener('click', () => 
   const conv = activeUserProfileConv;
   const status = conv.friendStatus || 'none';
 
+  const persistentReq = receivedFriendReqs.find(r => r.id === conv.id);
   if (status === 'none') {
-    conv.friendStatus = 'sent';
-    const existing = sentFriendReqs.find(r => r.id === conv.id);
-    if (!existing) sentFriendReqs.push({ id: conv.id, name: conv.name, color: conv.color, time: 'Şimdi' });
+    if (persistentReq?.status === 'accepted') {
+      sendReciprocalFriendRequest(persistentReq);
+      conv.friendStatus = 'sent';
+      conv.followersCount = persistentReq.followersCount;
+    } else {
+      conv.friendStatus = 'sent';
+      const existing = sentFriendReqs.find(r => r.id === conv.id);
+      if (!existing) sentFriendReqs.push({ id: conv.id, name: conv.name, color: conv.color, time: 'Şimdi', createdAt: Date.now() });
+    }
+    checkAndStopAnonTimerIfFriends(conv.id);
   } else if (status === 'received') {
-    conv.friendStatus = 'friends';
-    const idx = receivedFriendReqs.findIndex(r => r.id === conv.id);
-    if (idx > -1) receivedFriendReqs.splice(idx, 1);
+    if (persistentReq?.status === 'pending') {
+      acceptIncomingFollowRequest(persistentReq);
+      conv.friendStatus = 'none';
+      conv.followingCount = persistentReq.followingCount;
+    } else {
+      conv.friendStatus = 'friends';
+      const idx = receivedFriendReqs.findIndex(r => r.id === conv.id);
+      if (idx > -1) receivedFriendReqs[idx].status = 'accepted';
+    }
+    checkAndStopAnonTimerIfFriends(conv.id);
     updateFriendReqsDot();
+    renderFriendReqs();
   } else if (status === 'sent') {
-    conv.friendStatus = 'none';
-    const idx = sentFriendReqs.findIndex(r => r.id === conv.id);
-    if (idx > -1) sentFriendReqs.splice(idx, 1);
+    if (persistentReq?.outgoingStatus === 'sent') {
+      withdrawReciprocalFriendRequest(persistentReq);
+      conv.friendStatus = 'none';
+      conv.followersCount = persistentReq.followersCount;
+    } else {
+      conv.friendStatus = 'none';
+      const idx = sentFriendReqs.findIndex(r => r.id === conv.id);
+      if (idx > -1) sentFriendReqs.splice(idx, 1);
+    }
   }
 
+  if (persistentReq) {
+    conv.followersCount = persistentReq.followersCount || 0;
+    conv.followingCount = persistentReq.followingCount || 0;
+    document.getElementById('userProfileFollowersCount').textContent = String(conv.followersCount);
+    document.getElementById('userProfileFollowingCount').textContent = String(conv.followingCount);
+  }
   updateUserProfileFriendBtn(conv);
   renderConvList();
+  if (persistentReq) {
+    updateFriendReqsDot();
+    renderFriendReqs();
+  }
 });
 
 document.getElementById('userProfileMsgBtn').addEventListener('click', () => {
@@ -5284,10 +5877,10 @@ document.getElementById('userProfileMsgBtn').addEventListener('click', () => {
   if (activeUserProfileConv) openChat(activeUserProfileConv.id);
 });
 
-// ---- chat header: tap name/avatar to view profile ----
+// ---- chat header: name opens chat history; avatar continues to open the profile ----
 document.getElementById('chatHeaderInfo').addEventListener('click', () => {
-  const conv = conversations.find(c => c.id === activeConvId);
-  if (conv) openUserProfile(conv);
+  const conv = getConversationById(activeConvId);
+  if (conv) openChatInfo(conv);
 });
 document.getElementById('chatAvatar').addEventListener('click', () => {
   const conv = conversations.find(c => c.id === activeConvId);
@@ -5311,7 +5904,13 @@ function timeLabel(conv) {
 }
 
 function getConversationById(id) {
-  return conversations.find(conv => conv.id === id) || null;
+  const fromMain = conversations.find(conv => conv.id === id);
+  if (fromMain) return fromMain;
+  for (const modeList of Object.values(modeConversations)) {
+    const found = modeList.find(conv => conv.id === id);
+    if (found) return found;
+  }
+  return null;
 }
 
 function ensureConversationState(id, messageCount = 0) {
@@ -5329,6 +5928,7 @@ function resetChatComposer() {
 function renderConvList() {
   const list = document.getElementById('convList');
   list.innerHTML = '';
+  // Normal sohbetler
   conversations.forEach(conv => {
     const last = conv.messages[conv.messages.length - 1] || { from: 'them', text: '' };
     const state = ensureConversationState(conv.id, conv.messages.length);
@@ -5352,7 +5952,35 @@ function renderConvList() {
     item.addEventListener('click', () => openChat(conv.id));
     list.appendChild(item);
   });
-  document.getElementById('topbarCount').textContent = conversations.length + ' sohbet';
+  // Anonim ve Flört süper beğeni DM'leri de mesajlar sekmesinde görünsün
+  Object.values(modeConversations).forEach(modeList => {
+    modeList.forEach(conv => {
+      const last = conv.messages[conv.messages.length - 1] || { from: 'me', text: '' };
+      const state = ensureConversationState(conv.id, conv.messages.length);
+      const unread = state.lastRead < conv.messages.length && last.from === 'them';
+      const item = document.createElement('div');
+      item.className = 'convItem';
+      const badge = conv.mode === 'speed-dating' ? ' • Anonim' : (conv.mode === 'dating' ? ' • Flört' : '');
+      item.innerHTML = `
+        <div class="avatar" style="background:${escapeHtml(conv.color)}">
+          ${escapeHtml(conv.initial)}
+          ${conv.online ? '<div class="dot"></div>' : ''}
+        </div>
+        <div class="convBody">
+          <div class="convTop">
+            <div class="convName">${escapeHtml(conv.name)}${badge}</div>
+            <div class="convTime">${escapeHtml(timeLabel(conv))}</div>
+          </div>
+          <div class="convPreview ${unread ? 'unread' : ''}">${last.from === 'me' ? 'Sen: ' : ''}${escapeHtml(last.text)}</div>
+        </div>
+        ${unread ? '<div class="unreadDot"></div>' : ''}
+      `;
+      item.addEventListener('click', () => openModeChat(conv));
+      list.appendChild(item);
+    });
+  });
+  const totalCount = conversations.length + Object.values(modeConversations).reduce((sum, arr) => sum + arr.length, 0);
+  document.getElementById('topbarCount').textContent = totalCount + ' sohbet';
 }
 renderConvList();
 
@@ -5615,9 +6243,118 @@ reqInput.addEventListener('keydown', e => {
 // ---- chat thread ----
 let activeConvId = null;
 
+let anonChatTimerInterval = null;
+let anonChatRemainingMs = 0;
+let anonChatActiveConvId = null;
+// Test için 1 saat = 1 dakika, 2 saat = 2 dakika (yayında 60*60*1000 ve 2*60*60*1000 olacak)
+const ANON_CHAT_DURATION_MS = 5 * 1000;
+const ANON_CHAT_EXTEND_MS = 5 * 1000;
+
+function formatAnonTimer(ms) {
+  const totalSec = Math.max(0, Math.floor(ms / 1000));
+  const h = String(Math.floor(totalSec / 3600)).padStart(2, '0');
+  const m = String(Math.floor((totalSec % 3600) / 60)).padStart(2, '0');
+  const s = String(totalSec % 60).padStart(2, '0');
+  return `${h}:${m}:${s}`;
+}
+
+function updateAnonTimerDisplay() {
+  const el = document.getElementById('anonChatTimer');
+  if (el) el.textContent = formatAnonTimer(anonChatRemainingMs);
+}
+
+function stopAnonChatTimer() {
+  if (anonChatTimerInterval) {
+    clearInterval(anonChatTimerInterval);
+    anonChatTimerInterval = null;
+  }
+  const bar = document.getElementById('anonChatTimerBar');
+  if (bar) bar.classList.remove('show');
+  anonChatActiveConvId = null;
+}
+
+document.getElementById('debugTimerBtn')?.addEventListener('click', () => {
+  const bar=document.getElementById('anonChatTimerBar');
+  if(bar){ bar.classList.add('show'); bar.style.display='flex'; bar.style.background='red'; }
+  document.getElementById('anonChatTimer').textContent='TEST OK 00:05';
+  alert('Timer test butonu çalışıyor - JS aktif');
+});
+function startAnonChatTimer(convId, durationMs = ANON_CHAT_DURATION_MS) {
+  stopAnonChatTimer();
+  anonChatActiveConvId = convId;
+  anonChatRemainingMs = durationMs;
+  const bar = document.getElementById('anonChatTimerBar');
+  if (bar) bar.classList.add('show');
+  updateAnonTimerDisplay();
+  anonChatTimerInterval = setInterval(() => {
+    anonChatRemainingMs -= 1000;
+    if (anonChatRemainingMs <= 0) {
+      anonChatRemainingMs = 0;
+      updateAnonTimerDisplay();
+      clearInterval(anonChatTimerInterval);
+      anonChatTimerInterval = null;
+      // Sonraki adımda burada "Sohbete nasıl devam etmek istersin?" penceresi açılacak
+      console.log('Anonim sohbet süresi doldu:', convId);
+      showAnonContinueModal(false);
+    } else {
+      updateAnonTimerDisplay();
+    }
+  }, 1000);
+}
+
+let anonChatPhase = 'initial';
+const anonFriendsSet = new Set();
+function showAnonContinueModal(isExtended) {
+  const modal = document.getElementById('anonContinueModal');
+  if (!modal) return;
+  const anonBtn = modal.querySelector('[data-anon-action="anon"]');
+  if (anonBtn) anonBtn.style.display = isExtended ? 'none' : 'block';
+  anonChatPhase = isExtended ? 'extended' : 'initial';
+  modal.classList.add('show');
+}
+function hideAnonContinueModal() {
+  const modal = document.getElementById('anonContinueModal');
+  if (modal) modal.classList.remove('show');
+}
+
+function getAnonChatProfileId() {
+  if (!anonChatActiveConvId) return null;
+  const conv = getConversationById(anonChatActiveConvId);
+  if (conv && conv.profileId) return conv.profileId;
+  if (anonChatActiveConvId.includes(':')) return anonChatActiveConvId.split(':')[1];
+  return anonChatActiveConvId;
+}
+
+function hasBothSidesWritten(convId) {
+  const conv = getConversationById(convId);
+  if (!conv || !conv.messages) return false;
+  const hasMe = conv.messages.some(m => m.from === 'me');
+  const hasThem = conv.messages.some(m => m.from === 'them');
+  return hasMe && hasThem;
+}
+
+function checkAndStopAnonTimerIfFriends(profileId) {
+  if (!anonChatActiveConvId || !profileId) return;
+  const anonProfileId = getAnonChatProfileId();
+  const matches = (anonProfileId === profileId) || (anonChatActiveConvId === profileId) || (anonChatActiveConvId === `speed-dating:${profileId}`) || (anonProfileId && profileId.includes(anonProfileId));
+  if (matches) {
+    stopAnonChatTimer();
+    anonFriendsSet.add(anonProfileId || profileId);
+    document.getElementById('composer').classList.remove('anon-locked');
+    const msgInputEl2 = document.getElementById('msgInput');
+    if (msgInputEl2) { msgInputEl2.disabled = false; msgInputEl2.placeholder = 'Mesaj yaz...'; }
+    document.getElementById('anonChatLockedOverlay').classList.remove('show');
+    showDiscoverActionToast('Arkadaş oldunuz, sohbet artık sınırsız');
+  }
+}
+
 function openChat(id) {
   const conv = getConversationById(id);
   if (!conv) return;
+  // Eğer modeConversation ise openModeChat ile aç
+  if (conv.mode && modeConversations[conv.mode]) {
+    return openModeChat(conv);
+  }
 
   activeConvId = id;
   ensureConversationState(id, conv.messages.length).lastRead = conv.messages.length;
@@ -5641,11 +6378,32 @@ function openChat(id) {
 
   renderMessages(conv);
   document.getElementById('chatScreen').classList.add('active');
+  // Anonim modda ise sayaç başlat (test için her sohbette göster, sonra sadece anonimde gösterecek şekilde daraltılacak)
+  const isAnonChat = (conv && conv.mode === 'speed-dating') || (typeof getActiveDiscoverModeId === 'function' && getActiveDiscoverModeId() === 'speed-dating') || (typeof isAnonymousModeActive === 'function' && isAnonymousModeActive());
+  const anonIdForCheck = conv ? (conv.profileId || conv.id) : null;
+  const isAlreadyFriends2 = anonIdForCheck && anonFriendsSet.has(anonIdForCheck);
+  if (isAnonChat && !isAlreadyFriends2) {
+    document.getElementById('composer').classList.remove('anon-locked');
+    const mi2 = document.getElementById('msgInput');
+    if (mi2) { mi2.disabled = false; mi2.placeholder = 'Mesaj yaz...'; }
+    document.getElementById('anonChatLockedOverlay').classList.remove('show');
+    anonChatRemainingMs = ANON_CHAT_DURATION_MS;
+    const bar2 = document.getElementById('anonChatTimerBar');
+    if (bar2) { bar2.classList.add('show'); bar2.style.display='flex'; }
+    updateAnonTimerDisplay();
+    if (hasBothSidesWritten(conv.id)) {
+      anonChatPhase = 'initial';
+      startAnonChatTimer(conv.id, ANON_CHAT_DURATION_MS);
+    }
+  } else {
+    stopAnonChatTimer();
+  }
   updateMessageNoteBubbleVisibility();
   renderConvList();
 }
 
 function closeChat() {
+  stopAnonChatTimer();
   document.getElementById('chatScreen').classList.remove('active');
   hideTranslateMenu();
   activeBubbleEl = null;
@@ -5670,12 +6428,20 @@ let longPressTimer = null;
 let activeBubbleEl = null;
 let activeBubbleMsg = null;
 
+function openAttachedNote(noteReference) {
+  if (!noteReference) return;
+  const fullNote = friendNotes.find(note => note.id === noteReference.id);
+  const note = fullNote || noteReference;
+  if (note.authorId === 'self') openOwnNoteLikesSheet(note);
+  else openFriendNoteViewer(note);
+}
+
 function renderMessages(conv) {
   const box = document.getElementById('messages');
   box.innerHTML = '';
   if (!conv || !Array.isArray(conv.messages)) return;
   let lastDay = null;
-  conv.messages.forEach(m => {
+  conv.messages.forEach((m, messageIndex) => {
     if (m.day && m.day !== lastDay) {
       const label = document.createElement('div');
       label.className = 'dayLabel';
@@ -5685,12 +6451,50 @@ function renderMessages(conv) {
     }
     const bubble = document.createElement('div');
     bubble.className = 'bubble ' + (m.from === 'me' ? 'me' : 'them');
+    bubble.dataset.messageIndex = messageIndex;
     bubble.textContent = m.text;
 
-    if (m.from === 'them') {
-      bindLongPress(bubble, m);
+    if (m.from === 'them') bindLongPress(bubble, m);
+
+    if (m.noteReference) {
+      const group = document.createElement('div');
+      group.className = `messageNoteReplyGroup ${m.from === 'me' ? 'me' : 'them'}`;
+      group.dataset.messageIndex = messageIndex;
+      const contextLabel = document.createElement('div');
+      contextLabel.className = 'messageNoteReplyLabel';
+      contextLabel.textContent = m.from === 'me' ? 'Kendisinin notuna yanıt verdin' : 'Notuna yanıt verdi';
+      const ref = document.createElement('div');
+      ref.className = 'messageNoteReference';
+      const noteOwner = conversations.find(c => c.id === m.noteReference.authorId || c.name === m.noteReference.authorName)
+        || Object.values(modeConversations).flat().find(c => c.profileId === m.noteReference.authorId || c.name === m.noteReference.authorName);
+      const header = document.createElement('div');
+      header.className = 'messageNoteReferenceHeader';
+      const avatar = document.createElement('div');
+      avatar.className = 'messageNoteReferenceAvatar';
+      avatar.style.background = m.noteReference.authorColor || noteOwner?.color || '#FF6B57';
+      const authorPhoto = m.noteReference.authorPhoto || noteOwner?.profilePhoto || noteOwner?.avatarUrl || '';
+      if (authorPhoto) {
+        avatar.style.backgroundImage = `url("${authorPhoto}")`;
+        avatar.textContent = '';
+      } else {
+        avatar.textContent = (m.noteReference.authorName || noteOwner?.name || 'N')[0];
+      }
+      const author = document.createElement('div');
+      author.className = 'messageNoteReferenceAuthor';
+      author.textContent = m.noteReference.authorName || noteOwner?.name || 'Not';
+      header.append(avatar, author);
+      const noteText = document.createElement('div');
+      noteText.className = 'messageNoteReferenceText';
+      noteText.textContent = normalizeNoteText(m.noteReference.text);
+      ref.append(header, noteText);
+      ref.setAttribute('role', 'button');
+      ref.setAttribute('aria-label', `${author.textContent} tarafından yazılan nota git`);
+      ref.addEventListener('click', () => openAttachedNote(m.noteReference));
+      group.append(contextLabel, ref, bubble);
+      box.appendChild(group);
+    } else {
+      box.appendChild(bubble);
     }
-    box.appendChild(bubble);
   });
   box.scrollTop = box.scrollHeight;
 }
@@ -5784,7 +6588,17 @@ function sendMessage() {
     } else {
       renderConvList();
     }
+    console.log('BOT REPLY hasBoth', hasBothSidesWritten(conv.id), 'interval', !!anonChatTimerInterval, 'conv', conv.id);
+    if (conv.mode === 'speed-dating' && hasBothSidesWritten(conv.id) && !anonChatTimerInterval) {
+      console.log('STARTING TIMER after bot');
+      startAnonChatTimer(conv.id, ANON_CHAT_DURATION_MS);
+    }
   }, 1100 + Math.random() * 900);
+  console.log('AFTER ME hasBoth', hasBothSidesWritten(conv.id), 'interval', !!anonChatTimerInterval);
+  if (conv.mode === 'speed-dating' && hasBothSidesWritten(conv.id) && !anonChatTimerInterval) {
+    console.log('STARTING TIMER after me');
+    startAnonChatTimer(conv.id, ANON_CHAT_DURATION_MS);
+  }
 }
 
 sendBtn.addEventListener('click', sendMessage);
@@ -5839,6 +6653,13 @@ const friendshipProfileData = {
   education: '',
   relationshipGoal: ''
 };
+const anonymousProfileData = {
+  anonymousGoal: '',
+  anonymousMood: '',
+  chatStyle: '',
+  anonymousAgeMethod: null,
+  anonymousAgeRange: ''
+};
 let activeProfilePhotoMode = 'friendship';
 
 // Profil kartında fotoğrafların altında gösterilecek detayların ortak öncelik sırası.
@@ -5859,7 +6680,10 @@ function getProfileCardDetails(profile, distanceKm = null, bioOverride = null) {
   }
 
   // Dil ve cinsiyet gösterilmez; yalnızca algoritma verisi olarak kalır.
-  addGroup('about', [modeProfile.personality, modeProfile.zodiac, modeProfile.education, modeProfile.familyPlans, modeProfile.relationshipGoal]);
+  // Anonim modda burç gösterilmez
+  const isAnonymousMode = (typeof activeProfilePhotoMode !== 'undefined' && activeProfilePhotoMode === 'speed-dating') || (typeof activeDiscoverModeIndex !== 'undefined' && activeDiscoverModeIndex === 2);
+  const zodiacToShow = isAnonymousMode ? '' : (modeProfile.zodiac || '');
+  addGroup('about', [modeProfile.personality, zodiacToShow, modeProfile.education, modeProfile.familyPlans, modeProfile.relationshipGoal, modeProfile.anonymousGoal, modeProfile.anonymousMood, modeProfile.chatStyle]);
   addGroup('lifestyle', [modeProfile.routine, modeProfile.pets, modeProfile.alcohol, modeProfile.smoking, modeProfile.exercise, modeProfile.socialMedia]);
 
   return details;
@@ -5924,6 +6748,15 @@ const profileChoiceConfigs = {
   },
   friendshipGoal: {
     title: 'Aradığım şey', options: ['Sohbet', 'Aktivite', 'Oyun duosu', 'Spor partneri', 'Yeni taşındım']
+  },
+  anonymousGoal: {
+    title: 'Aradığım şey', options: ['Dertleşme', 'Flört', 'Eğlence']
+  },
+  anonymousMood: {
+    title: 'Ruh hali', options: ['Yorgun', 'Mutsuz', 'Mutlu', 'Enerjik', 'Sıkılmış']
+  },
+  chatStyle: {
+    title: 'Sohbet tarzı', options: ['Uzun yazarım', 'Kısa ve hızlı yazarım', 'Ses kaydı atarım', 'Farketmez']
   }
 };
 let preferredGender = 'Herkes';
@@ -5986,6 +6819,7 @@ function getProfileChoiceOptions(key, scope = activeProfileChoiceScope) {
 function getProfileChoiceValue(key, scope = activeProfileChoiceScope) {
   if (scope === 'friendship') return friendshipProfileData[key];
   if (scope === 'dating') return datingPreferences[key];
+  if (scope === 'anonymous') return anonymousProfileData[key];
   if (scope === 'preference') {
     if (key === 'gender') return preferredGender;
     if (key === 'zodiac') return preferredZodiacs;
@@ -6026,6 +6860,8 @@ function syncProfileChoiceRows() {
     if (preferenceValueEl) preferenceValueEl.textContent = getProfileChoiceSummary(key, 'preference');
     const friendshipValueEl = document.getElementById('friendshipChoiceValue-' + key);
     if (friendshipValueEl) friendshipValueEl.textContent = getProfileChoiceSummary(key, 'friendship');
+    const anonymousValueEl = document.getElementById('anonymousChoiceValue-' + key);
+    if (anonymousValueEl) anonymousValueEl.textContent = getProfileChoiceSummary(key, 'anonymous');
   });
 }
 
@@ -6183,7 +7019,7 @@ function renderProfileChoiceOptions() {
           else preferredLangs = values;
         }
       } else {
-        const store = scope === 'friendship' ? friendshipProfileData : (scope === 'dating' ? datingPreferences : profileData);
+        const store = scope === 'friendship' ? friendshipProfileData : (scope === 'anonymous' ? anonymousProfileData : (scope === 'dating' ? datingPreferences : profileData));
         if (isMultiple) {
           const current = key === 'languages' && scope === 'profile' ? profileData.langs : (Array.isArray(store[key]) ? store[key] : []);
           const values = [...current];
@@ -6198,7 +7034,10 @@ function renderProfileChoiceOptions() {
           else store[key] = values;
         } else {
           // Profil cinsiyeti zorunlu: seçili değere tekrar basınca boşaltılmaz.
-          if (!(key === 'gender' && scope === 'profile' && store[key] === value)) store[key] = value;
+          // Anonim ve diğer "Aradığım şey" alanlarında: aynı seçeneğe tekrar basınca seçim kalkar.
+          if (scope === 'anonymous' || key === 'anonymousGoal' || key === 'relationshipGoal' || key === 'friendshipGoal') {
+            store[key] = store[key] === value ? '' : value;
+          } else if (!(key === 'gender' && scope === 'profile' && store[key] === value)) store[key] = value;
         }
       }
       syncProfileChoiceRows();
@@ -6330,12 +7169,13 @@ function applyOwnProfilePhoto(avatarId, initialId, initial) {
 
 function refreshCardView() {
   const name = profileData.name || 'Ada';
-  const meta = [profileData.age, profileData.langs?.join('/'), profileData.zodiac].filter(Boolean).join(' · ');
+  const displayAge = getDisplayAge(profileData);
+  const meta = [displayAge, profileData.langs?.join('/'), profileData.zodiac].filter(Boolean).join(' · ');
   const initial = name[0].toUpperCase();
 
   // main row
   document.getElementById('profileMainName').textContent = name;
-  document.getElementById('profileMainMeta').textContent = [profileData.age, profileData.langs?.join('/')].filter(Boolean).join(' · ');
+  document.getElementById('profileMainMeta').textContent = [displayAge, profileData.langs?.join('/')].filter(Boolean).join(' · ');
   document.getElementById('profileMainInitial').textContent = initial;
   applyOwnProfilePhoto('profileMainAvatar', 'profileMainInitial', initial);
 
@@ -6371,10 +7211,93 @@ const socialData = {
     { id: 'mert', name: 'Mert', color: '#6FE3C4', meta: '22 · Türkçe', age: 22, lang: 'Türkçe', bio: 'Yazılım okuyorum, akşamları halı sahaya çıkıyorum.', interests: ['Futbol', 'Kodlama'], friendStatus: 'none' },
     { id: 'derya', name: 'Derya', color: '#FFC65C', meta: '20 · Türkçe', age: 20, lang: 'Türkçe', bio: 'Aynı mahallede yaşıyoruz, bir gün tanışalım!', interests: ['Yürüyüş', 'Kitap'], friendStatus: 'sent' },
     { name: 'Baran', color: 'linear-gradient(135deg,#FF6B57,#FFC65C)', meta: '21 · Türkçe', age: 21, lang: 'Türkçe', bio: 'Doğa yürüyüşü ve fotoğrafçılıkla ilgileniyorum.', interests: ['Doğa', 'Fotoğraf'], friendStatus: 'none' },
-    { name: 'Yağmur', color: 'linear-gradient(135deg,#B98CFF,#6FE3C4)', meta: '20 · Türkçe', age: 20, lang: 'Türkçe', bio: 'Ortak arkadaşlarımız varmış, tanışalım mı?', interests: ['Müzik', 'Sinema'], friendStatus: 'received' },
-    { name: 'Cem', color: 'linear-gradient(135deg,#FF6B57,#FFC65C)', meta: '23 · Türkçe', age: 23, lang: 'Türkçe', bio: 'Müzisyen, konser düşkünü.', interests: ['Müzik', 'Konser'], friendStatus: 'none' }
+    { name: 'Yağmur', color: 'linear-gradient(135deg,#B98CFF,#6FE3C4)', meta: '20 · Türkçe', age: 20, lang: 'Türkçe', bio: 'Ortak arkadaşlarımız varmış, tanışalım mı?', interests: ['Müzik', 'Sinema'], friendStatus: 'received' }
   ]
 };
+
+function acceptIncomingFollowRequest(req) {
+  if (!req || req.status !== 'pending') return false;
+  req.status = 'accepted';
+  if (!req.followApplied) {
+    req.followApplied = true;
+    req.followingCount = (Number(req.followingCount) || 0) + 1;
+    if (!socialData.followers.some(person => person.id === req.id)) socialData.followers.push(req);
+  }
+  const conv = conversations.find(c => c.id === req.id);
+  if (conv) { conv.followingCount = req.followingCount; conv.friendStatus = 'none'; }
+  syncOwnSocialCounts();
+  return true;
+}
+function sendReciprocalFriendRequest(req) {
+  if (!req || req.status !== 'accepted' || (req.outgoingStatus || 'none') !== 'none') return false;
+  req.outgoingStatus = 'sent';
+  if (!req.reciprocalFollowApplied) {
+    req.reciprocalFollowApplied = true;
+    req.followersCount = (Number(req.followersCount) || 0) + 1;
+    if (!socialData.following.some(person => person.id === req.id)) socialData.following.push(req);
+  }
+  if (!sentFriendReqs.some(r => r.id === req.id)) sentFriendReqs.push({ id: req.id, name: req.name, color: req.color, time: 'Şimdi' });
+  const conv = conversations.find(c => c.id === req.id);
+  if (conv) { conv.followersCount = req.followersCount; conv.friendStatus = 'sent'; }
+  syncOwnSocialCounts();
+  return true;
+}
+function withdrawReciprocalFriendRequest(req) {
+  if (!req || req.outgoingStatus !== 'sent') return false;
+  req.outgoingStatus = 'none';
+  req.reciprocalFollowApplied = false;
+  req.followersCount = Math.max(0, (Number(req.followersCount) || 0) - 1);
+  const followingIndex = socialData.following.findIndex(person => person.id === req.id);
+  if (followingIndex >= 0) socialData.following.splice(followingIndex, 1);
+  const sentIndex = sentFriendReqs.findIndex(r => r.id === req.id);
+  if (sentIndex >= 0) sentFriendReqs.splice(sentIndex, 1);
+  const conv = conversations.find(c => c.id === req.id);
+  if (conv) { conv.followersCount = req.followersCount; conv.friendStatus = 'none'; }
+  syncOwnSocialCounts();
+  return true;
+}
+
+function syncOwnSocialCounts() {
+  const followingCount = document.getElementById('statFollowingNum');
+  const followersCount = document.getElementById('statFollowersNum');
+  if (followingCount) followingCount.textContent = String(socialData.following.length);
+  if (followersCount) followersCount.textContent = String(socialData.followers.length);
+}
+syncOwnSocialCounts();
+
+function ensureAcceptedFriendConversation(req) {
+  let conv = getConversationById(req.id);
+  if (!conv) {
+    conv = {
+      id: req.id, name: req.name, initial: req.initial || req.name?.[0] || '?',
+      color: req.color || '#FF6B57', online: !!req.online, friendStatus: 'friends',
+      age: req.age, bio: req.bio || '', interests: req.interests || [],
+      followersCount: req.followersCount || 0, followingCount: req.followingCount || 0, messages: []
+    };
+    conversations.unshift(conv);
+  } else {
+    conv.friendStatus = 'friends';
+    conv.followersCount = req.followersCount || 0;
+    conv.followingCount = req.followingCount || 0;
+    if (!Array.isArray(conv.messages)) conv.messages = [];
+  }
+  ensureConversationState(conv.id, conv.messages.length).lastRead = conv.messages.length;
+  renderConvList();
+  return conv;
+}
+
+// Backend bağlantısı geldiğinde karşı tarafın isteği kabul etmesi bu durumu günceller.
+function markReciprocalFriendRequestAccepted(requestId) {
+  const req = receivedFriendReqs.find(item => item.id === requestId && item.outgoingStatus === 'sent');
+  if (!req) return false;
+  req.outgoingStatus = 'friends';
+  const sentIndex = sentFriendReqs.findIndex(item => item.id === requestId);
+  if (sentIndex >= 0) sentFriendReqs.splice(sentIndex, 1);
+  ensureAcceptedFriendConversation(req);
+  renderFriendReqs();
+  updateFriendReqsDot();
+  return true;
+}
 
 function openSocialList(type) {
   const titles = { friends: 'Arkadaşlar', following: 'Takip Edilenler', followers: 'Takipçiler' };
@@ -6943,6 +7866,9 @@ function renderProfilePhotos() {
 function setActiveProfilePhotoMode(modeId) {
   if (!modePhotos[modeId]) return;
   activeProfilePhotoMode = modeId;
+  if (modeId === 'speed-dating' && (anonymousProfileData.anonymousAgeMethod === null || anonymousProfileData.anonymousAgeMethod === undefined)) {
+    refreshAnonymousAgeMethod();
+  }
   profileData.bio = modeBios[modeId] || '';
   photoGridExpanded = false;
   renderProfilePhotos();
@@ -7158,7 +8084,7 @@ function renderProfilePreview() {
   ).join('');
 
   document.getElementById('profilePreviewName').textContent = profileData.name || '';
-  document.getElementById('profilePreviewAge').textContent = profileData.age || '';
+  document.getElementById('profilePreviewAge').textContent = getDisplayAge(profileData) || '';
 
   const details = getProfileCardDetails(
     profileData,
@@ -7233,6 +8159,9 @@ document.getElementById('profileAge').addEventListener('input', e => {
     if (Number.isFinite(number) && number > 100) e.target.value = '100';
   }
   profileData.age = e.target.value;
+  if (profileData.age !== '' && isAnonymousModeActive()) {
+    refreshAnonymousAgeMethod();
+  }
   refreshCardView();
   if (profileEditView.classList.contains('previewing')) renderProfilePreview();
 });
@@ -7351,12 +8280,17 @@ function syncActiveProfileBioEditor() {
   updateProfileBioEditor();
 }
 
+function getCurrentBioLimit() {
+  return activeProfilePhotoMode === 'speed-dating' ? 1000 : 500;
+}
+
 function updateProfileBioEditor() {
+  const bioLimit = getCurrentBioLimit();
   const characters = Array.from(profileBioInput.value);
-  if (characters.length > 500) {
-    profileBioInput.value = characters.slice(0, 500).join('');
+  if (characters.length > bioLimit) {
+    profileBioInput.value = characters.slice(0, bioLimit).join('');
   }
-  const remaining = 500 - Array.from(profileBioInput.value).length;
+  const remaining = bioLimit - Array.from(profileBioInput.value).length;
   profileBioCounter.textContent = remaining;
   profileBioCounter.style.color = remaining <= 25 ? 'var(--coral)' : 'var(--text-low)';
   profileBioInput.style.height = 'auto';
@@ -7376,6 +8310,10 @@ updateProfileBioEditor();
 function updateModePreferenceVisibility() {
   const isDating = activeDiscoverModeIndex === 1;
   const isFriendship = activeDiscoverModeIndex === 0;
+  const isAnonymous = activeDiscoverModeIndex === 2;
+  if (isAnonymous && (anonymousProfileData.anonymousAgeMethod === null || anonymousProfileData.anonymousAgeMethod === undefined)) {
+    refreshAnonymousAgeMethod();
+  }
   document.querySelectorAll('.profileDatingOnlyField').forEach(row => {
     if (!isDating) {
       row.style.display = 'none';
@@ -7386,6 +8324,15 @@ function updateModePreferenceVisibility() {
   document.querySelectorAll('.profileFriendshipOnlyField').forEach(row => {
     row.style.display = isFriendship ? 'block' : 'none';
   });
+  document.querySelectorAll('.profileAnonymousOnlyField').forEach(row => {
+    const isSection = row.classList.contains('profileEditSection');
+    row.style.display = isAnonymous ? (isSection ? 'block' : 'flex') : 'none';
+  });
+  // Anonim modda profil düzenlemede Burç butonu gizlenir
+  const profileZodiacRow = document.querySelector('#profileEditView [data-profile-choice="zodiac"]:not([data-profile-choice-scope])');
+  if (profileZodiacRow) {
+    profileZodiacRow.style.display = isAnonymous ? 'none' : '';
+  }
   const ageSection = document.getElementById('agePreferenceSection');
   if (ageSection) ageSection.style.display = 'block';
 }
@@ -7394,15 +8341,96 @@ function updateModePreferenceVisibility() {
 const discoverModes = [
   { id: 'friendship', label: 'Arkadaşlık' },
   { id: 'dating', label: 'Flört' },
-  { id: 'speed-dating', label: 'Hızlı Flört' }
+  { id: 'speed-dating', label: 'Anonim' }
 ];
 let activeDiscoverModeIndex = 0;
 let discoverModeTransitioning = false;
 const discoverModeFaces = Array.from(document.querySelectorAll('.discoverModeFace'));
 
+function getAnonymousAgeRange(realAge, methodIndex) {
+  const age = Number(realAge);
+  if (!Number.isFinite(age)) return String(realAge);
+  const methods = [
+    { low: -1, high: 1 },
+    { low: -1, high: 2 },
+    { low: -2, high: 0 },
+    { low: -2, high: 2 }
+  ];
+  const m = methods[methodIndex % methods.length];
+  let low = age + m.low;
+  let high = age + m.high;
+  if (low < 18) {
+    const deficit = 18 - low;
+    low = 18;
+    high += deficit;
+  }
+  if (high < age) high = age;
+  if (low > age) low = age;
+  if (high > 100) high = 100;
+  return `${low}-${high}`;
+}
+
+function isAnonymousModeActive() {
+  let isAnonProfile = false;
+  try { isAnonProfile = (activeProfilePhotoMode === 'speed-dating'); } catch(e) {}
+  let isAnonDiscover = false;
+  try { isAnonDiscover = (activeDiscoverModeIndex === 2); } catch(e) {}
+  return isAnonProfile || isAnonDiscover;
+}
+
+function getMethodForDiscoverProfile(profile) {
+  if (!profile || !profile.id) return Math.floor(Math.random()*4);
+  let hash = 0;
+  for (let i=0;i<profile.id.length;i++) hash += profile.id.charCodeAt(i);
+  return hash % 4;
+}
+
+function getDisplayAge(profileOrAge) {
+  const isAnon = isAnonymousModeActive();
+  if (!isAnon) {
+    if (typeof profileOrAge === 'object' && profileOrAge !== null) return String(profileOrAge.age ?? '');
+    return String(profileOrAge ?? '');
+  }
+  let realAge;
+  let methodIndex;
+  if (typeof profileOrAge === 'object' && profileOrAge !== null) {
+    realAge = profileOrAge.age;
+    if (profileOrAge === profileData) {
+      if (anonymousProfileData.anonymousAgeMethod === null || anonymousProfileData.anonymousAgeMethod === undefined) {
+        anonymousProfileData.anonymousAgeMethod = Math.floor(Math.random()*4);
+      }
+      methodIndex = anonymousProfileData.anonymousAgeMethod;
+      const computed = getAnonymousAgeRange(realAge, methodIndex);
+      anonymousProfileData.anonymousAgeRange = computed;
+      return computed;
+    } else {
+      methodIndex = getMethodForDiscoverProfile(profileOrAge);
+      return getAnonymousAgeRange(realAge, methodIndex);
+    }
+  } else {
+    realAge = profileOrAge;
+    if (anonymousProfileData.anonymousAgeMethod === null) anonymousProfileData.anonymousAgeMethod = Math.floor(Math.random()*4);
+    methodIndex = anonymousProfileData.anonymousAgeMethod;
+    return getAnonymousAgeRange(realAge, methodIndex);
+  }
+}
+
+function refreshAnonymousAgeMethod() {
+  anonymousProfileData.anonymousAgeMethod = Math.floor(Math.random()*4);
+  if (profileData.age !== '' && profileData.age !== null && profileData.age !== undefined) {
+    anonymousProfileData.anonymousAgeRange = getAnonymousAgeRange(profileData.age, anonymousProfileData.anonymousAgeMethod);
+  }
+}
+
 function getDiscoverModeIndex(offset) {
   const total = discoverModes.length;
   return (activeDiscoverModeIndex + offset + total) % total;
+}
+
+function updateDiscoverActionVisibility() {
+  const actions = document.getElementById('discoverActions');
+  if (!actions) return;
+  actions.classList.toggle('anonymous-mode', getActiveDiscoverModeId() === 'speed-dating');
 }
 
 function renderDiscoverModeSwitcher() {
@@ -7424,6 +8452,7 @@ function renderDiscoverModeSwitcher() {
     face.setAttribute('aria-label', mode.label + ' moduna geç');
   });
   updateModePreferenceVisibility();
+  updateDiscoverActionVisibility();
   setActiveProfilePhotoMode(discoverModes[activeDiscoverModeIndex].id);
 }
 
@@ -7612,9 +8641,11 @@ function addDiscoverFriendRequest(profile, message = '') {
     color: profile.color,
     message,
     time: 'Şimdi',
+    createdAt: Date.now(),
     mode: 'friendship'
   };
   sentFriendReqs.push(request);
+  checkAndStopAnonTimerIfFriends(profile.id);
   return request;
 }
 
@@ -7658,6 +8689,129 @@ function addDiscoverModeConversation(modeId, profile, message, actionType) {
   };
   list.push(conversation);
   return conversation;
+}
+
+document.querySelectorAll('#anonContinueModal .anonContinueBtn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const action = btn.dataset.anonAction;
+    const convId = anonChatActiveConvId;
+    const conv = convId ? getConversationById(convId) : null;
+    hideAnonContinueModal();
+    if (action === 'friend') {
+      if (conv) {
+        const req = addDiscoverFriendRequest({ id: conv.profileId, name: conv.name, color: conv.color }, 'Arkadaş olarak devam etmek istiyorum');
+        if (req) showDiscoverActionToast('Arkadaşlık isteği gönderildi');
+      }
+      stopAnonChatTimer();
+      document.getElementById('composer').classList.add('anon-locked');
+      const msgInputEl = document.getElementById('msgInput');
+      if (msgInputEl) { msgInputEl.disabled = true; msgInputEl.placeholder = 'Arkadaşlık isteği bekleniyor...'; }
+      document.getElementById('anonChatLockedOverlay').classList.add('show');
+      if (conv) {
+        conv.messages.push({ from: 'system', text: 'Arkadaşlık isteği gönderildi — karşı taraf ve sen arkadaş olunca sohbet açılacak' });
+        renderMessages(conv);
+      }
+      showDiscoverActionToast('Arkadaşlık isteği gönderildi, onay bekleniyor');
+    } else if (action === 'anon') {
+      if (anonChatPhase === 'initial') {
+        startAnonChatTimer(convId, ANON_CHAT_EXTEND_MS);
+        anonChatPhase = 'extended';
+        showDiscoverActionToast('2 saat eklendi');
+      } else {
+        // extended phase shouldn't have anon option, but if somehow clicked, just extend again
+        startAnonChatTimer(convId, ANON_CHAT_EXTEND_MS);
+      }
+      // Extend bitince sadece 2 seçenek gösterilecek
+      // Bunu timer bitince isExtended=true ile çağıracağız
+      // Şimdilik timer'ı başlatırken extended flag'i sakla
+      // Timer bitince showAnonContinueModal(true) çağrılacak
+      // Bunun için timer bitiminde extended kontrolü ekle
+    } else if (action === 'close') {
+      if (conv && conv.mode && modeConversations[conv.mode]) {
+        const list = modeConversations[conv.mode];
+        const idx = list.findIndex(c => c.id === conv.id);
+        if (idx > -1) list.splice(idx, 1);
+        renderConvList();
+      } else if (conv && conv.id) {
+        // Normal sohbet için de sil (gerekirse)
+        const idx2 = conversations.findIndex(c => c.id === conv.id);
+        if (idx2 > -1) { conversations.splice(idx2, 1); renderConvList(); }
+      }
+      stopAnonChatTimer();
+      closeChat();
+      showDiscoverActionToast('Sohbet kapatıldı');
+      hideAnonContinueModal();
+    }
+  });
+});
+
+// Timer bitince extended kontrolü için startAnonChatTimer'ı sarmala
+const originalStartAnonChatTimer = startAnonChatTimer;
+startAnonChatTimer = function(convId, durationMs) {
+  stopAnonChatTimer();
+  anonChatActiveConvId = convId;
+  anonChatRemainingMs = durationMs;
+  const bar = document.getElementById('anonChatTimerBar');
+  if (bar) bar.classList.add('show');
+  updateAnonTimerDisplay();
+  anonChatTimerInterval = setInterval(() => {
+    anonChatRemainingMs -= 1000;
+    if (anonChatRemainingMs <= 0) {
+      anonChatRemainingMs = 0;
+      updateAnonTimerDisplay();
+      clearInterval(anonChatTimerInterval);
+      anonChatTimerInterval = null;
+      showAnonContinueModal(anonChatPhase === 'extended');
+    } else {
+      updateAnonTimerDisplay();
+    }
+  }, 1000);
+};
+
+function openModeChat(conversation) {
+  if (!conversation) return;
+  // ChatScreen'i normal openChat gibi aç ama modeConversation verisiyle
+  activeConvId = conversation.id;
+  // modeConversation için ayrı state tut
+  if (!convState[conversation.id]) convState[conversation.id] = { lastRead: conversation.messages.length };
+  convState[conversation.id].lastRead = conversation.messages.length;
+  // header güncelle
+  document.getElementById('chatAvatar').style.background = conversation.color;
+  document.getElementById('chatAvatar').textContent = conversation.initial;
+  document.getElementById('chatHeaderName').textContent = conversation.name;
+  document.getElementById('chatHeaderStatus').textContent = conversation.online ? 'çevrimiçi' : 'son görülme: birkaç saat önce';
+  document.getElementById('chatHeaderStatus').style.color = conversation.online ? 'var(--mint)' : 'var(--text-low)';
+  document.querySelectorAll('.navBtn').forEach(b => b.classList.toggle('active', b.dataset.screen === 'messages'));
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-messages').classList.add('active');
+  document.getElementById('topbarTitle').textContent = 'Mesajlar';
+  document.getElementById('topbarCount').style.display = 'inline';
+  document.querySelectorAll('.msgTopTab').forEach(t => t.classList.toggle('active', t.dataset.tab === 'messages'));
+  document.getElementById('convList').classList.remove('hidden');
+  document.getElementById('requestsPanel').classList.remove('active');
+  renderMessages(conversation);
+  document.getElementById('chatScreen').classList.add('active');
+  updateMessageNoteBubbleVisibility();
+  const isAnonChat = conversation.mode === 'speed-dating';
+  const anonProfileIdForOpen = conversation.profileId || conversation.id.split(':')[1];
+  const isAlreadyFriends = anonProfileIdForOpen && anonFriendsSet.has(anonProfileIdForOpen);
+  if (isAnonChat && !isAlreadyFriends) {
+    document.getElementById('composer').classList.remove('anon-locked');
+    const mi = document.getElementById('msgInput');
+    if (mi) { mi.disabled = false; mi.placeholder = 'Mesaj yaz...'; }
+    document.getElementById('anonChatLockedOverlay').classList.remove('show');
+    anonChatRemainingMs = ANON_CHAT_DURATION_MS;
+    const bar = document.getElementById('anonChatTimerBar');
+    if (bar) { bar.classList.add('show'); bar.style.display='flex'; }
+    updateAnonTimerDisplay();
+    if (hasBothSidesWritten(conversation.id)) {
+      anonChatPhase = 'initial';
+      startAnonChatTimer(conversation.id, ANON_CHAT_DURATION_MS);
+    }
+  } else {
+    stopAnonChatTimer();
+  }
+  // geçici: modeConversation listesi henüz mesaj listesinde gösterilmediği için direkt açıyoruz
 }
 
 function showDiscoverActionToast(text) {
@@ -7741,11 +8895,12 @@ function renderDiscoverCards() {
     card.style.zIndex = visible.length - i;
     card.style.transform = i === 1 ? 'scale(0.96) translateY(10px)' : '';
     card.dataset.id = p.id;
+    const displayAgeForCard = getDisplayAge(p);
     card.innerHTML = `
       <div class="cardTop">
         <div class="cardAvatar" style="background:${escapeHtml(p.color)}"><span>${escapeHtml(p.name[0])}</span></div>
         <div class="cardName">${escapeHtml(p.name)}</div>
-        <div class="cardMeta">${escapeHtml(p.age)}</div>
+        <div class="cardMeta">${escapeHtml(displayAgeForCard)}</div>
       </div>
       <div class="cardBody">
         <div class="cardBio">${escapeHtml(primaryBio)}</div>
@@ -7795,15 +8950,19 @@ function bindSwipeGesture(card) {
 
     if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > THRESHOLD) {
       // horizontal swipe
-      if (dx > 0) swipeTopCard('right', false);
-      else swipeTopCard('left', false);
+      if (dx > 0) {
+        if (getActiveDiscoverModeId() !== 'speed-dating') swipeTopCard('right', false);
+        else card.style.transform = '';
+      } else swipeTopCard('left', false);
     } else if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > THRESHOLD) {
       // vertical swipe
-      if (dy < 0) {
+      if (dy < 0 && getActiveDiscoverModeId() !== 'speed-dating') {
         // up -> super-like
         card.style.transform = 'translateY(-130%) scale(0.9)';
         card.style.opacity = '0';
         swipeTopCardGesture('superlike');
+      } else if (dy < 0) {
+        card.style.transform = '';
       } else {
         // down -> open message compose, snap card back
         card.style.transform = '';
@@ -7839,6 +8998,7 @@ function bindSwipeGesture(card) {
 // helper to trigger the existing swipeTopCard logic without re-adding the CSS swipe class
 // (the gesture handler already animates the card itself for the up/super-like case)
 function swipeTopCardGesture(type) {
+  if (getActiveDiscoverModeId() === 'speed-dating') return;
   const wrap = document.getElementById('discoverCards');
   const top = wrap.querySelector('.discoverCard');
   if (!top) return;
@@ -7874,7 +9034,7 @@ function swipeTopCardGesture(type) {
       historyEntry.createdModeConversation = conversation;
       showDiscoverActionToast(
         modeId === 'speed-dating'
-          ? `${profile.name} için Hızlı Flört eşleşmesi oluşturuldu`
+          ? `${profile.name} için Anonim eşleşmesi oluşturuldu`
           : `${profile.name} için Flört eşleşmesi oluşturuldu`
       );
     } else {
@@ -7925,6 +9085,7 @@ function showLikeToast(name, sentMessage, isInstantChat) {
 }
 
 function swipeTopCard(direction, isSuperLike) {
+  if (getActiveDiscoverModeId() === 'speed-dating' && (direction === 'right' || isSuperLike)) return;
   const wrap = document.getElementById('discoverCards');
   const top = wrap.querySelector('.discoverCard');
   if (!top) return;
@@ -7950,39 +9111,64 @@ function swipeTopCard(direction, isSuperLike) {
     const msg = likeMessages[Math.floor(Math.random() * likeMessages.length)];
 
     if (modeId === 'friendship') {
-      const request = addDiscoverFriendRequest(profile, msg);
-      if (request) {
-        historyEntry.createdFriendReqRef = request;
-        triggerHeartBurst();
-        showDiscoverActionToast(`${profile.name} için arkadaşlık isteği gönderildi`);
+      if (isSuperLike) {
+        const conversation = addDiscoverModeConversation(modeId, profile, '', 'superlike');
+        if (conversation) {
+          historyEntry.createdModeConversation = conversation;
+          conversation.messages = [];
+          triggerStarBurst();
+          showDiscoverActionToast(`${profile.name} için arkadaşlık sohbeti oluşturuldu`);
+        } else {
+          showDiscoverActionToast(`${profile.name} için bu modda zaten işlem yapılmış`);
+        }
       } else {
-        showDiscoverActionToast(`${profile.name} için bu modda zaten işlem yapılmış`);
+        const request = addDiscoverFriendRequest(profile, msg);
+        if (request) {
+          historyEntry.createdFriendReqRef = request;
+          triggerHeartBurst();
+          showDiscoverActionToast(`${profile.name} için arkadaşlık isteği gönderildi`);
+        } else {
+          showDiscoverActionToast(`${profile.name} için bu modda zaten işlem yapılmış`);
+        }
       }
     } else if (modeId === 'speed-dating') {
-      const conversation = addDiscoverModeConversation(modeId, profile, msg, isSuperLike ? 'superlike' : 'like');
-      if (conversation) {
-        historyEntry.createdModeConversation = conversation;
-        if (isSuperLike) triggerStarBurst();
-        else triggerHeartBurst();
-        showDiscoverActionToast(`${profile.name} için Hızlı Flört eşleşmesi oluşturuldu`);
+      if (isSuperLike) {
+        const conversation = addDiscoverModeConversation(modeId, profile, '', 'superlike');
+        if (conversation) {
+          historyEntry.createdModeConversation = conversation;
+          conversation.messages = [];
+          triggerStarBurst();
+          showDiscoverActionToast(`${profile.name} için Anonim eşleşmesi oluşturuldu`);
+        } else {
+          showDiscoverActionToast(`${profile.name} için bu modda zaten işlem yapılmış`);
+        }
       } else {
-        showDiscoverActionToast(`${profile.name} için bu modda zaten işlem yapılmış`);
+        const request = addDiscoverFriendRequest(profile, msg);
+        if (request) {
+          historyEntry.createdFriendReqRef = request;
+          triggerHeartBurst();
+          showDiscoverActionToast(`${profile.name} için arkadaşlık isteği gönderildi`);
+        } else {
+          showDiscoverActionToast(`${profile.name} için bu modda zaten işlem yapılmış`);
+        }
       }
     } else if (isSuperLike) {
-      const conversation = addDiscoverModeConversation(modeId, profile, msg, 'superlike');
+      const conversation = addDiscoverModeConversation(modeId, profile, '', 'superlike');
       if (conversation) {
         historyEntry.createdModeConversation = conversation;
+        conversation.messages = [];
         triggerStarBurst();
         showDiscoverActionToast(`${profile.name} için Flört eşleşmesi oluşturuldu`);
       } else {
         showDiscoverActionToast(`${profile.name} için bu modda zaten işlem yapılmış`);
       }
     } else {
-      const request = addDiscoverDatingRequest(profile, msg);
+      // Kalp (♥) hepsinde arkadaşlık isteği
+      const request = addDiscoverFriendRequest(profile, msg);
       if (request) {
-        historyEntry.createdReqRef = request;
+        historyEntry.createdFriendReqRef = request;
         triggerHeartBurst();
-        setTimeout(() => showLikeToast(profile.name, true, false), 280);
+        showDiscoverActionToast(`${profile.name} için arkadaşlık isteği gönderildi`);
       } else {
         showDiscoverActionToast(`${profile.name} için bu modda zaten işlem yapılmış`);
       }
@@ -8061,6 +9247,7 @@ function closeDiscoverFilter() {
   document.getElementById('discoverFilterView').classList.remove('active');
 }
 document.getElementById('discoverFilterBtn').addEventListener('click', openDiscoverFilter);
+document.getElementById('emptyDiscoverFilterBtn').addEventListener('click', openDiscoverFilter);
 document.getElementById('discoverFilterBackBtn').addEventListener('click', closeDiscoverFilter);
 
 document.querySelectorAll('#countryPrefOptions .prefOption').forEach(opt => {
@@ -8141,10 +9328,11 @@ document.getElementById('discoverMsgModalSend').addEventListener('click', () => 
   };
 
   if (modeId === 'friendship') {
-    const request = addDiscoverFriendRequest(profile, text);
+    const request = addDiscoverDatingRequest(profile, text);
     if (request) {
-      historyEntry.createdFriendReqRef = request;
-      showDiscoverActionToast(`${profile.name} için arkadaşlık isteği gönderildi`);
+      historyEntry.createdReqRef = request;
+      showDiscoverActionToast(`${profile.name} için mesaj isteği gönderildi`);
+      renderRequestsDot();
     } else {
       showDiscoverActionToast(`${profile.name} için bu modda zaten işlem yapılmış`);
     }
@@ -8152,7 +9340,7 @@ document.getElementById('discoverMsgModalSend').addEventListener('click', () => 
     const conversation = addDiscoverModeConversation(modeId, profile, text, 'message');
     if (conversation) {
       historyEntry.createdModeConversation = conversation;
-      showDiscoverActionToast(`${profile.name} için Hızlı Flört mesajı kaydedildi`);
+      showDiscoverActionToast(`${profile.name} için Anonim mesajı kaydedildi`);
     } else {
       showDiscoverActionToast(`${profile.name} için bu modda zaten işlem yapılmış`);
     }
@@ -8209,6 +9397,10 @@ document.getElementById('eventMapMarkerDemo').addEventListener('click', openDemo
 const messageOwnNoteAvatar = document.getElementById('messageOwnNoteAvatar');
 const messageOwnNoteBubble = document.getElementById('messageOwnNoteBubble');
 const messageNotesList = document.getElementById('messageNotesList');
+const ownNoteLikesBackdrop = document.getElementById('ownNoteLikesBackdrop');
+const ownNoteSheetAvatar = document.getElementById('ownNoteSheetAvatar');
+const ownNoteSheetText = document.getElementById('ownNoteSheetText');
+const ownNoteLikesList = document.getElementById('ownNoteLikesList');
 const noteComposerBackdrop = document.getElementById('noteComposerBackdrop');
 const noteInput = document.getElementById('noteInput');
 const noteCancelBtn = document.getElementById('noteCancelBtn');
@@ -8224,8 +9416,11 @@ function openFriendNoteViewer(note) {
   noteViewerAuthor.textContent = note.authorName || 'Not';
   noteViewerText.textContent = normalizeNoteText(note.text);
   noteLikeBtn.classList.toggle('active', Boolean(note.liked));
+  noteLikeBtn.textContent = note.liked ? '♥' : '♡';
+  noteLikeBtn.setAttribute('aria-pressed', note.liked ? 'true' : 'false');
   noteViewerBackdrop.classList.add('show');
   noteReplyInput.value = '';
+  noteViewerActions.classList.remove('has-reply');
 }
 function closeFriendNoteViewer() {
   noteViewerBackdrop.classList.remove('show');
@@ -8239,17 +9434,95 @@ noteLikeBtn.addEventListener('click', () => {
   if (!activeViewedNote) return;
   activeViewedNote.liked = !activeViewedNote.liked;
   noteLikeBtn.classList.toggle('active', activeViewedNote.liked);
+  noteLikeBtn.textContent = activeViewedNote.liked ? '♥' : '♡';
+  noteLikeBtn.setAttribute('aria-pressed', activeViewedNote.liked ? 'true' : 'false');
+  noteLikeBtn.classList.remove('like-pop');
+  if (activeViewedNote.liked) {
+    void noteLikeBtn.offsetWidth;
+    noteLikeBtn.classList.add('like-pop');
+  }
 });
-document.getElementById('noteShareBtn').addEventListener('click', () => {
+document.getElementById('noteShareBtn')?.addEventListener('click', () => {
   if (typeof showLikeToast === 'function') showLikeToast('Not paylaşımı hazır', true, false);
 });
+const noteViewerActions = document.getElementById('noteViewerActions');
+const noteReplySendBtn = document.getElementById('noteReplySendBtn');
+const noteReplyComposer = document.getElementById('noteReplyComposer');
+let noteSentToastTimer = null;
+
+function updateNoteReplyComposerState() {
+  const hasText = Boolean(noteReplyInput.value.trim());
+  noteViewerActions.classList.toggle('has-reply', hasText);
+  noteReplyComposer.classList.toggle('has-text', hasText);
+}
+
+function showNoteSentToast() {
+  const toast = document.getElementById('noteSentToast');
+  if (!toast) return;
+  clearTimeout(noteSentToastTimer);
+  toast.classList.add('show');
+  noteSentToastTimer = setTimeout(() => toast.classList.remove('show'), 1150);
+}
+
+function sendNoteReply() {
+  const message = noteReplyInput.value.trim();
+  const note = activeViewedNote;
+  if (!message || !note) return;
+
+  const authorId = note.authorId;
+  const authorName = note.authorName || 'Arkadaş';
+  let conv = authorId ? getConversationById(authorId) : null;
+  if (!conv) {
+    conv = conversations.find(c => c.name === authorName) || null;
+  }
+
+  const noteOwnerConversation = conversations.find(c => c.id === note.authorId || c.name === note.authorName)
+    || Object.values(modeConversations).flat().find(c => c.profileId === note.authorId || c.name === note.authorName);
+  const noteReference = {
+    id: note.id,
+    authorId: note.authorId,
+    authorName: note.authorName || 'Not',
+    text: normalizeNoteText(note.text),
+    authorColor: note.authorColor || noteOwnerConversation?.color || '#FF6B57',
+    authorPhoto: note.authorPhoto || noteOwnerConversation?.profilePhoto || noteOwnerConversation?.avatarUrl || ''
+  };
+  if (conv) {
+    if (!Array.isArray(conv.messages)) conv.messages = [];
+    conv.messages.push({ from: 'me', text: message, day: 'Bugün', noteReference });
+    if (typeof convState !== 'undefined') {
+      const state = ensureConversationState(conv.id, conv.messages.length);
+      state.lastRead = conv.messages.length;
+    }
+    if (activeConvId === conv.id && document.getElementById('chatScreen').classList.contains('active')) {
+      renderMessages(conv);
+    }
+    renderConvList();
+  } else if (Array.isArray(sentRequests)) {
+    const requestId = `note-reply:${authorId || authorName}:${Date.now()}`;
+    sentRequests.push({
+      id: requestId,
+      name: authorName,
+      color: note.authorColor || '#FF6B57',
+      message,
+      time: 'Şimdi',
+      status: 'pending',
+      thread: [{ from: 'me', text: message, noteReference }]
+    });
+    renderRequestsDot();
+  }
+
+  noteReplyInput.value = '';
+  updateNoteReplyComposerState();
+  closeFriendNoteViewer();
+  showNoteSentToast();
+}
+
+noteReplyInput.addEventListener('input', updateNoteReplyComposerState);
+noteReplySendBtn.addEventListener('click', sendNoteReply);
 noteReplyInput.addEventListener('keydown', e => {
   if (e.key === 'Enter' && !e.shiftKey) {
     e.preventDefault();
-    const message = noteReplyInput.value.trim();
-    if (!message || !activeViewedNote) return;
-    if (typeof showLikeToast === 'function') showLikeToast('Mesaj gönderildi', true, false);
-    noteReplyInput.value = '';
+    sendNoteReply();
   }
 });
 
@@ -8346,8 +9619,104 @@ function renderMessageNotes() {
   requestAnimationFrame(positionMessageNoteBubbles);
 }
 
+function closeOwnNoteLikesSheet() {
+  ownNoteLikesBackdrop.classList.remove('show');
+}
+
+function openDmForNoteLiker(liker) {
+  const likerId = liker.id || liker.userId;
+  let conv = likerId ? getConversationById(likerId) : null;
+  if (!conv) {
+    const displayName = liker.name || liker.displayName || 'Arkadaş';
+    const newConv = {
+      id: likerId || `note-liker-${Date.now()}`,
+      name: displayName,
+      initial: displayName[0] || '?',
+      color: liker.color || '#FF6B57',
+      online: Boolean(liker.online),
+      friendStatus: 'friends',
+      messages: []
+    };
+    conversations.unshift(newConv);
+    convState[newConv.id] = { lastRead: 0 };
+    conv = newConv;
+  }
+  closeOwnNoteLikesSheet();
+  renderConvList();
+  openChat(conv.id);
+}
+
+function openOwnNoteLikesSheet(note) {
+  if (!note) return;
+  ownNoteSheetText.textContent = normalizeNoteText(note.text);
+  ownNoteSheetAvatar.style.backgroundImage = '';
+  ownNoteSheetAvatar.textContent = (profileData.name || 'B')[0];
+  const ownPhoto = getCurrentOwnProfilePhoto();
+  if (ownPhoto) {
+    ownNoteSheetAvatar.style.backgroundImage = `url("${ownPhoto}")`;
+    ownNoteSheetAvatar.textContent = '';
+  }
+  ownNoteLikesList.innerHTML = '';
+  const likes = Array.isArray(note.likes) ? note.likes : [];
+  if (!likes.length) {
+    ownNoteLikesList.innerHTML = '<div id="ownNoteLikesEmpty">Henüz beğenen yok.</div>';
+  } else {
+    likes.forEach(liker => {
+      const name = liker.name || liker.displayName || 'Arkadaş';
+      const row = document.createElement('div');
+      row.className = 'ownNoteLikeRow';
+      const avatar = document.createElement('div');
+      avatar.className = 'ownNoteLikeAvatar';
+      avatar.style.background = liker.color || '#FF6B57';
+      if (liker.photo || liker.avatarUrl) {
+        avatar.style.backgroundImage = `url("${liker.photo || liker.avatarUrl}")`;
+        avatar.textContent = '';
+      } else avatar.textContent = name[0] || '?';
+      const label = document.createElement('div');
+      label.className = 'ownNoteLikeName';
+      label.textContent = name;
+      const action = document.createElement('button');
+      action.type = 'button';
+      action.className = 'ownNoteLikeAction';
+      action.setAttribute('aria-label', `${name} ile mesajlaş`);
+      action.textContent = '➤';
+      action.addEventListener('click', () => openDmForNoteLiker(liker));
+      row.append(avatar, label, action);
+      ownNoteLikesList.appendChild(row);
+    });
+  }
+  ownNoteLikesBackdrop.classList.add('show');
+}
+
+ownNoteLikesBackdrop.addEventListener('click', e => {
+  if (e.target === ownNoteLikesBackdrop) closeOwnNoteLikesSheet();
+});
+document.getElementById('ownNoteNewBtn').addEventListener('click', () => {
+  closeOwnNoteLikesSheet();
+  openNewNoteComposer();
+});
+document.getElementById('ownNoteDeleteBtn').addEventListener('click', () => {
+  const index = friendNotes.findIndex(note => note.authorId === 'self');
+  if (index >= 0) friendNotes.splice(index, 1);
+  renderMessageNotes();
+  closeOwnNoteLikesSheet();
+});
+
+let replaceOwnNoteOnPublish = false;
+
+function openNewNoteComposer() {
+  openNoteComposer();
+  replaceOwnNoteOnPublish = true;
+  noteInput.value = '';
+  noteCancelBtn.classList.remove('disabled');
+  noteCancelBtn.textContent = 'İptal';
+  noteInput.focus();
+}
+
 function openNoteComposer() {
+  replaceOwnNoteOnPublish = false;
   const ownNote = friendNotes.find(note => note.authorId === 'self');
+  noteCancelBtn.textContent = ownNote ? 'Kaldır' : 'Kaldır';
   noteInput.value = ownNote ? normalizeNoteText(ownNote.text) : '';
   noteCancelBtn.classList.toggle('disabled', !ownNote);
   noteComposerBackdrop.classList.add('show');
@@ -8355,10 +9724,24 @@ function openNoteComposer() {
 }
 function closeNoteComposer() {
   noteComposerBackdrop.classList.remove('show');
+  replaceOwnNoteOnPublish = false;
+  noteCancelBtn.textContent = 'Kaldır';
 }
-messageOwnNoteAvatar.addEventListener('click', openNoteComposer);
-messageOwnNoteBubble.addEventListener('click', openNoteComposer);
+messageOwnNoteAvatar.addEventListener('click', () => {
+  const ownNote = friendNotes.find(note => note.authorId === 'self');
+  if (ownNote) openOwnNoteLikesSheet(ownNote);
+  else openNewNoteComposer();
+});
+messageOwnNoteBubble.addEventListener('click', () => {
+  const ownNote = friendNotes.find(note => note.authorId === 'self');
+  if (ownNote) openOwnNoteLikesSheet(ownNote);
+  else openNoteComposer();
+});
 noteCancelBtn.addEventListener('click', () => {
+  if (replaceOwnNoteOnPublish) {
+    closeNoteComposer();
+    return;
+  }
   const index = friendNotes.findIndex(note => note.authorId === 'self');
   if (index >= 0) friendNotes.splice(index, 1);
   renderMessageNotes();
@@ -8371,7 +9754,11 @@ document.getElementById('notePublishBtn').addEventListener('click', () => {
   const text = normalizeNoteText(noteInput.value).trim();
   if (!text) return;
   const now = Date.now();
-  const existingNote = friendNotes.find(note => note.authorId === 'self');
+  let existingNote = friendNotes.find(note => note.authorId === 'self');
+  if (replaceOwnNoteOnPublish && existingNote) {
+    friendNotes.splice(friendNotes.indexOf(existingNote), 1);
+    existingNote = null;
+  }
   if (existingNote) {
     existingNote.text = text;
     existingNote.createdAt = now;
@@ -8382,6 +9769,7 @@ document.getElementById('notePublishBtn').addEventListener('click', () => {
       authorId: 'self',
       authorName: typeof profileData !== 'undefined' ? profileData.name : 'Ben',
       text,
+      likes: [],
       createdAt: now,
       expiresAt: now + 24 * 60 * 60 * 1000
     });
@@ -8434,5 +9822,5 @@ document.querySelectorAll('.navBtn').forEach(btn => {
   });
 });
 </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a44387d16a11f2ed',t:'MTc5MDk0MjI1Ng=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</body>
 </html>
